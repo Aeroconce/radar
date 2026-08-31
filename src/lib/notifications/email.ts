@@ -266,6 +266,8 @@ export interface NoticePayload {
   awarded?: number | null;
   counts?: { nuevas?: number; enRevision?: number; viables?: number };
   closingThisWeek?: Array<{ code: string; name: string; closesAt: string | null }>;
+  /** Estado del ultimo barrido (RN-07): el resumen es donde el equipo se entera de un fallo. */
+  sweep?: { finishedAt: string | null; ok: boolean | null };
 }
 
 /** Tramo de cada tipo de proceso, para no mostrar la sigla cruda (docs/06). */
@@ -489,6 +491,17 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             </table></div>`
         : `<p style="margin:26px 0 0;font-family:${SANS};font-size:14px;color:${MUTED}">Ninguna licitación cierra esta semana.</p>`;
 
+      /*
+       * Estado del ultimo barrido (RN-07). Es el unico lugar donde el equipo se
+       * entera de que el worker fallo sin entrar al servidor, asi que un fallo
+       * va en rojo y con verbo, no como una fecha mas.
+       */
+      const barrido = p.sweep
+        ? p.sweep.ok === false
+          ? `<p style="margin:24px 0 0;padding:10px 14px;border:1px solid #fecaca;background:#fef2f2;font-family:${SANS};font-size:13px;color:#b91c1c;font-weight:600">El último barrido falló${p.sweep.finishedAt ? ` (${formatDateShort(p.sweep.finishedAt)})` : ""}. El tablero puede estar desactualizado.</p>`
+          : `<p style="margin:24px 0 0;font-family:${SANS};font-size:12px;color:${FAINT}">Último barrido: ${escape(formatDateShort(p.sweep.finishedAt))}, sin errores.</p>`
+        : "";
+
       return {
         subject: `Radar · ${c.nuevas ?? 0} nuevas, ${c.viables ?? 0} viables`,
         html: layout({
@@ -503,8 +516,9 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
               { label: "Viables", value: String(c.viables ?? 0) },
             ])}</div>` +
             lista +
+            barrido +
             buttons({ href: BASE, label: "Abrir el tablero" }),
-          footer: "Puedes cambiar la hora de este resumen en Configuración.",
+          footer: "Resumen automático de las 08:00. Los avisos por licitación llegan aparte.",
         }),
         text: plain(
           `Resumen del ${formatDate(new Date())}`,
@@ -517,6 +531,12 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             ...(cierres.length
               ? cierres.map((t) => `- ${t.name} (${urgency(daysUntil(t.closesAt)).label})`)
               : ["  ninguno"]),
+            "",
+            p.sweep
+              ? p.sweep.ok === false
+                ? "EL ÚLTIMO BARRIDO FALLÓ: el tablero puede estar desactualizado."
+                : `Último barrido: ${formatDate(p.sweep.finishedAt)}, sin errores.`
+              : "",
           ],
           [`Tablero: ${BASE}`],
         ),

@@ -47,6 +47,7 @@ pnpm dev                         # web en http://localhost:3000
 pnpm worker                      # worker con cron (proceso aparte)
 pnpm worker:barrido              # ejecuta un barrido ahora y termina
 pnpm worker:refrescar            # vuelve a pedir todas las fichas guardadas
+pnpm worker:avisos               # encola y envia los avisos de las 08:00 ahora
 pnpm reglas:sincronizar          # deja en la base las reglas de docs/04
 pnpm tablero:limpiar             # muestra que sacaria del tablero (--aplicar lo saca)
 pnpm test

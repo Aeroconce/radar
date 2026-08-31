@@ -3,6 +3,7 @@
  *
  *   pnpm worker:barrido      un barrido ahora
  *   pnpm worker:refrescar    pide de nuevo todas las fichas guardadas
+ *   pnpm worker:avisos       encola y envia los avisos de las 08:00 ahora
  *
  * Termina con codigo distinto de cero si la tarea falla, para que el journal y
  * cualquier envoltorio lo noten.
@@ -12,13 +13,14 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { MpClient } from "@/lib/mp/client";
 import { env } from "@/lib/env";
+import { alerts } from "./jobs/alerts";
 import { refreshAll } from "./jobs/refresh";
 import { sweep } from "./jobs/sweep";
 
-type Task = "sweep" | "refresh" | "history" | "awards" | "alerts";
+type Task = "sweep" | "refresh" | "alerts" | "history" | "awards";
 
-const IMPLEMENTED: Task[] = ["sweep", "refresh"];
-const PLANNED: Task[] = ["history", "awards", "alerts"];
+const IMPLEMENTED: Task[] = ["sweep", "refresh", "alerts"];
+const PLANNED: Task[] = ["history", "awards"];
 
 function usage(): never {
   console.error(
@@ -50,6 +52,11 @@ async function main(): Promise<void> {
 
   if (task === "refresh") {
     logger.info(await refreshAll({ client }), "refresco puntual terminado");
+    return;
+  }
+
+  if (task === "alerts") {
+    logger.info(await alerts(), "avisos puntuales terminados");
     return;
   }
 

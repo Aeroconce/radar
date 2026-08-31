@@ -210,3 +210,42 @@ describe("formato en espanol neutro (RN-04)", () => {
     expect(formatDate(null)).toBe("sin fecha");
   });
 });
+
+// ------------------------------------------------- resumen diario y RN-07
+
+describe("resumen diario con estado del barrido (RN-07)", () => {
+  const base = {
+    counts: { nuevas: 4, enRevision: 2, viables: 1 },
+    closingThisWeek: [],
+  };
+
+  it("un barrido correcto se menciona sin alarma", () => {
+    const c = renderNotice("DAILY_DIGEST", {
+      ...base,
+      sweep: { finishedAt: "2026-08-31T06:15:00.000Z", ok: true },
+    });
+    expect(c?.html).toContain("sin errores");
+    expect(c?.html).not.toContain("falló");
+  });
+
+  it("un barrido fallido va en rojo y con verbo", () => {
+    // Es el unico lugar donde el equipo se entera del fallo (docs/08).
+    const c = renderNotice("DAILY_DIGEST", {
+      ...base,
+      sweep: { finishedAt: "2026-08-31T06:15:00.000Z", ok: false },
+    });
+    expect(c?.html).toContain("falló");
+    expect(c?.html).toContain("desactualizado");
+    expect(c?.text).toContain("FALLÓ");
+  });
+
+  it("sin dato del barrido, no se inventa uno", () => {
+    const c = renderNotice("DAILY_DIGEST", base);
+    expect(c?.html).not.toContain("barrido");
+  });
+
+  it("el pie ya no promete la pantalla de Configuración (D-27)", () => {
+    const c = renderNotice("DAILY_DIGEST", base);
+    expect(c?.html).not.toContain("Configuración");
+  });
+});

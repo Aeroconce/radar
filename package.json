@@ -10,6 +10,7 @@
     "test": "vitest run",
     "worker": "tsx worker/index.ts",
     "worker:refrescar": "tsx worker/run.ts refresh",
+    "worker:avisos": "tsx worker/run.ts alerts",
     "reglas:sincronizar": "tsx scripts/sincronizar-reglas.ts",
     "tablero:limpiar": "tsx scripts/limpiar-tablero.ts",
     "worker:barrido": "tsx worker/run.ts sweep",
