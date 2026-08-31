@@ -1,0 +1,240 @@
+{
+  "_descripcion": "Revisiones que el equipo ya hizo, capturadas el 2026-08-31. Cierra docs/12 T-12. Los motivos son códigos del catálogo de docs/07.",
+
+  "revisiones": [
+    {
+      "codigo": "4488-11-L126",
+      "estado": "SUBMITTED",
+      "motivos": ["FIT_PRODUCTO"],
+      "nota": "Por qué sí: confirmación de citas por WhatsApp para el CESFAM Yanequén, Negrete. Calza con el producto de contactabilidad. Ofertada en $6,2 M neto. Acta pendiente; probabilidad estimada 5%."
+    },
+    {
+      "codigo": "1607-11-LE26",
+      "estado": "SUBMITTED",
+      "motivos": ["FIT_PRODUCTO"],
+      "nota": "Por qué sí: activos fijos y almacén como SaaS a 24 meses para SUSESO. Ofertada en $17 M. Adjudicación estimada para el 23-09; probabilidad estimada 14%."
+    },
+    {
+      "codigo": "1867-34-LE26",
+      "estado": "LOST",
+      "motivos": ["FORMA_PAGO"],
+      "nota": "Declarada inadmisible por la forma de pago: ofertamos con boleta y las bases exigían otro documento tributario. Adjudicada a Growth4U. Lección: verificar el documento exigido antes de ofertar, no después."
+    },
+    {
+      "codigo": "1421874-14-LE26",
+      "estado": "IN_REVIEW",
+      "motivos": [],
+      "nota": "Mantención web más plataforma de eventos con QR para Lo Prado. Analizada con el vehículo persona natural. Hay preguntas puestas en el foro; a la espera de respuestas."
+    },
+
+    {
+      "codigo": "1007793-15-LE26",
+      "estado": "VIABLE",
+      "motivos": ["FIT_DESARROLLO", "MANDANTE_FAVORABLE"],
+      "nota": "Por qué sí: plataforma de vinculación con el medio para el CFT Los Lagos, $11,3 M. Desarrollo dentro de nuestras capacidades. Probabilidad estimada 15 a 25%. Cierra el 07-09."
+    },
+    {
+      "codigo": "2239-2-LR26",
+      "estado": "VIABLE",
+      "motivos": ["FIT_PRODUCTO"],
+      "nota": "Por qué sí: Convenio Marco de software, prioridad estratégica porque habilita ventas posteriores sin licitar. Bloqueado por el trío de acreditación; hay que resolverlo antes de poder postular."
+    },
+
+    {
+      "codigo": "4429-96-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["EXP_PESO", "INCUMBENTE"],
+      "nota": "Por qué no: calidad y acreditación para Hualpén, $32,5 M. La experiencia pesa 30% de la evaluación y exige 7 certificados que no tenemos. Además hay señales de proveedor instalado."
+    },
+    {
+      "codigo": "3945-20-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["INTEG_ACRED"],
+      "nota": "Por qué no: gestión documental para Los Álamos, $70 M. Exige integraciones acreditadas con ClaveÚnica, FirmaGob y DocDigital. Sin esas acreditaciones la oferta es inadmisible."
+    },
+    {
+      "codigo": "1075337-45-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["EXP_MIN"],
+      "nota": "Por qué no: WhatsApp para el Hospital de Angol. Exige un mínimo de 5 contratos y 3 años de experiencia como requisito habilitante, no como puntaje."
+    },
+    {
+      "codigo": "1057541-40-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["CERT_INTEROP"],
+      "nota": "Por qué no: contactabilidad para el Servicio de Salud Talcahuano. Exige certificados TrakCare y HL7/CENS como requisito excluyente."
+    },
+    {
+      "codigo": "1660-128-L126",
+      "estado": "DISCARDED",
+      "motivos": ["CERT_ISO", "INTEG_ACRED", "EXP_MIN"],
+      "nota": "Por qué no: Hospital de Salamanca. Acumula tres barreras: certificación ISO 27001, integración acreditada con AVIS, y experiencia contabilizada solo en el sector público."
+    },
+    {
+      "codigo": "1469-173-L126",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO", "INCUMBENTE"],
+      "nota": "Por qué no: Libro de Obras Digital para la U. de Talca. Requiere un producto certificado ante el MOP y la DGOP, que es un nicho cerrado, y hay proveedor instalado."
+    },
+    {
+      "codigo": "4174-29-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: Quirihue. Descartada por decisión del equipo tras leer las bases. Falta registrar el motivo específico."
+    },
+    {
+      "codigo": "3134-72-LR26",
+      "estado": "DISCARDED",
+      "motivos": ["GARANTIA"],
+      "nota": "Por qué no: DIRECTEMAR. Las garantías exigidas quedaron sin resolver: el monto y la vigencia de la boleta están fuera de nuestro alcance financiero."
+    },
+    {
+      "codigo": "1113265-12-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: CFT Antofagasta. El requisito habilitante es ambiguo, pide ser proveedor y fabricante al mismo tiempo. Sin aclaración en el foro no es ofertable."
+    },
+    {
+      "codigo": "813-90-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["SIN_TIEMPO", "OTRO"],
+      "nota": "Por qué no: ISP, consultoría más piloto de IA. Es una consultoría, no un desarrollo, y además no había tiempo para preparar una oferta de calidad."
+    },
+
+    {
+      "codigo": "1607-10-LR26",
+      "estado": "DISCARDED",
+      "motivos": ["MONTO"],
+      "nota": "Por qué no: hospedaje de la plataforma PIAS para SUSESO, $540 M. Son 45 veces nuestra escala habitual; no tenemos espalda para ese contrato."
+    },
+    {
+      "codigo": "2713-159-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["INCUMBENTE"],
+      "nota": "Por qué no: SaaS documental a 48 meses para la Municipalidad de Aysén. Las bases hablan de continuidad del proveedor actual."
+    },
+    {
+      "codigo": "1191449-18-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["HARDWARE"],
+      "nota": "Por qué no: digitalización para el Archivo Nacional. Es rubro físico, con escáneres y personal en terreno, no software."
+    },
+    {
+      "codigo": "948354-128-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO", "INCUMBENTE"],
+      "nota": "Por qué no: banco de sangre para el Hospital DIPRECA. Nicho con proveedores certificados ya instalados."
+    },
+    {
+      "codigo": "3506-88-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: ERP municipal para Tocopilla. Mercado capturado por CAS, SMC y Saydex; no competimos en ERP."
+    },
+    {
+      "codigo": "3506-85-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: ERP municipal para Tocopilla, segundo llamado. Mismo motivo que el anterior: mercado capturado."
+    },
+    {
+      "codigo": "1133353-43-LR26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: ERP municipal más salud para Rauco. Mercado capturado por los proveedores de ERP municipal."
+    },
+    {
+      "codigo": "1483311-2-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: remuneraciones. El nicho de payroll tiene incumbentes establecidos y no es nuestro producto."
+    },
+    {
+      "codigo": "1456835-1-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: remuneraciones. Mismo motivo: nicho de payroll con incumbentes."
+    },
+    {
+      "codigo": "1422051-25-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: recursos humanos. Nicho de payroll y RRHH con proveedores establecidos."
+    },
+    {
+      "codigo": "1069417-24-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: farmacia comunal de Chillán. Es un producto de nicho con proveedores especializados."
+    },
+    {
+      "codigo": "4429-95-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["PRODUCTO_NICHO"],
+      "nota": "Por qué no: farmacia comunal de Hualpén. Mismo motivo: producto de nicho."
+    },
+    {
+      "codigo": "2445-109-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["HARDWARE"],
+      "nota": "Por qué no: control de asistencia con biométricos para Curicó. Incluye hardware e instalación en terreno."
+    },
+    {
+      "codigo": "610-16-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["HARDWARE"],
+      "nota": "Por qué no: virtualización. Es infraestructura de marca, no desarrollo ni arriendo de sistemas."
+    },
+    {
+      "codigo": "1020-38-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["HARDWARE"],
+      "nota": "Por qué no: firewall. Infraestructura de marca; queda fuera del alcance del radar."
+    },
+    {
+      "codigo": "1082957-26-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: piezas gráficas y audiovisuales. Es otro rubro, no tiene relación con software."
+    },
+    {
+      "codigo": "5855-13-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: Camarones. Descartada en el triaje inicial, sin lectura profunda de las bases."
+    },
+    {
+      "codigo": "869591-10-LP26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: API del portal de ChileCompra. Descartada en el triaje inicial."
+    },
+    {
+      "codigo": "1057501-431-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: descartada en el triaje del barrido anterior, sin lectura profunda de las bases."
+    },
+    {
+      "codigo": "722-4-LE26",
+      "estado": "DISCARDED",
+      "motivos": ["OTRO"],
+      "nota": "Por qué no: descartada en el triaje del barrido anterior, sin lectura profunda de las bases."
+    }
+  ],
+
+  "_sinCodigoCompleto": {
+    "_motivo": "Reventa de licencias, descartadas en bloque. Los códigos vienen sin el sufijo de tipo y año, así que no se pueden buscar en la API ni guardar sin riesgo de colisión. Completar y mover a `revisiones`.",
+    "codigosParciales": ["4447-14", "1111089-15", "711-8", "2490-81", "2755-31", "3970-7", "1592-11", "2251-11"]
+  },
+
+  "_sinCodigo": {
+    "_motivo": "Baja prioridad del último barrido, sin análisis profundo y sin código registrado. Identificarlas para poder cargarlas.",
+    "organismos": ["Macul", "Bulnes", "MNBA CEDOC", "CRS Peñalolén", "SS Aconcagua", "CRS Cordillera", "SMAPA"]
+  },
+
+  "_noSonNuestras": {
+    "_motivo": "Aparecen en los transcriptos como referencias de experiencia de los competidores en Negrete y SUSESO. NO son licitaciones que hayamos revisado; no cargar como revisión.",
+    "codigos": ["418-68-LE23", "2490-75-LR23", "948354-89-LP24", "1063538-53-LQ24", "1499-84-LE25"]
+  }
+}

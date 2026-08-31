@@ -1,0 +1,28 @@
+# PostgreSQL para desarrollo local. Solo escucha en localhost.
+# La contraseña es de desarrollo y no se usa en ningún otro lado: en el servidor
+# las credenciales viven en /home/radar/app/.env (docs/10).
+services:
+  postgres:
+    image: postgres:16
+    container_name: radar-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar_dev
+      POSTGRES_DB: radar
+      # Misma configuración regional que el VPS, para que ORDER BY sobre texto
+      # ordene igual en desarrollo y en producción.
+      POSTGRES_INITDB_ARGS: "--locale=C.UTF-8 --encoding=UTF8"
+    ports:
+      # 5435 en el host: 5432, 5433 y 5434 ya estan ocupados en esta maquina.
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - radar_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar -d radar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  radar_pgdata:

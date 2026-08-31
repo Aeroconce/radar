@@ -1,0 +1,421 @@
+[
+ {
+  "score": 7,
+  "codigo": "3134-72-LR26",
+  "nombre": "CONTRATAR EL DESARROLLO DE UN SISTEMA INFORMÁTICO DE EMISIÓN DE DOCUMENTOS DE COBRO Y GESTIÓN DE COBRANZA Y POSTERIOR SOPORTE POR UN PERIODO DE 48 MESES.",
+  "cierre": "2026-08-31T17:00:00",
+  "hits": [
+   "sistema informático",
+   "sistema"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 7,
+  "codigo": "3945-20-LE26",
+  "nombre": "ADQUISICION SERVICIO DE SISTEMA INFORMATIVO DE GESTION DOCUMENTAL - MUNICIPALIDAD LOS ALAMOS",
+  "cierre": "2026-09-03T12:01:00",
+  "hits": [
+   "gestion documental",
+   "sistema"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 7,
+  "codigo": "1469-173-L126",
+  "nombre": "Sistema de gestión de Libro de Obras Digital, para PIBV",
+  "cierre": "2026-09-04T15:00:00",
+  "hits": [
+   "sistema de gestión",
+   "sistema"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 7,
+  "codigo": "4237-12-LR26",
+  "nombre": "CONCESION DEL SISTEMA DE CONTROL DE ESTACIONAMIENTOS EN LAS VIAS PUBLOICAS EN LA COMUNA DE CONCEPCION II LLAMADO",
+  "cierre": "2026-09-09T12:00:00",
+  "hits": [
+   "sistema de control",
+   "sistema"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 7,
+  "codigo": "2770-120-LR26",
+  "nombre": "SISTEMA DE GESTIÓN INTEGRADO SMAPA",
+  "cierre": "2026-09-10T14:00:00",
+  "hits": [
+   "sistema de gestión",
+   "sistema"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 7,
+  "codigo": "3902-39-LP26",
+  "nombre": "SERVICIO SOFTWARE SISTEMAS DE INFORMACIÓN BULNES.",
+  "cierre": "2026-09-15T15:18:00",
+  "hits": [
+   "sistemas de información",
+   "software"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 7,
+  "codigo": "1973-93-LR26",
+  "nombre": "SISTEMA DE INFORMACIÓN DE GESTIÓN ADMINISTRATIVA Y FARMACIA ",
+  "cierre": "2026-09-24T17:30:00",
+  "hits": [
+   "sistema de información",
+   "sistema"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 6,
+  "codigo": "1069417-24-LE26",
+  "nombre": "ARRIENDO DE SOFTWARE PARA LA FARMACIA COMUNAL",
+  "cierre": "2026-08-28T12:00:00",
+  "hits": [
+   "arriendo de software",
+   "software"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "1007793-15-LE26",
+  "nombre": "SOLUCIÓN INFORMÁTICA INSTITUCIONAL PARA EL CFT",
+  "cierre": "2026-08-31T15:30:00",
+  "hits": [
+   "solución inform",
+   "informática"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "1660-128-L126",
+  "nombre": "COMPRA DE SERVICIO DE METODOLOGÍA DE CONTACTABILIDAD A USUARIOS",
+  "cierre": "2026-08-31T20:29:00",
+  "hits": [
+   "contactabilidad"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 6,
+  "codigo": "2448-116-L126",
+  "nombre": "MANTENIMIENTO Y ACTUALIZACIÓN DE SOFTWARE DE CONTROL RESOLUTIVIDAD.",
+  "cierre": "2026-08-31T20:30:00",
+  "hits": [
+   "software de",
+   "software"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 6,
+  "codigo": "937232-75-LR26",
+  "nombre": "Servicio Agendamiento e Información a Usuarios",
+  "cierre": "2026-09-01T15:01:00",
+  "hits": [
+   "agendamiento"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 6,
+  "codigo": "1271178-35-LP26",
+  "nombre": "Servicio de agendamiento remoto de citas clínicas",
+  "cierre": "2026-09-01T17:00:00",
+  "hits": [
+   "agendamiento"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 6,
+  "codigo": "1075337-45-LP26",
+  "nombre": "SS. CONTACTABILIDAD DE PACIENTES VÍA WHATSAPP",
+  "cierre": "2026-09-02T15:00:00",
+  "hits": [
+   "contactabilidad"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 6,
+  "codigo": "3506-88-LP26",
+  "nombre": "ADQUISICION DE SOFTWARE DE GESTION MUNICIPAL",
+  "cierre": "2026-09-03T15:00:00",
+  "hits": [
+   "software de",
+   "software"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 6,
+  "codigo": "1171234-5-LE26",
+  "nombre": "SERVICIOS DE IMPLEMENTACIÓN SOFTWARE CEDOC MNBA",
+  "cierre": "2026-09-04T20:00:00",
+  "hits": [
+   "implementación software",
+   "software"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "1210-23-LE26",
+  "nombre": "Serv. Acreditación y saberes lingüísticos Minuta 4030.",
+  "cierre": "2026-09-07T15:00:00",
+  "hits": [
+   "acreditación"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "610-16-LP26",
+  "nombre": "Adquisición de productos y servicios destinados a la “Implementación de software para nueva Plataforma de Virtualización”.",
+  "cierre": "2026-09-08T10:00:00",
+  "hits": [
+   "implementación de software",
+   "software"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 6,
+  "codigo": "1057494-50-LR26",
+  "nombre": "SOFTWARE PARA LA GESTIÓN DE LA UNIDAD DE LABORATOR",
+  "cierre": "2026-09-10T16:00:00",
+  "hits": [
+   "software para",
+   "software"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 6,
+  "codigo": "3378-54-LE26",
+  "nombre": "SERVICIOS PROFESIONALES PARA AUTOEVALUACIÓN DE CALIDAD AL PROCESO DE ACREDITACIÓN DEL HMS-AÑO 2026",
+  "cierre": "2026-09-14T16:00:00",
+  "hits": [
+   "acreditación"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "1057541-40-LP26",
+  "nombre": "Servicio de Contactabilidad de Pacientes",
+  "cierre": "2026-09-15T17:00:00",
+  "hits": [
+   "contactabilidad"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 6,
+  "codigo": "824-3-LE26",
+  "nombre": "ASES. A LA CONTRAPARTE TÉCN. INVENTARIO MAULE",
+  "cierre": "2026-09-16T12:00:00",
+  "hits": [
+   "inventario"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 6,
+  "codigo": "1133353-43-LR26",
+  "nombre": "ARRIENDO DE SOFTWARE INTEGRAL PARA LA GESTIÓN MUNICIPAL ÁREAS DE SALUD Y MUNICIPAL COMUNA DE RAUCO",
+  "cierre": "2026-09-16T17:30:00",
+  "hits": [
+   "arriendo de software",
+   "software"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 6,
+  "codigo": "2200-23-LR26",
+  "nombre": "SERVICIO DE ARRIENDO DE SOFTWARE DE REGISTRO CLÍNICO ELECTRÓNICO RCE ATENCIÓN PRIMARIA - TIC",
+  "cierre": "2026-09-24T15:00:00",
+  "hits": [
+   "arriendo de software",
+   "software"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 5,
+  "codigo": "1071775-13-LE26",
+  "nombre": "APLICACIÓN ENCUESTA BARÓMETRO REGIONAL 2026",
+  "cierre": "2026-09-03T15:30:00",
+  "hits": [
+   "encuesta",
+   "aplicación"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 5,
+  "codigo": "2287-21-L126",
+  "nombre": "APLICACIÓN, DIGITACIÓN Y ANÁLISIS DE ENCUESTA DE CARACTERIZACIÓN, PERCEPCIÓN Y SATISFACCIÓN VECINAL FASE III, ",
+  "cierre": "2026-09-04T15:00:00",
+  "hits": [
+   "encuesta",
+   "aplicación"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 5,
+  "codigo": "1671-30-LE26",
+  "nombre": "Reestructuración Oficina de Partes de la SEREMI de",
+  "cierre": "2026-09-04T18:00:00",
+  "hits": [
+   "oficina de partes"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 5,
+  "codigo": "1562-49-LR26",
+  "nombre": "Sistema de monitoreo integral de ciberseguridad",
+  "cierre": "2026-09-22T15:00:00",
+  "hits": [
+   "ciberseguridad",
+   "sistema"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 4,
+  "codigo": "548874-74-LR26",
+  "nombre": "SERV DE PLATAFORMA SIEM NUEVA GENERACIÓN SAAS IPS",
+  "cierre": "2026-10-02T15:00:00",
+  "hits": [
+   "saas"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 3,
+  "codigo": "1969-34-LS19",
+  "nombre": "AUTOMATIZACIÓN PORTÓN ACCESO A LINEA DE FUEGO",
+  "cierre": null,
+  "hits": [
+   "automatización"
+  ],
+  "tipo": "LS"
+ },
+ {
+  "score": 3,
+  "codigo": "1075956-8-L126",
+  "nombre": "SERVICIO ETHICAL HACKING - SEGÚN BASES DE LICITACIÓN Y ANEXOS N° 1 Y N° 2 QUIE SE ADJUNTAN - PRESUPUESTO ESTIMADO $ 4.000.000. -",
+  "cierre": "2026-08-28T15:00:00",
+  "hits": [
+   "ethical hacking"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 3,
+  "codigo": "607-60-LE26",
+  "nombre": "MEJOR. DEPENDENCIAS SERVICIO SOCIAL Y OIRS",
+  "cierre": "2026-08-28T20:00:00",
+  "hits": [
+   "oirs"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 3,
+  "codigo": "568963-21-LE26",
+  "nombre": "ENCUESTA SEGUIMIENTO LABORAL BENEFICIARIOS CERT.",
+  "cierre": "2026-08-31T15:00:00",
+  "hits": [
+   "encuesta"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 3,
+  "codigo": "1978-44-LE26",
+  "nombre": "ADQUISICIÓN DE SOLUCIÓN XDR PARA CIBERSEGURIDAD AVANZADA SERVICIO DE SALUD MAULE",
+  "cierre": "2026-09-01T15:30:00",
+  "hits": [
+   "ciberseguridad"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 3,
+  "codigo": "2287-20-L126",
+  "nombre": "SERVICIO DE MANTENCIÓN PREVENTIVA Y CORRECTIVA ASCENSOR DEL CENTRO DE INTEGRACIÓN DEL ADULTO MAYOR ",
+  "cierre": "2026-09-02T15:00:00",
+  "hits": [
+   "integración"
+  ],
+  "tipo": "L1"
+ },
+ {
+  "score": 3,
+  "codigo": "609-25-LE26",
+  "nombre": "ACTUALIZACIÓN DEL SGSI DE INDAP- CIBERSEGURIDAD",
+  "cierre": "2026-09-02T15:30:00",
+  "hits": [
+   "ciberseguridad"
+  ],
+  "tipo": "LE"
+ },
+ {
+  "score": 3,
+  "codigo": "4127-33-LP26",
+  "nombre": "DIGEDEP. ENCUESTA TRATO A LOS USUARIOS",
+  "cierre": "2026-09-03T16:00:00",
+  "hits": [
+   "encuesta"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 3,
+  "codigo": "619284-6-LR26",
+  "nombre": "Actualización Encuesta Origen Destino  Coquimbo—La Serena",
+  "cierre": "2026-09-08T11:00:00",
+  "hits": [
+   "encuesta"
+  ],
+  "tipo": "LR"
+ },
+ {
+  "score": 3,
+  "codigo": "799595-4-LP26",
+  "nombre": "Encuesta deportistas y paradeportistas MINDEP",
+  "cierre": "2026-09-10T15:30:00",
+  "hits": [
+   "encuesta"
+  ],
+  "tipo": "LP"
+ },
+ {
+  "score": 3,
+  "codigo": "2345-138-LP26",
+  "nombre": "SERVICIO DE DESARROLLO E IMPLEMENTACIÓN DE LA SEGUNDA ENCUESTA DE VICTIMIZACIÓN Y PERCEPCIÓN DE SEGURIDAD PARA VECINOS DE LA COMUNA DE LAS CONDES",
+  "cierre": "2026-09-15T15:01:00",
+  "hits": [
+   "encuesta"
+  ],
+  "tipo": "LP"
+ }
+]

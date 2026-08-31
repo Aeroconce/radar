@@ -1,0 +1,301 @@
+// Modelo de datos del Radar de Licitaciones.
+// La especificación y el porqué de cada campo están en docs/02-modelo-de-datos.md.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  REVIEWER
+}
+
+enum ReviewStatus {
+  NEW
+  IN_REVIEW
+  VIABLE
+  DISCARDED
+  SUBMITTED
+  AWARDED
+  LOST
+}
+
+enum Vertical {
+  APPOINTMENTS
+  FIXED_ASSETS
+  DOCUMENT_MGMT
+  QUALITY_ACCREDITATION
+  WEB_DEVELOPMENT
+  OTHER
+}
+
+enum BuyerType {
+  HOSPITAL
+  HEALTH_SERVICE
+  MUNICIPAL_HEALTH
+  MUNICIPALITY
+  HIGHER_EDUCATION
+  PUBLIC_SERVICE
+  OTHER
+}
+
+enum ProcessType {
+  L1
+  LE
+  LP
+  LQ
+  LR
+  LS
+  OTHER
+}
+
+enum AttachmentKind {
+  BASES
+  ANNEX
+  FORUM
+  AWARD_ACT
+  OTHER
+}
+
+enum JobType {
+  SWEEP
+  HISTORY
+  AWARDS
+  ALERTS
+  CLEANUP
+  SEED
+}
+
+/// Ciclo de vida de un envio. La fila se crea PENDING antes de intentar, para que
+/// dedupeKey reserve el aviso y un fallo quede registrado y reintentable (docs/08).
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum NotificationType {
+  NEW_HIGH_AFFINITY
+  CLOSING_SOON
+  QUESTIONS_CLOSING
+  AWARD_PUBLISHED
+  DAILY_DIGEST
+}
+
+/// Better Auth administra la autenticación y genera además Session, Account y Verification
+/// con su CLI. Aquí se declaran los campos base que exige más los propios (role, active).
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          Role     @default(REVIEWER)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reviews       Review[]
+}
+
+model Tender {
+  id               String       @id @default(cuid())
+  code             String       @unique // 1607-11-LE26
+  name             String
+  description      String       @default("")
+  processType      ProcessType
+  buyerOrganism    String
+  buyerUnit        String       @default("")
+  buyerCode        String? // CodigoOrganismo si se conoce
+  buyerType        BuyerType    @default(OTHER)
+  region           String       @default("")
+  estimatedAmount  Decimal?     @db.Decimal(16, 2)
+  currency         String       @default("CLP")
+  durationValue    Int?
+  durationUnit     String? // días | meses | años
+  requiresContract Boolean?
+  publishedAt      DateTime?
+  questionsUntil   DateTime?
+  answersAt        DateTime?
+  closesAt         DateTime?
+  awardEstimatedAt DateTime?
+  portalStatus     Int? // CodigoEstado de la API
+  vertical         Vertical     @default(OTHER)
+  affinityScore    Int          @default(0)
+  outOfScale       Boolean      @default(false) // sobre el monto maximo: se lista igual, con etiqueta y -2 de afinidad (docs/04)
+  matchedTerms     String[] // coincidencias que la seleccionaron
+  incumbentSignals String[] // frases detectadas
+  items            Json? // Items.Listado
+  raw              Json // respuesta íntegra de la API
+  firstSeenAt      DateTime     @default(now())
+  lastSyncedAt     DateTime     @default(now())
+  reviewStatus     ReviewStatus @default(NEW) // desnormalizado desde la última Review para filtrar rápido
+
+  reviews       Review[]
+  attachments   Attachment[]
+  notifications Notification[]
+
+  @@index([reviewStatus])
+  @@index([vertical])
+  @@index([closesAt])
+  @@index([affinityScore])
+  @@index([buyerType])
+}
+
+/// Toda activa vista en un barrido, entre o no al tablero.
+/// Sin esto no existe la "última lista de activas guardada" que necesita la vista
+/// previa de reglas (docs/04) ni forma de detectar un falso negativo (docs/00, flujo 5).
+model SeenTender {
+  code         String    @id // CodigoExterno; coincide con Tender.code cuando fue seleccionada
+  name         String
+  closesAt     DateTime?
+  portalStatus Int? // CodigoEstado del listado
+  lastScore    Int       @default(0) // último puntaje calculado con el nombre
+  selected     Boolean   @default(false) // true si superó el umbral y existe como Tender
+  firstSeenAt  DateTime  @default(now())
+  lastSeenAt   DateTime  @updatedAt
+
+  @@index([selected])
+  @@index([lastSeenAt])
+}
+
+/// Cada cambio de estado o nota es una fila; la ficha muestra la última y la bitácora todas.
+model Review {
+  id        String       @id @default(cuid())
+  tenderId  String
+  tender    Tender       @relation(fields: [tenderId], references: [id])
+  status    ReviewStatus
+  reasons   String[] // códigos del catálogo (docs/07)
+  note      String       @default("")
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  createdAt DateTime     @default(now())
+
+  @@index([tenderId, createdAt])
+}
+
+model Attachment {
+  id           String         @id @default(cuid())
+  tenderId     String
+  tender       Tender         @relation(fields: [tenderId], references: [id])
+  kind         AttachmentKind
+  originalName String
+  storedPath   String
+  mime         String
+  size         Int
+  checksum     String // sha256 del contenido: detecta duplicados y verifica los respaldos
+  uploadedBy   String
+  createdAt    DateTime       @default(now())
+
+  @@index([tenderId])
+}
+
+/// Adjudicaciones del histórico (RF-08).
+model HistoricalAward {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  buyerOrganism String
+  region        String    @default("")
+  vertical      Vertical  @default(OTHER)
+  awardedAt     DateTime?
+  bidderCount   Int?
+  estimatedNet  Decimal?  @db.Decimal(16, 2)
+  awardedNet    Decimal?  @db.Decimal(16, 2)
+  durationValue Int?
+  durationUnit  String?
+  awardActUrl   String?
+  raw           Json?
+
+  bids HistoricalBid[]
+
+  @@index([vertical])
+  @@index([awardedAt])
+}
+
+model HistoricalBid {
+  id           String          @id @default(cuid())
+  awardId      String
+  award        HistoricalAward @relation(fields: [awardId], references: [id])
+  supplierRut  String
+  supplierName String
+  amount       Decimal         @db.Decimal(16, 2)
+  unitPrice    Boolean         @default(false) // true cuando el monto es un valor unitario (por interacción)
+  result       String // Adjudicada | No Adjudicada | Rechazada | Desierta | Inadmisible
+
+  @@index([supplierRut])
+  @@index([supplierName])
+  @@index([awardId])
+}
+
+/// Editable desde la interfaz (RF-09).
+model AffinityRule {
+  id        String     @id @default(cuid())
+  kind      String // KEYWORD | EXCLUSION | BUYER_PATTERN | INCUMBENT_SIGNAL
+  vertical  Vertical?
+  buyerType BuyerType? // destino de las reglas kind = BUYER_PATTERN (docs/04)
+  pattern   String // expresión regular en minúsculas
+  weight    Int        @default(0) // positivo para palabras clave, negativo para exclusiones
+  active    Boolean    @default(true)
+  updatedBy String?
+  updatedAt DateTime   @updatedAt
+
+  @@index([kind, active])
+}
+
+/// Umbral, rango de montos, tipos de proceso, horas de cron, destinatarios de correo.
+model Setting {
+  key   String @id
+  value Json
+}
+
+model Notification {
+  id         String             @id @default(cuid())
+  /// Idempotencia real (RN-02). El @@unique([type, tenderId]) original no servía:
+  /// tenderId es nulo en DAILY_DIGEST y PostgreSQL trata cada NULL como distinto.
+  /// Formato: "<tipo>:<código>" por licitación, "<tipo>:<fecha>" para el resumen diario.
+  dedupeKey  String             @unique
+  type       NotificationType
+  tenderId   String?
+  tender     Tender?            @relation(fields: [tenderId], references: [id])
+  payload    Json
+  status     NotificationStatus @default(PENDING)
+  providerId String? // id que devuelve Resend cuando el envio sale
+  error      String? // ultimo error, cuando status = FAILED
+  attempts   Int                @default(0)
+  createdAt  DateTime           @default(now())
+  sentAt     DateTime?
+
+  @@index([type, createdAt])
+  @@index([status])
+}
+
+model JobRun {
+  id         String    @id @default(cuid())
+  type       JobType
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  ok         Boolean?
+  counters   Json? // { fetched, selected, created, updated, apiCalls, retries }
+  error      String?
+
+  @@index([type, startedAt])
+}
+
+model AuditLog {
+  id       String   @id @default(cuid())
+  at       DateTime @default(now())
+  userId   String?
+  userName String
+  action   String // login, logout, review.create, attachment.upload, rule.update, user.update...
+  entity   String?
+  entityId String?
+  detail   String
+  ip       String?
+
+  @@index([at])
+}

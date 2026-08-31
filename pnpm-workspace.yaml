@@ -1,3 +1,9 @@
 allowBuilds:
+  # Prisma: descargan los motores de query. Sin esto el cliente no funciona.
+  '@prisma/engines': true
+  prisma: true
+  # esbuild: lo usa tsx para ejecutar los scripts TS (scrapers, seeds).
+  esbuild: true
+  # sharp trae binarios precompilados por plataforma; no necesita su install script.
   sharp: false
   unrs-resolver: false
