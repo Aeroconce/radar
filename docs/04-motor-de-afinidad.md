@@ -23,10 +23,10 @@ Palabras clave (peso):
 | QUALITY_ACCREDITATION | 2 | `acreditacion` |
 | FIXED_ASSETS | 2 | `inventario` |
 | DOCUMENT_MGMT | 2 | `expediente|oficina de partes` |
-| WEB_DEVELOPMENT | 5 | `desarrollo (de )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica` |
-| WEB_DEVELOPMENT | 4 | `saas|arriendo (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|solucion tecnol` |
+| WEB_DEVELOPMENT | 5 | `desarrollo (de )?(la |el |un |una )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica` |
+| WEB_DEVELOPMENT | 4 | `saas|arriendo (de )?software|arriendo (de )?(un |una |el |la )?(sistema|plataforma)|suscripcion (anual )?(de |a )?(un |una |la )?(sistema|plataforma)|contratacion (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|mejora evolutiva|mantenimiento evolutivo|soporte evolutivo|migracion de (base de )?datos|solucion tecnol` |
 | OTHER | 3 | `mesa de ayuda|help ?desk|tickets|intranet|extranet|dashboard|reporteria|interoperab|integracion (de |con )?(sistema|plataforma|dato|api|servicio)|tramite digital|e-?learning` |
-| OTHER | 2 | `informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema` |
+| OTHER | 2 | `informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema|plataforma` |
 
 Exclusiones (peso −6): hardware y equipos (`impresor|computador|notebook|equipamiento computacional|equipos? tecnologic|equipos? medic|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra`), licencias comerciales (`licencias? .*(microsoft|office|adobe|windows|antivirus|autocad|autodesk|archicad|arcgis|matlab|sap|oracle|vmware|fortinet|veeam)|renovacion .*licencias|suscripcion .*(software|licencias)`), insumos, laboratorio y prestaciones a terceros (`toner|insumos|reactivos|equipos de laboratorio|banco de sangre|examenes de laboratorio|extrasistema|prestaciones medicas`), servicios no informáticos (`\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico`), sistemas que no son software (`sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico`), fuera de perfil (`remuneraciones|gdp|forense|erp municipal|software integral .*municipal`), ciberseguridad (`ciberseguridad|ethical hacking|hacking etico|pentest|\bwaf\b|\bsiem\b|firewall|antimalware`) concesiones (`\bconcesion`) y compra de licencias (`licencias? de software|adquisicion de licencias?|provision de licencias?|compra de licencias?|venta de licencias?|suministro de licencias?|compra de uso de`). La compra de licencias es reventa, no desarrollo ni arriendo (D-30); a propósito **no** se excluye `licencia` sola ni `licenciamiento`: la palabra aparece en sistemas legítimos, como la toma de horas de licencias de conducir o un SaaS «con licenciamiento ilimitado».
 
@@ -70,6 +70,17 @@ informático» que quedó fuera del tablero. `ups` haría lo mismo dentro de «b
 
 El resto **no** lleva límite porque son prefijos deliberados: `interoperab`, `climatizaci`, `aplicaci`,
 `solucion tecnol`. Agregarles `\\b` al final los rompería.
+
+### Auditoría del 31-08-2026 (D-31)
+
+Se auditaron las 4.721 activas del día por los dos lados: las seleccionadas leídas una a una, y las
+descartadas con olor a sistema revisadas con su puntaje y la regla que las frenó. Del lado que descarta, el
+motor estaba bien: riego, incendios, bombas y micrófonos quedaban fuera por puntaje. Del lado que selecciona
+aparecieron **seis falsos negativos reales**, todos por huecos de escritura de las reglas, no de criterio:
+el patrón de desarrollo no admitía artículos («desarrollo de **la** plataforma» puntuaba 0, y era la
+plataforma de compras de ChileCompra), `arriendo de sistema` no existía aunque el alcance se llama así,
+`suscripcion de sistema` tampoco, y `plataforma` faltaba en la regla genérica. Los seis quedaron como casos
+obligatorios de selección.
 
 ## Casos de prueba obligatorios (`tests/affinity.test.ts`)
 Deben seleccionarse: "SS. Contactabilidad de pacientes vía WhatsApp"; "ADQUISICION SERVICIO DE SISTEMA INFORMATIVO DE GESTION DOCUMENTAL"; "SOLUCIÓN INFORMÁTICA INSTITUCIONAL PARA EL CFT"; "SISTEMA INFORMATICO WEB PARA CENTROS DE SALUD"; "ARRIENDO SOFTWARE FARMACIA Y OPTICA MUNICIPAL" (sin "de"; se escapó en agosto de 2026); "Sistema de gestión de Libro de Obras Digital"; "Servicio de Metodología de Contactabilidad".

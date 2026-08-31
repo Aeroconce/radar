@@ -56,12 +56,29 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
   [
     "WEB_DEVELOPMENT",
     5,
-    "desarrollo (de )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica",
+    "desarrollo (de )?(la |el |un |una )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica",
   ],
+  /*
+   * Terminos agregados el 31-08-2026 tras auditar las 4.721 activas del dia
+   * (D-31). Cada uno viene de un falso negativo real:
+   *
+   * - "desarrollo de LA plataforma": el patron no admitia articulos, y el
+   *   DESARROLLO DE LA PLATAFORMA MODULAR DE COMPRAS de ChileCompra (LR)
+   *   puntuaba 0.
+   * - "arriendo de sistema": la regla cubria arriendo de software, no de
+   *   sistema. El alcance del radar se llama "arriendo de sistemas".
+   * - "suscripcion de sistema/plataforma": es arriendo con otro nombre.
+   * - "contratacion de software": CONTRATACION DE SOFTWARE CONTROL DE OBRAS
+   *   puntuaba 2 porque `software (de|para)` exige la preposicion.
+   * - "mejora evolutiva" y compania: jerga inequivoca de mantencion de
+   *   software a medida.
+   * - "migracion de datos": trabajo de desarrollo, y ademas senal de
+   *   incumbente que ya se marcaba pero no puntuaba.
+   */
   [
     "WEB_DEVELOPMENT",
     4,
-    "saas|arriendo (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|solucion tecnol",
+    "saas|arriendo (de )?software|arriendo (de )?(un |una |el |la )?(sistema|plataforma)|suscripcion (anual )?(de |a )?(un |una |la )?(sistema|plataforma)|contratacion (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|mejora evolutiva|mantenimiento evolutivo|soporte evolutivo|migracion de (base de )?datos|solucion tecnol",
   ],
   // Solo terminos que describen un sistema. Salieron "encuesta", "oirs", "tramites",
   // "automatizacion" y "transparencia": nombran un tramite, una oficina o un aparato,
@@ -73,7 +90,7 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
     3,
     "mesa de ayuda|help ?desk|tickets|intranet|extranet|dashboard|reporteria|interoperab|integracion (de |con )?(sistema|plataforma|dato|api|servicio)|tramite digital|e-?learning",
   ],
-  ["OTHER", 2, "informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema"],
+  ["OTHER", 2, "informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema|plataforma"],
 ];
 
 /** Peso de cada exclusion. Negativo: se suma como los demas (docs/04). */

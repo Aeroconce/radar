@@ -28,6 +28,13 @@ describe("casos que deben seleccionarse (docs/04)", () => {
     "SISTEMA INFORMATICO WEB PARA CENTROS DE SALUD",
     // Sin el "de" entre ARRIENDO y SOFTWARE: asi se escapo en agosto de 2026.
     "ARRIENDO SOFTWARE FARMACIA Y OPTICA MUNICIPAL",
+    // D-31: auditoria del 31-08-2026 sobre las 4.721 activas del dia. Cada uno
+    // es un falso negativo real que puntuaba 0 o 2.
+    "CONTRATACIÓN DEL DESARROLLO DE LA PLATAFORMA MODULAR DE COMPRAS",
+    "ARRIENDO DE SISTEMA PARA LA GESTIÓN DE COBRANZAS",
+    "SERVICIO DE SUSCRIPCIÓN DE SISTEMA DE ASIGNACIÓN Y ADMINISTRACION DE SALAS DE CLASES",
+    "CONTRATACION DE SOFTWARE CONTROL DE OBRAS Y GESTION DE PROYECTOS",
+    "Servicio de Soporte Desarrollo y Mejora Evolutiva",
     "Sistema de gestión de Libro de Obras Digital",
     "Servicio de Metodología de Contactabilidad",
   ];
@@ -167,10 +174,10 @@ describe("las dos etapas del barrido (docs/04)", () => {
   });
 
   it("la descripcion puede sacar lo que el nombre habia dejado entrar", () => {
-    // El nombre suena a plataforma de expedientes; la descripcion revela que el
-    // trabajo es sacar los papeles de cada unidad, no construir nada.
-    const nombre = "Plataforma para el registro de expedientes";
-    const conDescripcion = `${nombre}. Consiste en el levantamiento de los expedientes en papel de cada unidad`;
+    // El nombre suena a gestor documental; la descripcion revela que el trabajo
+    // es escanear papeles, no construir ni arrendar nada.
+    const nombre = "Gestor documental institucional";
+    const conDescripcion = `${nombre}. Corresponde a la digitalizacion masiva del archivo en papel`;
 
     expect(evaluate({ text: nombre }, INITIAL_RULES).selected).toBe(true);
     expect(evaluate({ text: conDescripcion }, INITIAL_RULES).selected).toBe(false);

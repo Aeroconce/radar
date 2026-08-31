@@ -16,6 +16,16 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-31** **Los huecos del motor se buscan, no se esperan.** Auditoría del 31-08-2026 sobre las 4.721
+  activas del día, por los dos lados. Las descartadas estaban bien descartadas; entre ellas aparecieron
+  **seis falsos negativos reales**, todos huecos de escritura y no de criterio: el patrón de desarrollo no
+  admitía artículos («desarrollo de **la** plataforma modular de compras» de ChileCompra, LR, puntuaba 0),
+  faltaban `arriendo de sistema` —el alcance se llama «arriendo de sistemas»—, `suscripcion de sistema`,
+  `contratacion de software`, `mejora evolutiva` y `migracion de datos`, y `plataforma` no estaba en la regla
+  genérica. Con la corrección la selección sube de 27 a 34 sobre las mismas activas, sin que salga ninguna.
+  Los seis quedaron como casos obligatorios en `tests/affinity.test.ts`. Un caso conocido que sigue fuera:
+  «DESARROLLO DEL PROYECTO NUEVA OC» (869591-11), porque «desarrollo del proyecto» no dice software por sí
+  solo; sus hermanas de familia sí entran y delatan al comprador.
 - **D-30** **Comprar licencias, prestaciones o equipos no es software.** Tres exclusiones del 31-08-2026,
   cada una por una licitación real que sobraba en el tablero. **Licencias genéricas** («adquisición de
   licencias de software», «provisión de licencias», «compra de uso de»): es reventa; la regla vieja solo
