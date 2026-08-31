@@ -87,9 +87,14 @@ export const EXCLUSION_WEIGHT = -6;
  * (`interoperab`, `climatizaci`, `solucion tecnol`) y no llevan limite.
  */
 const EXCLUSIONS: string[] = [
-  "impresor|computador|notebook|equipamiento computacional|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra",
+  "impresor|computador|notebook|equipamiento computacional|equipos? tecnologic|equipos? medic|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra",
   "licencias? .*(microsoft|office|adobe|windows|antivirus|autocad|autodesk|archicad|arcgis|matlab|sap|oracle|vmware|fortinet|veeam)|renovacion .*licencias|suscripcion .*(software|licencias)",
-  "toner|insumos|reactivos|equipos de laboratorio|banco de sangre",
+  /*
+   * `examenes de laboratorio` y `extrasistema`: comprar prestaciones medicas a
+   * terceros no es software, pero su texto habla de calidad y acreditacion y
+   * sumaba puntos por el tema (D-30).
+   */
+  "toner|insumos|reactivos|equipos de laboratorio|banco de sangre|examenes de laboratorio|extrasistema|prestaciones medicas",
   "\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico",
   "sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico",
   "remuneraciones|gdp|forense|erp municipal|software integral .*municipal",
@@ -105,6 +110,18 @@ const EXCLUSIONS: string[] = [
    * estacionamientos, y matcheaba `sistema de control`.
    */
   "\\bconcesion",
+  /*
+   * Comprar licencias no es desarrollo ni arriendo de un sistema: es reventa
+   * (D-30). La regla de las marcas solo cubria licencias de productos
+   * conocidos; esta cubre el caso generico: "adquisicion de licencias de
+   * software", "provision de licencias", "compra de uso de".
+   *
+   * A proposito NO se excluye `licenciamiento` a secas ni `licencia` sola: el
+   * "SISTEMA DE GESTION DOCUMENTAL... saas con licenciamiento ilimitado" es
+   * arriendo del bueno, y "licencias de conducir" aparece en sistemas de toma
+   * de horas que si son plataformas.
+   */
+  "licencias? de software|adquisicion de licencias?|provision de licencias?|compra de licencias?|venta de licencias?|suministro de licencias?|compra de uso de",
 ];
 
 /**

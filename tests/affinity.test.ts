@@ -45,10 +45,26 @@ describe("casos que NO deben seleccionarse (docs/04)", () => {
     "Curso de capacitación en software estadístico",
     "Sistema de riego automatizado",
     "ARRIENDO DE SOFTWARE INTEGRAL PARA LA GESTIÓN MUNICIPAL",
+    // D-30: comprar licencias es reventa, no desarrollo ni arriendo de un sistema.
+    "ADQUISICIÓN DE LICENCIAS DE SOFTWARE",
+    "Provisión de licencias de software para la unidad administradora",
+    // D-30: comprar prestaciones medicas a terceros no es software, aunque su
+    // texto hable de calidad y acreditacion.
+    "Contratación de Servicios para realizar procesamiento y análisis de exámenes de laboratorio en el extrasistema",
+    // D-30: equipos tecnologicos y medicos son hardware, no plataformas.
+    "ADQUISICIÓN EQUIPOS TECNOLÓGICOS PARA REHABILITACIÓN",
   ];
 
   it.each(CASES)("descarta: %s", (name) => {
     expect(select(name)).toBe(false);
+  });
+
+  it("comprar licencias resta, pero arrendar un sistema que gestiona licencias no", () => {
+    // La palabra "licencia" aparece en sistemas legitimos: un modulo de
+    // licencias medicas, la toma de horas de licencias de conducir. La
+    // exclusion apunta a la compra ("licencias de software", "adquisicion de
+    // licencias"), no a la palabra.
+    expect(select("ARRIENDO DE SOFTWARE PARA GESTIÓN DE LICENCIAS MÉDICAS")).toBe(true);
   });
 });
 

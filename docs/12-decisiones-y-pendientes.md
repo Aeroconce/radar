@@ -16,6 +16,17 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-30** **Comprar licencias, prestaciones o equipos no es software.** Tres exclusiones del 31-08-2026,
+  cada una por una licitación real que sobraba en el tablero. **Licencias genéricas** («adquisición de
+  licencias de software», «provisión de licencias», «compra de uso de»): es reventa; la regla vieja solo
+  cubría marcas conocidas. A propósito no se excluye `licencia` sola ni `licenciamiento`: aparecen en
+  sistemas legítimos (toma de horas de licencias de conducir, SaaS «con licenciamiento ilimitado»).
+  **Exámenes de laboratorio y extrasistema**: comprar prestaciones médicas a terceros no es software, pero su
+  texto habla de calidad y acreditación y sumaba por el tema. **Equipos tecnológicos y médicos**: hardware;
+  atrapó de rebote un «mantenimiento de software de control» que resultó ser el firmware de un tomógrafo.
+  Sobre las activas del día la selección baja de 34 a 26. Los casos quedan como obligatorios en
+  `tests/affinity.test.ts`, incluido el positivo que protege «arriendo de software para gestión de licencias
+  médicas».
 - **D-29** **Un tema no es un sistema.** `acreditacion`, `inventario`, `expediente` y `oficina de partes`
   nombran de qué trata algo, no que sea software, y con peso 6 o 5 llegaban solos al umbral. El tablero tenía
   el arriendo de una embarcación, una acreditación de saberes lingüísticos y la reestructuración de una
