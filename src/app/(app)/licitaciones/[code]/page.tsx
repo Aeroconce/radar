@@ -161,7 +161,8 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
         ← Tablero
       </Link>
 
-      <header className="mt-4">
+      <header className="mt-4 flex items-start justify-between gap-6">
+        <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${estado.color}`}
@@ -185,6 +186,30 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
           <span className="mx-2 text-neutral-300">|</span>
           {PROCESO[tender.processType] ?? tender.processType}
         </p>
+        </div>
+
+        {/* Fuera del panel de revision: ahi quedaba dentro de su scroll y habia
+            que bajar para encontrarlo. Es lo primero que se hace con una ficha
+            —leer las bases en el portal— asi que va a la altura del titulo. */}
+        <a
+          href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(tender.code)}`}
+          target="_blank"
+          rel="noreferrer"
+          title="Las bases y los anexos se descargan del portal: la API pública no los entrega."
+          className="mt-1 inline-flex shrink-0 items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-3.5 py-2 text-sm font-medium text-neutral-800 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+        >
+          Abrir en Mercado Público
+          <svg aria-hidden viewBox="0 0 12 12" className="size-3 text-neutral-400">
+            <path
+              d="M4.5 2h5.5v5.5M10 2 3 9M8 10H2V4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
       </header>
 
       <div className="mt-7 grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -370,33 +395,6 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
         {/* Pegado arriba, con scroll propio: si el formulario crece mas que la
             ventana, el boton de guardar tiene que seguir alcanzable. */}
         <aside className="space-y-3 lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:self-start lg:overflow-y-auto lg:pb-6">
-          {/* Antes del formulario, porque ese es el orden del trabajo: se abre el
-              portal a leer las bases y recien despues se decide (docs/00, flujo 2). */}
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <a
-              href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(tender.code)}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-md border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-800 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
-            >
-              Abrir en Mercado Público
-              <svg aria-hidden viewBox="0 0 12 12" className="size-3 text-neutral-400">
-                <path
-                  d="M4.5 2h5.5v5.5M10 2 3 9M8 10H2V4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
-            <p className="mt-2.5 text-xs leading-relaxed text-neutral-500">
-              Las bases y los anexos se descargan de ahí: la API pública no los entrega.
-              Léelos antes de decidir.
-            </p>
-          </div>
-
           <ReviewForm code={tender.code} estadoActual={tender.reviewStatus} perfil={perfil} />
         </aside>
       </div>
