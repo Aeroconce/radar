@@ -2,80 +2,41 @@
  * Tablero (RF-04).
  *
  * Es una pantalla de triaje: responde "que miro ahora", no "como esta el
- * sistema". Por eso el plazo manda —esta a la derecha, en cifras monoespaciadas
- * y con color por cercania— y las metricas del sistema viven en la barra lateral,
- * no compitiendo por atencion aqui.
+ * sistema". Por eso el plazo manda —a la derecha, en cifras monoespaciadas y con
+ * color por cercania— y las metricas del sistema viven en la barra lateral, sin
+ * competir por atencion aqui.
  *
  * Los filtros son la URL (RF-04: "reflejados en la URL para compartir enlaces"),
  * asi que la pantalla se resuelve entera en el servidor.
+ *
+ * La tabla vive en `tender-table.tsx`, compartida con las favoritas.
  */
 import Link from "next/link";
 import type { Prisma } from "@/generated/prisma/client";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
-import { requireSession } from "@/lib/session";
 import { perfilActivo } from "@/lib/perfil";
-import { ESTADOS } from "@/lib/reviews";
+import { requireSession } from "@/lib/session";
+import { VERTICALES } from "@/lib/tenders";
 import { BoardFilters } from "./board-filters";
-import { StarButton } from "./star-button";
+import { TenderTable, type ColumnaOrdenable } from "./tender-table";
 
 export const dynamic = "force-dynamic";
 
 const POR_PAGINA = 50;
 
-const VERTICALES: Array<{ valor: string; etiqueta: string }> = [
-  { valor: "APPOINTMENTS", etiqueta: "Citas y contactabilidad" },
-  { valor: "FIXED_ASSETS", etiqueta: "Activos fijos" },
-  { valor: "DOCUMENT_MGMT", etiqueta: "Gestión documental" },
-  { valor: "QUALITY_ACCREDITATION", etiqueta: "Calidad y acreditación" },
-  { valor: "WEB_DEVELOPMENT", etiqueta: "Desarrollo web y plataformas" },
-  { valor: "OTHER", etiqueta: "Otros" },
-];
-
 /*
  * `nulls` solo se acepta en campos que aceptan nulo: pasarselo a uno obligatorio
- * hace que Prisma rechace la consulta entera. `affinityScore` es Int @default(0),
- * asi que se ordena sin esa opcion.
+ * hace que Prisma rechace la consulta entera. `affinityScore` es Int @default(0).
  */
 const ORDENES = {
-  cierre: { etiqueta: "Cierre", campo: "closesAt", nulos: true },
-  afinidad: { etiqueta: "Afinidad", campo: "affinityScore", nulos: false },
-  monto: { etiqueta: "Monto", campo: "estimatedAmount", nulos: true },
-  publicacion: { etiqueta: "Publicación", campo: "publishedAt", nulos: true },
+  cierre: { campo: "closesAt", nulos: true },
+  afinidad: { campo: "affinityScore", nulos: false },
+  monto: { campo: "estimatedAmount", nulos: true },
+  publicacion: { campo: "publishedAt", nulos: true },
 } as const;
 
 type ClaveOrden = keyof typeof ORDENES;
-
-const monto = new Intl.NumberFormat("es-CL", {
-  notation: "compact",
-  maximumFractionDigits: 1,
-});
-const fechaCorta = new Intl.DateTimeFormat("es-CL", {
-  timeZone: "America/Santiago",
-  day: "numeric",
-  month: "short",
-});
-
-/** Fuera del componente: el compilador de React marca `Date.now()` dentro como impuro. */
-function diasPara(d: Date | null): number | null {
-  return d ? Math.ceil((d.getTime() - Date.now()) / 86_400_000) : null;
-}
-
-function textoPlazo(d: number | null): string {
-  if (d === null) return "sin fecha";
-  if (d < 0) return "cerrada";
-  if (d === 0) return "hoy";
-  return `${d} ${d === 1 ? "día" : "días"}`;
-}
-
-/** Rojo bajo 2 dias, ambar bajo 5 (docs/06). */
-function colorPlazo(d: number | null): string {
-  if (d === null) return "text-neutral-400";
-  if (d < 0) return "text-neutral-400";
-  if (d <= 2) return "text-red-700";
-  if (d <= 5) return "text-amber-700";
-  return "text-neutral-600";
-}
 
 export default async function Tablero({
   searchParams,
@@ -102,10 +63,10 @@ export default async function Tablero({
   if (q) {
     const filas = await prisma.$queryRaw<Array<{ id: string }>>`
       SELECT id FROM "Tender"
-      WHERE unaccent(lower(name))          LIKE unaccent(lower(${`%${q}%`}))
+      WHERE unaccent(lower(name))            LIKE unaccent(lower(${`%${q}%`}))
          OR unaccent(lower("buyerOrganism")) LIKE unaccent(lower(${`%${q}%`}))
-         OR unaccent(lower(description))   LIKE unaccent(lower(${`%${q}%`}))
-         OR lower(code)                    LIKE lower(${`%${q}%`})
+         OR unaccent(lower(description))     LIKE unaccent(lower(${`%${q}%`}))
+         OR lower(code)                      LIKE lower(${`%${q}%`})
     `;
     idsBusqueda = filas.map((f) => f.id);
   }
@@ -145,7 +106,7 @@ export default async function Tablero({
         incumbentSignals: true,
       },
     }),
-    // Los conteos ignoran el filtro de estado —si no, al marcar "Nuevas" los
+    // Los conteos ignoran el filtro de estado: si no, al marcar "Nuevas" los
     // demas chips mostrarian cero y no se podria volver.
     prisma.tender.groupBy({
       by: ["reviewStatus"],
@@ -158,7 +119,7 @@ export default async function Tablero({
     prisma.tender.groupBy({ by: ["vertical"], _count: true }),
   ]);
 
-  // Las favoritas son del perfil activo, no del equipo (D-24).
+  // Las favoritas son del perfil activo, no del equipo (D-26).
   const favoritas = new Set(
     perfil
       ? (
@@ -171,12 +132,16 @@ export default async function Tablero({
   );
 
   const conteos = conteosCrudos.map((c) => ({ estado: c.reviewStatus, total: c._count }));
-  const verticales = VERTICALES.map((v) => ({
-    ...v,
-    total: verticalesCrudas.find((x) => x.vertical === v.valor)?._count ?? 0,
-  })).filter((v) => v.total > 0);
+  const verticales = Object.entries(VERTICALES)
+    .map(([valor, etiqueta]) => ({
+      valor,
+      etiqueta,
+      total: verticalesCrudas.find((x) => x.vertical === valor)?._count ?? 0,
+    }))
+    .filter((v) => v.total > 0);
 
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+
   const enlaceOrden = (clave: ClaveOrden) => {
     const p = new URLSearchParams(sp as Record<string, string>);
     p.set("orden", clave);
@@ -184,6 +149,19 @@ export default async function Tablero({
     p.delete("pagina");
     return `/?${p.toString()}`;
   };
+  const enlacePagina = (n: number) => {
+    const p = new URLSearchParams(sp as Record<string, string>);
+    p.set("pagina", String(n));
+    return `/?${p.toString()}`;
+  };
+
+  const ordenables: Record<string, ColumnaOrdenable> = Object.fromEntries(
+    (["monto", "afinidad", "cierre"] as ClaveOrden[]).map((c) => [
+      c,
+      { clave: c, href: enlaceOrden(c), activa: orden === c, dir },
+    ]),
+  );
+
   /*
    * Cada fila lleva de vuelta el estado del tablero. Sin esto, volver desde una
    * ficha aterriza en el tablero sin filtros y hay que rehacer la busqueda.
@@ -192,16 +170,7 @@ export default async function Tablero({
    * y ahi el "atras" del navegador saca de la aplicacion.
    */
   const consultaActual = new URLSearchParams(sp as Record<string, string>).toString();
-  const enlaceFicha = (code: string) => {
-    const base = `/licitaciones/${encodeURIComponent(code)}`;
-    return consultaActual ? `${base}?volver=${encodeURIComponent(`/?${consultaActual}`)}` : base;
-  };
-
-  const enlacePagina = (n: number) => {
-    const p = new URLSearchParams(sp as Record<string, string>);
-    p.set("pagina", String(n));
-    return `/?${p.toString()}`;
-  };
+  const volver = consultaActual ? `/?${consultaActual}` : "/";
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
@@ -216,128 +185,13 @@ export default async function Tablero({
         <BoardFilters conteos={conteos} verticales={verticales} />
       </div>
 
-      <div className="mt-5 overflow-x-auto rounded-lg border border-neutral-200 bg-white">
-        <table className="w-full min-w-[860px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-neutral-200 bg-neutral-50/70">
-              <th scope="col" className="w-9 px-2 py-2.5">
-                <span className="sr-only">Favorita</span>
-              </th>
-              {[
-                ["Estado", null],
-                ["Licitación", null],
-                ["Vertical", null],
-                ["Monto", "monto"],
-                ["Afinidad", "afinidad"],
-                ["Cierre", "cierre"],
-              ].map(([etiqueta, clave]) => (
-                <th
-                  key={etiqueta}
-                  scope="col"
-                  className={`px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-500 ${
-                    clave === "monto" || clave === "afinidad" || clave === "cierre"
-                      ? "text-right"
-                      : "text-left"
-                  }`}
-                >
-                  {clave ? (
-                    <Link
-                      href={enlaceOrden(clave as ClaveOrden)}
-                      className="inline-flex items-center gap-1 hover:text-neutral-900"
-                    >
-                      {etiqueta}
-                      {orden === clave && (
-                        <span aria-hidden className="text-[9px]">
-                          {dir === "asc" ? "▲" : "▼"}
-                        </span>
-                      )}
-                    </Link>
-                  ) : (
-                    etiqueta
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {licitaciones.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-3 py-12 text-center text-sm text-neutral-500">
-                  No hay licitaciones con estos filtros.
-                </td>
-              </tr>
-            )}
-            {licitaciones.map((t) => {
-              const d = diasPara(t.closesAt);
-              return (
-                <tr key={t.code} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
-                  <td className="px-2 py-2 align-top">
-                    <StarButton code={t.code} favorita={favoritas.has(t.code)} />
-                  </td>
-                  <td className="px-3 py-2.5 align-top">
-                    <span
-                      className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${ESTADOS[t.reviewStatus].color}`}
-                    >
-                      {ESTADOS[t.reviewStatus].etiqueta}
-                    </span>
-                  </td>
-                  <td className="max-w-md px-3 py-2.5 align-top">
-                    <Link
-                      href={enlaceFicha(t.code)}
-                      className="line-clamp-2 font-medium text-neutral-900 hover:text-[#1c2f4a] hover:underline"
-                    >
-                      {t.name}
-                    </Link>
-                    <p className="mt-0.5 truncate text-xs text-neutral-500">
-                      <span className="font-mono">{t.code}</span>
-                      {" · "}
-                      {t.buyerOrganism}
-                      {t.region ? ` · ${t.region}` : ""}
-                    </p>
-                    {t.incumbentSignals.length > 0 && (
-                      <p className="mt-1 text-[11px] text-amber-700">
-                        posible proveedor instalado
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-3 py-2.5 align-top text-xs text-neutral-600">
-                    {VERTICALES.find((v) => v.valor === t.vertical)?.etiqueta ?? t.vertical}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2.5 text-right align-top font-mono text-xs tabular-nums text-neutral-700">
-                    {t.estimatedAmount ? (
-                      <>
-                        {monto.format(Number(t.estimatedAmount))}
-                        {t.currency !== "CLP" && (
-                          <span className="ml-1 text-neutral-400">{t.currency}</span>
-                        )}
-                        {t.outOfScale && (
-                          <span className="ml-1 text-neutral-400" title="Fuera de escala">
-                            ↑
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-neutral-300">—</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-2.5 text-right align-top font-mono text-xs tabular-nums text-neutral-700">
-                    {t.affinityScore}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-2.5 text-right align-top">
-                    <span className={`block font-mono text-xs font-semibold tabular-nums ${colorPlazo(d)}`}>
-                      {textoPlazo(d)}
-                    </span>
-                    {t.closesAt && (
-                      <span className="block font-mono text-[11px] tabular-nums text-neutral-400">
-                        {fechaCorta.format(t.closesAt)}
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="mt-5">
+        <TenderTable
+          filas={licitaciones}
+          favoritas={favoritas}
+          volver={volver}
+          ordenables={ordenables}
+        />
       </div>
 
       {paginas > 1 && (

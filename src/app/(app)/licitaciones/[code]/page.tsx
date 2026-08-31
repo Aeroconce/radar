@@ -30,6 +30,7 @@ import { prisma } from "@/lib/db";
 import { perfilActivo } from "@/lib/perfil";
 import { requireSession } from "@/lib/session";
 import { ESTADOS, rotuloMotivo, textoMotivo } from "@/lib/reviews";
+import { nombreProceso, nombreVertical } from "@/lib/tenders";
 import { ReviewForm } from "./review-form";
 
 export const dynamic = "force-dynamic";
@@ -54,25 +55,6 @@ const fechaHora = new Intl.DateTimeFormat("es-CL", {
   dateStyle: "medium",
   timeStyle: "short",
 });
-
-const PROCESO: Record<string, string> = {
-  L1: "L1 · menor a 100 UTM",
-  LE: "LE · entre 100 y 1.000 UTM",
-  LP: "LP · entre 1.000 y 5.000 UTM",
-  LQ: "LQ · entre 5.000 y 10.000 UTM",
-  LR: "LR · sobre 10.000 UTM",
-  LS: "LS · servicios personales",
-  OTHER: "otro tipo",
-};
-
-const VERTICAL: Record<string, string> = {
-  APPOINTMENTS: "Citas y contactabilidad",
-  FIXED_ASSETS: "Activos fijos",
-  DOCUMENT_MGMT: "Gestión documental",
-  QUALITY_ACCREDITATION: "Calidad y acreditación",
-  WEB_DEVELOPMENT: "Desarrollo web y plataformas",
-  OTHER: "Otros",
-};
 
 const fmtMonto = (v: unknown) => (v == null ? "no publicado" : monto.format(Number(v)));
 const fmtFecha = (d: Date | null) => (d ? fechaLarga.format(d) : "—");
@@ -161,7 +143,7 @@ export default async function FichaPage({
     ["Publicación", fmtFecha(tender.publishedAt)],
     ["Respuestas", fmtFecha(tender.answersAt)],
     ["Adjudicación estimada", fmtFecha(tender.awardEstimatedAt)],
-    ["Vertical", VERTICAL[tender.vertical] ?? tender.vertical],
+    ["Vertical", nombreVertical(tender.vertical)],
   ];
 
   return (
@@ -206,7 +188,7 @@ export default async function FichaPage({
         <p className="mt-2 font-mono text-xs text-neutral-500">
           {tender.code}
           <span className="mx-2 text-neutral-300">|</span>
-          {PROCESO[tender.processType] ?? tender.processType}
+          {nombreProceso(tender.processType)}
         </p>
         </div>
 
