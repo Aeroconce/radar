@@ -370,18 +370,34 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
         {/* Pegado arriba, con scroll propio: si el formulario crece mas que la
             ventana, el boton de guardar tiene que seguir alcanzable. */}
         <aside className="space-y-3 lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)] lg:self-start lg:overflow-y-auto lg:pb-6">
+          {/* Antes del formulario, porque ese es el orden del trabajo: se abre el
+              portal a leer las bases y recien despues se decide (docs/00, flujo 2). */}
+          <div className="rounded-lg border border-neutral-200 bg-white p-4">
+            <a
+              href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(tender.code)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-1.5 rounded-md border border-neutral-300 px-4 py-2.5 text-sm font-medium text-neutral-800 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
+            >
+              Abrir en Mercado Público
+              <svg aria-hidden viewBox="0 0 12 12" className="size-3 text-neutral-400">
+                <path
+                  d="M4.5 2h5.5v5.5M10 2 3 9M8 10H2V4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+            <p className="mt-2.5 text-xs leading-relaxed text-neutral-500">
+              Las bases y los anexos se descargan de ahí: la API pública no los entrega.
+              Léelos antes de decidir.
+            </p>
+          </div>
+
           <ReviewForm code={tender.code} estadoActual={tender.reviewStatus} perfil={perfil} />
-          <a
-            href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(tender.code)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="block rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-center text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
-          >
-            Abrir en Mercado Público
-          </a>
-          <p className="px-1 text-xs leading-relaxed text-neutral-400">
-            Las bases se descargan del portal: la API pública no las entrega.
-          </p>
         </aside>
       </div>
     </main>
