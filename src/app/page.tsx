@@ -5,10 +5,12 @@
  * la base para poder comprobar de punta a punta que la sesion y los datos
  * funcionan, en vez de una pantalla de bienvenida vacia.
  */
+import Link from "next/link";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
 import { perfilActivo } from "@/lib/perfil";
+import { ESTADOS } from "@/lib/reviews";
 import { cambiarPerfil } from "./perfil/actions";
 import { SignOutButton } from "./sign-out-button";
 
@@ -25,6 +27,12 @@ const ETIQUETAS: Record<ReviewStatus, string> = {
 };
 
 /** Orden de lectura: lo que espera trabajo primero, lo cerrado al final (docs/06). */
+/** Dias que faltan para una fecha. Fuera del componente: el compilador de React
+ *  marca `Date.now()` en el cuerpo como impuro, y con razon. */
+function diasPara(d: Date | null): number | null {
+  return d ? Math.ceil((d.getTime() - Date.now()) / 86_400_000) : null;
+}
+
 const ORDEN: ReviewStatus[] = [
   "NEW",
   "IN_REVIEW",
@@ -39,11 +47,27 @@ export default async function Home() {
   await requireSession();
   const perfil = await perfilActivo();
 
-  const [porEstado, ultimoBarrido, avisos, vistas] = await Promise.all([
+  // Lo que espera trabajo. El tablero completo con busqueda y filtros (RF-04) va
+  // en esta pantalla; por ahora, la lista basta para llegar a una ficha sin
+  // depender de tener un correo a mano.
+  const [porEstado, ultimoBarrido, avisos, vistas, pendientes] = await Promise.all([
     prisma.tender.groupBy({ by: ["reviewStatus"], _count: true }),
     prisma.jobRun.findFirst({ where: { type: "SWEEP" }, orderBy: { startedAt: "desc" } }),
     prisma.notification.count({ where: { status: "SENT" } }),
     prisma.seenTender.count(),
+    prisma.tender.findMany({
+      where: { reviewStatus: { in: ["NEW", "IN_REVIEW", "VIABLE"] } },
+      orderBy: [{ closesAt: "asc" }, { affinityScore: "desc" }],
+      take: 25,
+      select: {
+        code: true,
+        name: true,
+        buyerOrganism: true,
+        closesAt: true,
+        affinityScore: true,
+        reviewStatus: true,
+      },
+    }),
   ]);
 
   const conteos = new Map(porEstado.map((r) => [r.reviewStatus, r._count]));
@@ -130,10 +154,59 @@ export default async function Home() {
         </dl>
       </section>
 
-      <p className="mt-10 rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
-        El tablero con búsqueda, filtros y la ficha de cada licitación (RF-04 a RF-07)
-        va en esta pantalla. Por ahora el worker ya está buscando y avisando por correo.
-      </p>
+      <section className="mt-10">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
+          Esperan revisión
+        </h2>
+        {pendientes.length === 0 ? (
+          <p className="mt-3 text-sm text-neutral-500">Nada pendiente.</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-neutral-100">
+            {pendientes.map((t) => {
+              const d = diasPara(t.closesAt);
+              return (
+                <li key={t.code}>
+                  <Link
+                    href={`/licitaciones/${encodeURIComponent(t.code)}`}
+                    className="flex items-start gap-3 py-3 transition-colors hover:bg-neutral-50"
+                  >
+                    <span
+                      className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${ESTADOS[t.reviewStatus].color}`}
+                    >
+                      {ESTADOS[t.reviewStatus].etiqueta}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm text-neutral-900">{t.name}</span>
+                      <span className="block truncate text-xs text-neutral-500">
+                        {t.buyerOrganism}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span
+                        className={`block text-xs font-medium tabular-nums ${
+                          d !== null && d <= 2
+                            ? "text-red-700"
+                            : d !== null && d <= 5
+                              ? "text-amber-700"
+                              : "text-neutral-500"
+                        }`}
+                      >
+                        {d === null ? "—" : d < 0 ? "cerrada" : d === 0 ? "hoy" : `${d} días`}
+                      </span>
+                      <span className="block text-xs tabular-nums text-neutral-400">
+                        afinidad {t.affinityScore}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <p className="mt-4 text-xs text-neutral-500">
+          Búsqueda, filtros y orden (RF-04) van en esta pantalla.
+        </p>
+      </section>
     </main>
   );
 }

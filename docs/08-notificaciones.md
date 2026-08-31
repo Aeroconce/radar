@@ -22,6 +22,9 @@ abrir el correo, y es lo que decide si se abre. «Cierra en 3 días · Sistema d
 | AWARD_PUBLISHED | Al detectar acta de una SUBMITTED | `Acta publicada: <nombre>` |
 | DAILY_DIGEST | 08:00 | `Radar — resumen del <fecha>` |
 
+El resumen diario incluye además **el estado del último barrido** (RN-07). Es el único lugar donde el equipo
+se entera de que el worker falló sin tener que entrar al servidor.
+
 ## Qué lleva el cuerpo
 
 Un aviso tiene que responder tres preguntas **antes** de que la persona decida abrir la ficha:

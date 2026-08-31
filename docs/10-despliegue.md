@@ -154,8 +154,9 @@ del schema que el código espera.
 
 - **Respaldo** diario 03:00 por cron: `pg_dump -Fc radar > /srv/backups/radar-$(date +%F).dump` más un
   `tar` de `storage/`. Rotación de 14 días. Ensayar una restauración completa al menos una vez.
-- **Monitoreo**: Uptime Kuma contra `https://radar.aeroconce.cl/api/health`, que responde
-  `{ status, database, lastSweep: { at, ok, created } }`. Alerta si el último barrido tiene más de 6 horas.
+- **Monitoreo**: no hay endpoint de salud ni sonda externa (D-25). El worker lo reinicia systemd con
+  `Restart=always`, y un barrido fallido se informa en el resumen diario por correo y en la pantalla (RN-07).
+  Para mirar el estado a mano: `systemctl status radar-worker` y la tabla `JobRun`.
 - **Logs**: `journalctl -u radar-worker -f` (JSON de pino). Para la web, `journalctl -u radar -f`.
 - **Certificado**: certbot lo renueva solo. Verificar con `certbot certificates`.
 

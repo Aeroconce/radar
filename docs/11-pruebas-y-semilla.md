@@ -54,4 +54,4 @@ y no un acumulado.
 - Server Actions de revisión: transición de estados, validación de motivos y nota, actualización de `Tender.reviewStatus`, fila en `AuditLog`.
 
 ## Prueba manual antes de publicar
-Iniciar sesión con los dos roles · buscar "whatsapp" y "gestión documental" · filtrar Nuevas + cierre en 7 días · abrir una ficha, adjuntar un PDF, marcarla Descartada con motivos y nota · verificar la bitácora · ejecutar "barrido ahora" y revisar `JobRun` · exportar el tablero a Excel · comprobar `/api/health`.
+Iniciar sesión con los dos roles · buscar "whatsapp" y "gestión documental" · filtrar Nuevas + cierre en 7 días · abrir una ficha, adjuntar un PDF, marcarla Descartada con motivos y nota · verificar la bitácora · ejecutar "barrido ahora" y revisar `JobRun` · exportar el tablero a Excel · comprobar que el resumen diario informe el estado del último barrido.

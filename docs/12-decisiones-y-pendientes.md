@@ -16,6 +16,14 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-25** **Sin endpoint de salud.** RF-14 se elimino: una sonda que nadie consulta es decorativa, y no hay
+  monitoreo externo montado. La necesidad real —enterarse de que el barrido fallo— se cubre donde el equipo ya
+  mira: el resumen diario por correo y la pantalla (RN-07). systemd cubre las caidas del proceso.
+- **D-24** **Se elige un perfil al entrar** (Andres, Javiera, Francisco) y todo lo que se escriba queda a su
+  nombre sin volver a preguntarlo. Resuelve la atribucion que la cuenta compartida (D-22) no da, sin administrar
+  tres cuentas. La lista sale de `Setting.teamMembers`, no es texto libre.
+  **No es un control de seguridad**: quien tiene la sesion compartida puede elegir cualquier perfil. Es una
+  etiqueta para la bitacora, y como tal esta documentado en `docs/07`.
 - **D-23** **La sesion dura 30 dias de inactividad**, con casilla «mantener la sesion iniciada» marcada por
   defecto. El plan eran 60 minutos, pero el equipo entra unas pocas veces por semana y reingresaba la clave
   en cada visita. Sin marcar la casilla la cookie muere al cerrar el navegador, para equipos prestados.

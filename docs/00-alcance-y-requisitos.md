@@ -29,7 +29,6 @@ Tres personas del equipo. Dos roles: **Administrador** (todo, incluidas reglas y
 | RF-11 | Exportación del tablero filtrado y del histórico a Excel. |
 | RF-12 | Usuarios y autenticación con correo y contraseña; roles; cierre de sesión por inactividad. |
 | RF-13 | Bitácora de auditoría de accesos y cambios, consultable por el Administrador. |
-| RF-14 | Estado de salud del sistema (`/api/health`): base de datos, última ejecución del worker y su resultado. |
 
 ## Requisitos no funcionales
 | Id | Requisito |
@@ -39,6 +38,7 @@ Tres personas del equipo. Dos roles: **Administrador** (todo, incluidas reglas y
 | RN-03 | Interfaz usable con teclado; búsqueda con foco al abrir el tablero; tiempos de respuesta del tablero bajo 1 s con 5.000 licitaciones. |
 | RN-04 | Español neutro en toda la interfaz; fechas `dd-mm-aaaa hh:mm`; montos `$1.234.567`. |
 | RN-05 | Respaldo diario de la base de datos y de los adjuntos. |
+| RN-07 | El estado del worker se informa donde el equipo ya mira: el resumen diario por correo y la pantalla. Un barrido fallido no puede quedar solo en `JobRun`. |
 | RN-06 | Un solo repositorio, dos procesos (web y worker) como unidades systemd, detrás de nginx con TLS. |
 
 ## Flujo de uso

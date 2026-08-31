@@ -48,7 +48,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Todo queda protegido salvo el login, la propia API de sesion, el estado de
-  // salud (lo consulta el monitoreo sin sesion, docs/09) y los estaticos.
-  matcher: ["/((?!login|api/auth|api/health|_next/static|_next/image|favicon.ico).*)"],
+  // Todo queda protegido salvo el login, la propia API de sesion y los estaticos.
+  matcher: ["/((?!login|api/auth|_next/static|_next/image|favicon.ico).*)"],
 };

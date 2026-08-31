@@ -51,7 +51,7 @@ mañana hace falta un campo nuevo, se lee de ahí en vez de volver a consultar. 
 del acta en `HistoricalAward.raw`, por si cambia el formato del HTML.
 
 **Todo el worker deja rastro en `JobRun`.** Cada tarea abre una fila y la cierra con `ok` o `error`.
-Es lo que alimenta `/api/health` (RF-14) y la pantalla de Configuración.
+Es lo que alimenta el estado del barrido que se informa en el resumen diario y en la pantalla (RN-07).
 
 ## Decisiones de modelado
 

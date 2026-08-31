@@ -26,7 +26,6 @@ radar-licitaciones/
       (app)/reglas/page.tsx            # RF-09 (Administrador)
       (app)/configuracion/page.tsx     # usuarios, notificaciones (Administrador)
       (app)/auditoria/page.tsx         # RF-13
-      api/health/route.ts              # RF-14
       api/attachments/[id]/route.ts    # descarga con sesión
       api/export/route.ts              # RF-11
       api/auth/[...all]/route.ts       # Better Auth
