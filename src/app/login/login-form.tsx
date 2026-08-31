@@ -23,6 +23,9 @@ export function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Marcada por defecto: el equipo entra desde sus propios equipos. Quien use
+  // uno prestado la desmarca y la sesion muere al cerrar el navegador.
+  const [recordar, setRecordar] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -31,7 +34,7 @@ export function LoginForm() {
     setEnviando(true);
     setError(null);
 
-    const { error: fallo } = await signIn.email({ email, password });
+    const { error: fallo } = await signIn.email({ email, password, rememberMe: recordar });
 
     if (fallo) {
       // Sin detallar si fallo el correo o la clave: decirlo ayuda a quien prueba
@@ -99,6 +102,16 @@ export function LoginForm() {
               />
             </div>
           </div>
+
+          <label className="mt-4 flex items-center gap-2.5 text-sm text-neutral-700 select-none">
+            <input
+              type="checkbox"
+              checked={recordar}
+              onChange={(e) => setRecordar(e.target.checked)}
+              className="size-4 rounded border-neutral-300 accent-[#1c2f4a]"
+            />
+            Mantener la sesión iniciada
+          </label>
 
           {error && (
             <p

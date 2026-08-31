@@ -41,9 +41,18 @@ export const auth = betterAuth({
   },
 
   session: {
-    // Cierre por inactividad (docs/09): la sesion dura SESSION_IDLE_MINUTES y
-    // `updateAge: 0` la renueva en cada peticion, asi que el reloj cuenta desde
-    // el ultimo uso y no desde el inicio de sesion.
+    /*
+     * Cierre por inactividad (docs/09). `updateAge: 0` renueva la sesion en cada
+     * peticion, asi que el reloj cuenta desde el ultimo uso y no desde el inicio.
+     *
+     * De aqui salen dos comportamientos, segun la casilla "mantener la sesion":
+     *
+     * - Marcada: la cookie dura `SESSION_IDLE_MINUTES` sin usarse. Es el caso
+     *   normal para el equipo, que entra unas pocas veces por semana.
+     * - Sin marcar: Better Auth deja la cookie sin `maxAge`, asi que muere al
+     *   cerrar el navegador, y limita la sesion en base a un dia. Para entrar
+     *   desde un equipo prestado.
+     */
     expiresIn: env.SESSION_IDLE_MINUTES * 60,
     updateAge: 0,
   },

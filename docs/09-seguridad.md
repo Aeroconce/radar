@@ -2,7 +2,14 @@
 
 - **Autenticación**: Better Auth con correo y contraseña; mínimo 12 caracteres; el hash lo calcula la
   librería. Cierre por inactividad: la sesión dura `SESSION_IDLE_MINUTES` y se renueva en cada petición,
-  así que el reloj cuenta desde el último uso. **Sin registro público** (`disableSignUp`), comprobado.
+  así que el reloj cuenta desde el último uso.
+- **Casilla «mantener la sesión iniciada»**, marcada por defecto. Marcada, la cookie dura los
+  `SESSION_IDLE_MINUTES` completos (**30 días**). Sin marcar, Better Auth deja la cookie sin `maxAge`, así
+  que muere al cerrar el navegador, y limita la sesión en base a un día: es la opción para un equipo prestado.
+
+  > El plan original eran **60 minutos** de inactividad. Se subió a 30 días a pedido del equipo, que entra
+  > unas pocas veces por semana y estaba reingresando la clave en cada visita. Es una relajación consciente
+  > sobre una cuenta compartida: si el riesgo cambia, se baja el número y basta con reiniciar el servicio. **Sin registro público** (`disableSignUp`), comprobado.
 - **Una sola cuenta, compartida por el equipo** (D-22). No da atribución por sesión, así que **el autor de
   cada nota se elige al guardar la revisión** y queda en `Review.authorName`. Se elige de una lista
   configurable, no en texto libre: «Fran», «Francisco» y «francisco» quedarían como tres personas y el
