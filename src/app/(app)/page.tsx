@@ -1,180 +1,331 @@
 /**
- * Portada del radar.
+ * Tablero (RF-04).
  *
- * Provisional: el tablero de RF-04 va aqui. Por ahora muestra el estado real de
- * la base para poder comprobar de punta a punta que la sesion y los datos
- * funcionan, en vez de una pantalla de bienvenida vacia.
+ * Es una pantalla de triaje: responde "que miro ahora", no "como esta el
+ * sistema". Por eso el plazo manda —esta a la derecha, en cifras monoespaciadas
+ * y con color por cercania— y las metricas del sistema viven en la barra lateral,
+ * no compitiendo por atencion aqui.
+ *
+ * Los filtros son la URL (RF-04: "reflejados en la URL para compartir enlaces"),
+ * asi que la pantalla se resuelve entera en el servidor.
  */
 import Link from "next/link";
+import type { Prisma } from "@/generated/prisma/client";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
 import { ESTADOS } from "@/lib/reviews";
+import { BoardFilters } from "./board-filters";
 
 export const dynamic = "force-dynamic";
 
-const ETIQUETAS: Record<ReviewStatus, string> = {
-  NEW: "Nuevas",
-  IN_REVIEW: "En revisión",
-  VIABLE: "Viables",
-  DISCARDED: "Descartadas",
-  SUBMITTED: "Ofertadas",
-  AWARDED: "Adjudicadas",
-  LOST: "Perdidas",
-};
+const POR_PAGINA = 50;
 
-/** Orden de lectura: lo que espera trabajo primero, lo cerrado al final (docs/06). */
-/** Dias que faltan para una fecha. Fuera del componente: el compilador de React
- *  marca `Date.now()` en el cuerpo como impuro, y con razon. */
+const VERTICALES: Array<{ valor: string; etiqueta: string }> = [
+  { valor: "APPOINTMENTS", etiqueta: "Citas y contactabilidad" },
+  { valor: "FIXED_ASSETS", etiqueta: "Activos fijos" },
+  { valor: "DOCUMENT_MGMT", etiqueta: "Gestión documental" },
+  { valor: "QUALITY_ACCREDITATION", etiqueta: "Calidad y acreditación" },
+  { valor: "WEB_DEVELOPMENT", etiqueta: "Desarrollo web y plataformas" },
+  { valor: "OTHER", etiqueta: "Otros" },
+];
+
+const ORDENES = {
+  cierre: { etiqueta: "Cierre", campo: "closesAt" },
+  afinidad: { etiqueta: "Afinidad", campo: "affinityScore" },
+  monto: { etiqueta: "Monto", campo: "estimatedAmount" },
+  publicacion: { etiqueta: "Publicación", campo: "publishedAt" },
+} as const;
+
+type ClaveOrden = keyof typeof ORDENES;
+
+const monto = new Intl.NumberFormat("es-CL", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+const fechaCorta = new Intl.DateTimeFormat("es-CL", {
+  timeZone: "America/Santiago",
+  day: "numeric",
+  month: "short",
+});
+
+/** Fuera del componente: el compilador de React marca `Date.now()` dentro como impuro. */
 function diasPara(d: Date | null): number | null {
   return d ? Math.ceil((d.getTime() - Date.now()) / 86_400_000) : null;
 }
 
-const ORDEN: ReviewStatus[] = [
-  "NEW",
-  "IN_REVIEW",
-  "VIABLE",
-  "SUBMITTED",
-  "AWARDED",
-  "LOST",
-  "DISCARDED",
-];
+function textoPlazo(d: number | null): string {
+  if (d === null) return "sin fecha";
+  if (d < 0) return "cerrada";
+  if (d === 0) return "hoy";
+  return `${d} ${d === 1 ? "día" : "días"}`;
+}
 
-export default async function Home() {
+/** Rojo bajo 2 dias, ambar bajo 5 (docs/06). */
+function colorPlazo(d: number | null): string {
+  if (d === null) return "text-neutral-400";
+  if (d < 0) return "text-neutral-400";
+  if (d <= 2) return "text-red-700";
+  if (d <= 5) return "text-amber-700";
+  return "text-neutral-600";
+}
+
+export default async function Tablero({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
   await requireSession();
+  const sp = await searchParams;
 
-  // Lo que espera trabajo. El tablero completo con busqueda y filtros (RF-04) va
-  // en esta pantalla; por ahora, la lista basta para llegar a una ficha sin
-  // depender de tener un correo a mano.
-  const [porEstado, ultimoBarrido, avisos, vistas, pendientes] = await Promise.all([
-    prisma.tender.groupBy({ by: ["reviewStatus"], _count: true }),
-    prisma.jobRun.findFirst({ where: { type: "SWEEP" }, orderBy: { startedAt: "desc" } }),
-    prisma.notification.count({ where: { status: "SENT" } }),
-    prisma.seenTender.count(),
+  const q = (sp.q ?? "").trim();
+  const estados = (sp.estado ?? "").split(",").filter(Boolean) as ReviewStatus[];
+  const vertical = sp.vertical ?? "";
+  const orden: ClaveOrden = sp.orden && sp.orden in ORDENES ? (sp.orden as ClaveOrden) : "cierre";
+  const dir: "asc" | "desc" = sp.dir === "desc" ? "desc" : "asc";
+  const pagina = Math.max(1, Number(sp.pagina) || 1);
+
+  /*
+   * La busqueda sin tildes necesita `unaccent`, que el API de filtros de Prisma
+   * no expone. Se resuelve con una consulta cruda que devuelve solo los ids, y
+   * el resto del filtrado sigue en Prisma, donde se lee.
+   */
+  let idsBusqueda: string[] | null = null;
+  if (q) {
+    const filas = await prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT id FROM "Tender"
+      WHERE unaccent(lower(name))          LIKE unaccent(lower(${`%${q}%`}))
+         OR unaccent(lower("buyerOrganism")) LIKE unaccent(lower(${`%${q}%`}))
+         OR unaccent(lower(description))   LIKE unaccent(lower(${`%${q}%`}))
+         OR lower(code)                    LIKE lower(${`%${q}%`})
+    `;
+    idsBusqueda = filas.map((f) => f.id);
+  }
+
+  const where: Prisma.TenderWhereInput = {
+    ...(idsBusqueda !== null ? { id: { in: idsBusqueda } } : {}),
+    ...(estados.length > 0 ? { reviewStatus: { in: estados } } : {}),
+    ...(vertical ? { vertical: vertical as never } : {}),
+  };
+
+  const [total, licitaciones, conteosCrudos, verticalesCrudas] = await Promise.all([
+    prisma.tender.count({ where }),
     prisma.tender.findMany({
-      where: { reviewStatus: { in: ["NEW", "IN_REVIEW", "VIABLE"] } },
-      orderBy: [{ closesAt: "asc" }, { affinityScore: "desc" }],
-      take: 25,
+      where,
+      // Las que no tienen fecha al final: una licitacion sin cierre no es lo
+      // primero que hay que mirar.
+      orderBy: [{ [ORDENES[orden].campo]: { sort: dir, nulls: "last" } }, { affinityScore: "desc" }],
+      skip: (pagina - 1) * POR_PAGINA,
+      take: POR_PAGINA,
       select: {
         code: true,
         name: true,
         buyerOrganism: true,
+        region: true,
         closesAt: true,
+        estimatedAmount: true,
+        currency: true,
         affinityScore: true,
         reviewStatus: true,
+        vertical: true,
+        outOfScale: true,
+        incumbentSignals: true,
       },
     }),
+    // Los conteos ignoran el filtro de estado —si no, al marcar "Nuevas" los
+    // demas chips mostrarian cero y no se podria volver.
+    prisma.tender.groupBy({
+      by: ["reviewStatus"],
+      _count: true,
+      where: {
+        ...(idsBusqueda !== null ? { id: { in: idsBusqueda } } : {}),
+        ...(vertical ? { vertical: vertical as never } : {}),
+      },
+    }),
+    prisma.tender.groupBy({ by: ["vertical"], _count: true }),
   ]);
 
-  const conteos = new Map(porEstado.map((r) => [r.reviewStatus, r._count]));
-  const total = porEstado.reduce((s, r) => s + r._count, 0);
+  const conteos = conteosCrudos.map((c) => ({ estado: c.reviewStatus, total: c._count }));
+  const verticales = VERTICALES.map((v) => ({
+    ...v,
+    total: verticalesCrudas.find((x) => x.vertical === v.valor)?._count ?? 0,
+  })).filter((v) => v.total > 0);
+
+  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  const enlaceOrden = (clave: ClaveOrden) => {
+    const p = new URLSearchParams(sp as Record<string, string>);
+    p.set("orden", clave);
+    p.set("dir", orden === clave && dir === "asc" ? "desc" : "asc");
+    p.delete("pagina");
+    return `/?${p.toString()}`;
+  };
+  const enlacePagina = (n: number) => {
+    const p = new URLSearchParams(sp as Record<string, string>);
+    p.set("pagina", String(n));
+    return `/?${p.toString()}`;
+  };
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Tablero</h1>
+    <main className="mx-auto max-w-6xl px-6 py-8">
+      <div className="flex items-baseline justify-between gap-4">
+        <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Tablero</h1>
+        <p className="font-mono text-xs tabular-nums text-neutral-500">
+          {total} {total === 1 ? "licitación" : "licitaciones"}
+        </p>
+      </div>
 
-      <section className="mt-6">
-        <h2 className="sr-only">Estado por revisión</h2>
-        <dl className="mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-4">
-          {ORDEN.filter((e) => conteos.get(e)).map((estado) => (
-            <div key={estado} className="bg-white px-4 py-3">
-              <dd className="text-2xl font-semibold tabular-nums text-neutral-900">
-                {conteos.get(estado)}
-              </dd>
-              <dt className="mt-0.5 text-xs text-neutral-500">{ETIQUETAS[estado]}</dt>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <div className="mt-5">
+        <BoardFilters conteos={conteos} verticales={verticales} />
+      </div>
 
-      <section className="mt-8">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
-          Estado del sistema
-        </h2>
-        <dl className="mt-3 space-y-2 text-sm">
-          <div className="flex justify-between border-b border-neutral-100 py-1.5">
-            <dt className="text-neutral-500">Licitaciones en el tablero</dt>
-            <dd className="tabular-nums text-neutral-900">{total}</dd>
-          </div>
-          <div className="flex justify-between border-b border-neutral-100 py-1.5">
-            <dt className="text-neutral-500">Activas vistas por el barrido</dt>
-            <dd className="tabular-nums text-neutral-900">{vistas}</dd>
-          </div>
-          <div className="flex justify-between border-b border-neutral-100 py-1.5">
-            <dt className="text-neutral-500">Avisos enviados</dt>
-            <dd className="tabular-nums text-neutral-900">{avisos}</dd>
-          </div>
-          <div className="flex justify-between py-1.5">
-            <dt className="text-neutral-500">Último barrido</dt>
-            <dd className="text-neutral-900">
-              {ultimoBarrido?.finishedAt
-                ? new Intl.DateTimeFormat("es-CL", {
-                    timeZone: "America/Santiago",
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(ultimoBarrido.finishedAt)
-                : "todavía no corre"}
-              {ultimoBarrido?.ok === false && (
-                <span className="ml-2 text-red-700">terminó con error</span>
-              )}
-            </dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
-          Esperan revisión
-        </h2>
-        {pendientes.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-500">Nada pendiente.</p>
-        ) : (
-          <ul className="mt-3 divide-y divide-neutral-100">
-            {pendientes.map((t) => {
+      <div className="mt-5 overflow-x-auto rounded-lg border border-neutral-200 bg-white">
+        <table className="w-full min-w-[860px] border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-neutral-200 bg-neutral-50/70">
+              {[
+                ["Estado", null],
+                ["Licitación", null],
+                ["Vertical", null],
+                ["Monto", "monto"],
+                ["Afinidad", "afinidad"],
+                ["Cierre", "cierre"],
+              ].map(([etiqueta, clave]) => (
+                <th
+                  key={etiqueta}
+                  scope="col"
+                  className={`px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-neutral-500 ${
+                    clave === "monto" || clave === "afinidad" || clave === "cierre"
+                      ? "text-right"
+                      : "text-left"
+                  }`}
+                >
+                  {clave ? (
+                    <Link
+                      href={enlaceOrden(clave as ClaveOrden)}
+                      className="inline-flex items-center gap-1 hover:text-neutral-900"
+                    >
+                      {etiqueta}
+                      {orden === clave && (
+                        <span aria-hidden className="text-[9px]">
+                          {dir === "asc" ? "▲" : "▼"}
+                        </span>
+                      )}
+                    </Link>
+                  ) : (
+                    etiqueta
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {licitaciones.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-3 py-12 text-center text-sm text-neutral-500">
+                  No hay licitaciones con estos filtros.
+                </td>
+              </tr>
+            )}
+            {licitaciones.map((t) => {
               const d = diasPara(t.closesAt);
               return (
-                <li key={t.code}>
-                  <Link
-                    href={`/licitaciones/${encodeURIComponent(t.code)}`}
-                    className="flex items-start gap-3 py-3 transition-colors hover:bg-neutral-50"
-                  >
+                <tr key={t.code} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
+                  <td className="px-3 py-2.5 align-top">
                     <span
-                      className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${ESTADOS[t.reviewStatus].color}`}
+                      className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${ESTADOS[t.reviewStatus].color}`}
                     >
                       {ESTADOS[t.reviewStatus].etiqueta}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-neutral-900">{t.name}</span>
-                      <span className="block truncate text-xs text-neutral-500">
-                        {t.buyerOrganism}
-                      </span>
+                  </td>
+                  <td className="max-w-md px-3 py-2.5 align-top">
+                    <Link
+                      href={`/licitaciones/${encodeURIComponent(t.code)}`}
+                      className="line-clamp-2 font-medium text-neutral-900 hover:text-[#1c2f4a] hover:underline"
+                    >
+                      {t.name}
+                    </Link>
+                    <p className="mt-0.5 truncate text-xs text-neutral-500">
+                      <span className="font-mono">{t.code}</span>
+                      {" · "}
+                      {t.buyerOrganism}
+                      {t.region ? ` · ${t.region}` : ""}
+                    </p>
+                    {t.incumbentSignals.length > 0 && (
+                      <p className="mt-1 text-[11px] text-amber-700">
+                        posible proveedor instalado
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 align-top text-xs text-neutral-600">
+                    {VERTICALES.find((v) => v.valor === t.vertical)?.etiqueta ?? t.vertical}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right align-top font-mono text-xs tabular-nums text-neutral-700">
+                    {t.estimatedAmount ? (
+                      <>
+                        {monto.format(Number(t.estimatedAmount))}
+                        {t.currency !== "CLP" && (
+                          <span className="ml-1 text-neutral-400">{t.currency}</span>
+                        )}
+                        {t.outOfScale && (
+                          <span className="ml-1 text-neutral-400" title="Fuera de escala">
+                            ↑
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-neutral-300">—</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2.5 text-right align-top font-mono text-xs tabular-nums text-neutral-700">
+                    {t.affinityScore}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2.5 text-right align-top">
+                    <span className={`block font-mono text-xs font-semibold tabular-nums ${colorPlazo(d)}`}>
+                      {textoPlazo(d)}
                     </span>
-                    <span className="shrink-0 text-right">
-                      <span
-                        className={`block text-xs font-medium tabular-nums ${
-                          d !== null && d <= 2
-                            ? "text-red-700"
-                            : d !== null && d <= 5
-                              ? "text-amber-700"
-                              : "text-neutral-500"
-                        }`}
-                      >
-                        {d === null ? "—" : d < 0 ? "cerrada" : d === 0 ? "hoy" : `${d} días`}
+                    {t.closesAt && (
+                      <span className="block font-mono text-[11px] tabular-nums text-neutral-400">
+                        {fechaCorta.format(t.closesAt)}
                       </span>
-                      <span className="block text-xs tabular-nums text-neutral-400">
-                        afinidad {t.affinityScore}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
+                    )}
+                  </td>
+                </tr>
               );
             })}
-          </ul>
-        )}
-        <p className="mt-4 text-xs text-neutral-500">
-          Búsqueda, filtros y orden (RF-04) van en esta pantalla.
-        </p>
-      </section>
+          </tbody>
+        </table>
+      </div>
+
+      {paginas > 1 && (
+        <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Paginación">
+          <span className="font-mono text-xs tabular-nums text-neutral-500">
+            página {pagina} de {paginas}
+          </span>
+          <div className="flex gap-2">
+            {pagina > 1 && (
+              <Link
+                href={enlacePagina(pagina - 1)}
+                className="rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 hover:bg-neutral-50"
+              >
+                Anterior
+              </Link>
+            )}
+            {pagina < paginas && (
+              <Link
+                href={enlacePagina(pagina + 1)}
+                className="rounded-md border border-neutral-200 px-3 py-1.5 text-neutral-700 hover:bg-neutral-50"
+              >
+                Siguiente
+              </Link>
+            )}
+          </div>
+        </nav>
+      )}
+
+      <p className="mt-6 text-xs text-neutral-400">
+        Faltan por construir los filtros de región, monto, tipo de comprador y tipo de proceso, y la
+        exportación a Excel (RF-11).
+      </p>
     </main>
   );
 }

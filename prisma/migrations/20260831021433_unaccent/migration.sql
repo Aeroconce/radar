@@ -1,0 +1,11 @@
+-- Busqueda sin tildes (docs/06: "sin distincion de tildes ni mayusculas").
+--
+-- Sin esto, buscar "gestion" no encuentra "gestión", que es como el 90% de los
+-- compradores escribe los nombres. Es una extension contrib estandar, disponible
+-- tanto en el Postgres local como en el del VPS.
+--
+-- No se crea indice: `unaccent()` no es IMMUTABLE, asi que no se puede indexar
+-- sin envolverla. Con el volumen esperado (RN-03 pide menos de 1 s con 5.000
+-- licitaciones) el recorrido secuencial sobra; si algun dia no alcanza, la
+-- salida es una columna normalizada y no forzar el indice.
+CREATE EXTENSION IF NOT EXISTS unaccent;
