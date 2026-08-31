@@ -38,6 +38,15 @@ export const COMPRADORES: Record<string, string> = {
   OTHER: "Otro",
 };
 
+/** Tramos de monto para filtrar (RF-04). El filtro real esta en tablero-filtros. */
+export const TRAMOS_MONTO: Array<{ clave: string; etiqueta: string }> = [
+  { clave: "hasta-10", etiqueta: "Hasta $10 M" },
+  { clave: "10-50", etiqueta: "$10 M a $50 M" },
+  { clave: "50-200", etiqueta: "$50 M a $200 M" },
+  { clave: "sobre-200", etiqueta: "Sobre $200 M" },
+  { clave: "sin-monto", etiqueta: "Sin monto publicado" },
+];
+
 export const nombreVertical = (v: string) => VERTICALES[v] ?? v;
 export const nombreProceso = (p: string) => PROCESOS[p] ?? p;
 export const nombreComprador = (c: string) => COMPRADORES[c] ?? c;

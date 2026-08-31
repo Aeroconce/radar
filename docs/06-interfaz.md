@@ -9,7 +9,7 @@ Son tres y no más (D-27). Histórico, Configuración y Auditoría se descartaro
 
 ## 1. Tablero (`/`) — RF-04
 - **Búsqueda** con foco automático al entrar: texto libre sobre código, nombre, organismo, unidad y descripción; sin distinción de tildes ni mayúsculas; resultados mientras se escribe (300 ms).
-- **Filtros** en una fila plegable, todos combinables y reflejados en la URL para compartir enlaces:
+- **Filtros**, todos combinables y reflejados en la URL para compartir enlaces: estado (chips con conteo), vertical, tipo de comprador, tipo de proceso, región y tramo de monto (incluye «sin monto publicado»). Cada desplegable lista solo los valores con filas, con su conteo. «Exportar a Excel» baja lo filtrado (RF-11, D-34).
   - Estado de revisión (varios): Nueva, En revisión, Viable, Descartada, Ofertada, Adjudicada, Perdida. Por defecto: Nueva, En revisión, Viable.
   - Vertical (varios). Tipo de comprador (varios). Tipo de proceso (varios). Región (varios).
   - Monto: mínimo y máximo. Cierre: desde y hasta. Afinidad mínima: campo numérico que admite negativos, porque las exclusiones restan (`docs/04`). Por defecto, el umbral vigente.
@@ -36,6 +36,8 @@ No reemplaza al estado: VIABLE dice que el equipo la sigue, la estrella dice que
 mirarla. Son cosas distintas y por eso conviven.
 
 ## 2c. Todas las vistas (`/vistas`) — D-32
+Bajo el buscador, **temas frecuentes como chips con conteo** («software 33», «licencia 53»): un clic arma la
+consulta sin escribir, y escribir sigue funcionando igual.
 Las ~4.700 activas que el radar vio en el último barrido, hayan entrado al tablero o no. Sin búsqueda no
 lista nada: existe para una pregunta concreta («¿se le escapó algo a las reglas?»), no para hojear. Cada
 resultado muestra afinidad y cierre; si ya está en el tablero enlaza la ficha, y si no, un botón la trae:

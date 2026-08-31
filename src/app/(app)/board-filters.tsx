@@ -7,6 +7,9 @@
  *
  * La busqueda espera 300 ms antes de navegar; sin eso cada tecla seria una
  * consulta a la base.
+ *
+ * Los desplegables muestran solo lo que existe, con su conteo: quince regiones
+ * vacias son ruido; las cuatro con filas, un mapa.
  */
 "use client";
 
@@ -14,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { ESTADOS, ORDEN_ESTADOS } from "@/lib/reviews";
+import { TRAMOS_MONTO } from "@/lib/tenders";
 import { Select } from "@/components/select";
 
 export interface ConteoEstado {
@@ -21,12 +25,35 @@ export interface ConteoEstado {
   total: number;
 }
 
+export interface OpcionFaceta {
+  valor: string;
+  etiqueta: string;
+  total: number;
+}
+
+export interface Facetas {
+  verticales: OpcionFaceta[];
+  compradores: OpcionFaceta[];
+  procesos: OpcionFaceta[];
+  regiones: OpcionFaceta[];
+}
+
+function opciones(todas: string, lista: OpcionFaceta[]) {
+  return [
+    { valor: "", etiqueta: todas },
+    ...lista.map((o) => ({ valor: o.valor, etiqueta: o.etiqueta, detalle: String(o.total) })),
+  ];
+}
+
 export function BoardFilters({
   conteos,
-  verticales,
+  facetas,
+  consulta,
 }: {
   conteos: ConteoEstado[];
-  verticales: Array<{ valor: string; etiqueta: string; total: number }>;
+  facetas: Facetas;
+  /** La query actual, para que la exportacion baje exactamente lo filtrado (RF-11). */
+  consulta: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,7 +63,7 @@ export function BoardFilters({
   const primeraCarga = useRef(true);
 
   const estadosActivos = (params.get("estado") ?? "").split(",").filter(Boolean);
-  const verticalActiva = params.get("vertical") ?? "";
+  const activa = (clave: string) => params.get(clave) ?? "";
 
   function navegar(cambios: Record<string, string | null>) {
     const siguiente = new URLSearchParams(params.toString());
@@ -69,7 +96,10 @@ export function BoardFilters({
     navegar({ estado: siguiente.join(",") || null });
   }
 
-  const hayFiltros = estadosActivos.length > 0 || verticalActiva !== "" || texto !== "";
+  const hayFiltros =
+    estadosActivos.length > 0 ||
+    texto !== "" ||
+    ["vertical", "comprador", "proceso", "region", "monto"].some((c) => activa(c) !== "");
 
   return (
     <div className="space-y-3">
@@ -86,21 +116,6 @@ export function BoardFilters({
           />
         </div>
 
-        <Select
-          className="w-56"
-          etiquetaAccesible="Filtrar por vertical"
-          valor={verticalActiva}
-          onChange={(v) => navegar({ vertical: v || null })}
-          opciones={[
-            { valor: "", etiqueta: "Todas las verticales" },
-            ...verticales.map((v) => ({
-              valor: v.valor,
-              etiqueta: v.etiqueta,
-              detalle: String(v.total),
-            })),
-          ]}
-        />
-
         {hayFiltros && (
           <button
             type="button"
@@ -113,6 +128,60 @@ export function BoardFilters({
             Limpiar
           </button>
         )}
+
+        {/*
+          La exportacion baja lo que el tablero muestra, con los filtros
+          puestos (RF-11). Un enlace y no un boton con estado: el archivo lo
+          arma el servidor y el navegador lo descarga.
+        */}
+        <a
+          href={consulta ? `/api/export?${consulta}` : "/api/export"}
+          download
+          className="rounded-md border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+        >
+          Exportar a Excel
+        </a>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          className="w-52"
+          etiquetaAccesible="Filtrar por vertical"
+          valor={activa("vertical")}
+          onChange={(v) => navegar({ vertical: v || null })}
+          opciones={opciones("Todas las verticales", facetas.verticales)}
+        />
+        <Select
+          className="w-52"
+          etiquetaAccesible="Filtrar por tipo de comprador"
+          valor={activa("comprador")}
+          onChange={(v) => navegar({ comprador: v || null })}
+          opciones={opciones("Todos los compradores", facetas.compradores)}
+        />
+        <Select
+          className="w-56"
+          etiquetaAccesible="Filtrar por tipo de proceso"
+          valor={activa("proceso")}
+          onChange={(v) => navegar({ proceso: v || null })}
+          opciones={opciones("Todos los procesos", facetas.procesos)}
+        />
+        <Select
+          className="w-52"
+          etiquetaAccesible="Filtrar por región"
+          valor={activa("region")}
+          onChange={(v) => navegar({ region: v || null })}
+          opciones={opciones("Todas las regiones", facetas.regiones)}
+        />
+        <Select
+          className="w-48"
+          etiquetaAccesible="Filtrar por monto"
+          valor={activa("monto")}
+          onChange={(v) => navegar({ monto: v || null })}
+          opciones={[
+            { valor: "", etiqueta: "Cualquier monto" },
+            ...TRAMOS_MONTO.map((t) => ({ valor: t.clave, etiqueta: t.etiqueta })),
+          ]}
+        />
       </div>
 
       {/* Los conteos son los filtros: mostrarlos como cifras sueltas obliga a

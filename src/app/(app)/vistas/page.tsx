@@ -13,6 +13,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
+import { normalize } from "@/lib/affinity/rules";
 import { SearchBox } from "./search-box";
 import { PullButton } from "./pull-button";
 
@@ -21,6 +22,39 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Todas las vistas" };
 
 const MAX_FILAS = 100;
+
+/**
+ * Temas frecuentes, para buscar sin escribir.
+ *
+ * Son los terminos con los que el equipo pregunta, no las verticales del motor:
+ * un clic arma la consulta y el conteo dice de antemano cuanto hay. Se calculan
+ * sobre los nombres ya cargados; son ~4.700 textos cortos y sale mas barato que
+ * decidir un indice.
+ */
+const TEMAS = [
+  "software",
+  "sistema",
+  "plataforma",
+  "desarrollo",
+  "web",
+  "aplicacion",
+  "licencia",
+  "saas",
+  "arriendo",
+  "agendamiento",
+  "contactabilidad",
+  "gestion documental",
+  "digitalizacion",
+  "expediente",
+  "inventario",
+  "activos",
+  "acreditacion",
+  "mesa de ayuda",
+  "e-learning",
+  "ciberseguridad",
+  "encuesta",
+  "erp",
+];
 
 const fechaCorta = new Intl.DateTimeFormat("es-CL", {
   timeZone: "America/Santiago",
@@ -37,7 +71,15 @@ export default async function VistasPage({
   const sp = await searchParams;
   const q = (sp.q ?? "").trim();
 
-  const total = await prisma.seenTender.count();
+  // Una sola pasada por los nombres alimenta el total y los conteos de temas.
+  const nombres = (await prisma.seenTender.findMany({ select: { name: true } })).map((v) =>
+    normalize(v.name),
+  );
+  const total = nombres.length;
+  const temas = TEMAS.map((tema) => ({
+    tema,
+    total: nombres.filter((n) => n.includes(tema)).length,
+  })).filter((t) => t.total > 0);
 
   /*
    * La busqueda sin tildes usa `unaccent`, como en el tablero. Son ~4.700 filas:
@@ -89,9 +131,30 @@ export default async function VistasPage({
         <SearchBox inicial={q} />
       </div>
 
+      {/* Buscar sin escribir: cada tema es la consulta ya armada, con su conteo. */}
+      <div className="mt-3 flex max-w-3xl flex-wrap gap-1.5">
+        {temas.map((t) => {
+          const activo = q.toLowerCase() === t.tema;
+          return (
+            <Link
+              key={t.tema}
+              href={`/vistas?q=${encodeURIComponent(t.tema)}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 transition-colors ${
+                activo
+                  ? "bg-[#1c2f4a] text-white ring-[#1c2f4a]"
+                  : "bg-white text-neutral-600 ring-neutral-300 hover:bg-neutral-50 hover:text-neutral-900"
+              }`}
+            >
+              {t.tema}
+              <span className="font-mono tabular-nums opacity-60">{t.total}</span>
+            </Link>
+          );
+        })}
+      </div>
+
       {q === "" ? (
         <p className="mt-10 text-center text-sm text-neutral-500">
-          Escribe qué buscas: nombre, organismo o código.
+          Elige un tema o escribe qué buscas: nombre, organismo o código.
         </p>
       ) : visibles.length === 0 ? (
         <p className="mt-10 text-center text-sm text-neutral-500">

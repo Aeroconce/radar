@@ -16,6 +16,12 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-34** **La exportación es un CSV que Excel abre bien, no un `.xlsx`.** BOM UTF-8 para que las tildes
+  no lleguen rotas, punto y coma como separador (el Excel en español usa la coma para los decimales), CRLF, y
+  las celdas que empiezan con `=`, `+`, `-` o `@` se anteponen con comilla: Excel las ejecutaría como fórmula
+  y los nombres vienen del portal. Un `.xlsx` de verdad exigiría una dependencia entera para el mismo
+  resultado. La exportación usa **el mismo filtro que el tablero** (`tablero-filtros.ts`): lo que se baja es
+  lo que se ve, sin paginar.
 - **D-33** **Ni adjuntos ni exigencias en la revisión.** Decisión del usuario el 31-08-2026. Las bases se
   descargan del portal y **se analizan fuera de la plataforma**: RF-07 se descarta y el sistema no guarda
   archivos (el modelo `Attachment` queda en el schema sin pantalla, como los del histórico). Y el formulario

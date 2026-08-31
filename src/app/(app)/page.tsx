@@ -12,12 +12,11 @@
  * La tabla vive en `tender-table.tsx`, compartida con las favoritas.
  */
 import Link from "next/link";
-import type { Prisma } from "@/generated/prisma/client";
-import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { perfilActivo } from "@/lib/perfil";
 import { requireSession } from "@/lib/session";
-import { VERTICALES } from "@/lib/tenders";
+import { parseFiltros, whereTablero } from "@/lib/tablero-filtros";
+import { COMPRADORES, PROCESOS, VERTICALES } from "@/lib/tenders";
 import { BoardFilters } from "./board-filters";
 import { TenderTable, type ColumnaOrdenable } from "./tender-table";
 
@@ -47,37 +46,15 @@ export default async function Tablero({
   const perfil = await perfilActivo();
   const sp = await searchParams;
 
-  const q = (sp.q ?? "").trim();
-  const estados = (sp.estado ?? "").split(",").filter(Boolean) as ReviewStatus[];
-  const vertical = sp.vertical ?? "";
+  const filtros = parseFiltros(sp);
+  const { q } = filtros;
   const orden: ClaveOrden = sp.orden && sp.orden in ORDENES ? (sp.orden as ClaveOrden) : "cierre";
   const dir: "asc" | "desc" = sp.dir === "desc" ? "desc" : "asc";
   const pagina = Math.max(1, Number(sp.pagina) || 1);
 
-  /*
-   * La busqueda sin tildes necesita `unaccent`, que el API de filtros de Prisma
-   * no expone. Se resuelve con una consulta cruda que devuelve solo los ids, y
-   * el resto del filtrado sigue en Prisma, donde se lee.
-   */
-  let idsBusqueda: string[] | null = null;
-  if (q) {
-    const filas = await prisma.$queryRaw<Array<{ id: string }>>`
-      SELECT id FROM "Tender"
-      WHERE unaccent(lower(name))            LIKE unaccent(lower(${`%${q}%`}))
-         OR unaccent(lower("buyerOrganism")) LIKE unaccent(lower(${`%${q}%`}))
-         OR unaccent(lower(description))     LIKE unaccent(lower(${`%${q}%`}))
-         OR lower(code)                      LIKE lower(${`%${q}%`})
-    `;
-    idsBusqueda = filas.map((f) => f.id);
-  }
+  const where = await whereTablero(filtros);
 
-  const where: Prisma.TenderWhereInput = {
-    ...(idsBusqueda !== null ? { id: { in: idsBusqueda } } : {}),
-    ...(estados.length > 0 ? { reviewStatus: { in: estados } } : {}),
-    ...(vertical ? { vertical: vertical as never } : {}),
-  };
-
-  const [total, licitaciones, conteosCrudos, verticalesCrudas] = await Promise.all([
+  const [total, licitaciones, conteosCrudos, verticalesCrudas, compradoresCrudos, procesosCrudos, regionesCrudas] = await Promise.all([
     prisma.tender.count({ where }),
     prisma.tender.findMany({
       where,
@@ -111,12 +88,12 @@ export default async function Tablero({
     prisma.tender.groupBy({
       by: ["reviewStatus"],
       _count: true,
-      where: {
-        ...(idsBusqueda !== null ? { id: { in: idsBusqueda } } : {}),
-        ...(vertical ? { vertical: vertical as never } : {}),
-      },
+      where: await whereTablero({ ...filtros, estados: [] }),
     }),
     prisma.tender.groupBy({ by: ["vertical"], _count: true }),
+    prisma.tender.groupBy({ by: ["buyerType"], _count: true }),
+    prisma.tender.groupBy({ by: ["processType"], _count: true }),
+    prisma.tender.groupBy({ by: ["region"], _count: true, orderBy: { region: "asc" } }),
   ]);
 
   // Las favoritas son del perfil activo, no del equipo (D-26).
@@ -132,13 +109,35 @@ export default async function Tablero({
   );
 
   const conteos = conteosCrudos.map((c) => ({ estado: c.reviewStatus, total: c._count }));
-  const verticales = Object.entries(VERTICALES)
-    .map(([valor, etiqueta]) => ({
-      valor,
-      etiqueta,
-      total: verticalesCrudas.find((x) => x.vertical === valor)?._count ?? 0,
-    }))
-    .filter((v) => v.total > 0);
+
+  // Cada faceta lista solo lo que existe, con su conteo. Un desplegable con
+  // quince regiones vacias es ruido; con las cuatro que tienen filas, un mapa.
+  const facetas = {
+    verticales: Object.entries(VERTICALES)
+      .map(([valor, etiqueta]) => ({
+        valor,
+        etiqueta,
+        total: verticalesCrudas.find((x) => x.vertical === valor)?._count ?? 0,
+      }))
+      .filter((v) => v.total > 0),
+    compradores: Object.entries(COMPRADORES)
+      .map(([valor, etiqueta]) => ({
+        valor,
+        etiqueta,
+        total: compradoresCrudos.find((x) => x.buyerType === valor)?._count ?? 0,
+      }))
+      .filter((v) => v.total > 0),
+    procesos: Object.entries(PROCESOS)
+      .map(([valor, etiqueta]) => ({
+        valor,
+        etiqueta,
+        total: procesosCrudos.find((x) => x.processType === valor)?._count ?? 0,
+      }))
+      .filter((v) => v.total > 0),
+    regiones: regionesCrudas
+      .filter((r) => r.region !== "")
+      .map((r) => ({ valor: r.region, etiqueta: r.region, total: r._count })),
+  };
 
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
 
@@ -182,7 +181,7 @@ export default async function Tablero({
       </div>
 
       <div className="mt-5">
-        <BoardFilters conteos={conteos} verticales={verticales} />
+        <BoardFilters conteos={conteos} facetas={facetas} consulta={consultaActual} />
       </div>
 
       <div className="mt-5">
