@@ -4,7 +4,7 @@ Canal único: **correo electrónico vía Resend**. No hay otros canales.
 
 - Dominio `radar.aeroconce.cl`, verificado en Resend, región `sa-east-1`.
 - Remitente en `RESEND_FROM` (por defecto `Radar de Licitaciones <notificaciones@radar.aeroconce.cl>`).
-- Destinatarios en `NOTIFY_TO` (lista separada por coma), ajustables desde Configuración.
+- Destinatarios en `NOTIFY_TO` (lista separada por coma) del `.env` del servidor. Desde el 31-08-2026: Francisco, Aeroconce y Javiera. Se cambian editando el `.env` y reiniciando `radar-worker`; la pantalla de Configuración se descartó (D-27).
 - El dominio tiene **recepción deshabilitada**: nadie lee lo que llegue a esa casilla. Por eso todo correo
   lleva `Reply-To` a `RESEND_REPLY_TO`, una casilla real; sin eso, responder un aviso sería escribirle al vacío.
 
@@ -49,7 +49,7 @@ bloquean y delatan al lector. Los nombres vienen del portal, así que se escapan
 
 ## Reglas
 
-- Una notificación por tipo y licitación (`@@unique`); activación por tipo desde Configuración.
+- Una notificación por tipo y licitación (`dedupeKey` único); todos los tipos activos, sin pantalla para apagarlos (D-27).
 - El envío fallido se registra con el `id` de Resend o el error, y se reintenta en el ciclo siguiente.
 - Nunca se incluyen credenciales ni datos personales en el mensaje.
 - Los cuatro tipos por evento se **agrupan en un solo correo por ciclo del worker** cuando caen juntos,
@@ -64,7 +64,7 @@ bloquean y delatan al lector. Los nombres vienen del portal, así que se escapan
    correo anunciando algo que no se guardó.
 3. El envío la pasa a **`SENT`** con el `providerId` de Resend, o a **`FAILED`** con el error.
 4. El ciclo siguiente reintenta las `FAILED`. Tras **4 intentos** se deja de insistir: queda `FAILED` con su
-   error, visible en Configuración, en vez de repetirse cada dos horas para siempre.
+   error, consultable en `Notification`, en vez de repetirse cada dos horas para siempre.
 
 ## Implementación
 
