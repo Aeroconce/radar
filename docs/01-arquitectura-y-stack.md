@@ -30,7 +30,6 @@ radar-licitaciones/
       (app)/vistas/page.tsx            # todas las activas vistas; trae una al tablero (D-32)
       (app)/reglas/page.tsx            # RF-09
       (app)/reglas/actions.ts          # editar reglas, parametros y vista previa
-      api/attachments/[id]/route.ts    # descarga con sesión
       api/export/route.ts              # RF-11
       api/auth/[...all]/route.ts       # Better Auth
     components/                        # ui (shadcn) + componentes propios
@@ -111,7 +110,6 @@ RESEND_API_KEY=<clave de Resend>
 RESEND_FROM="Radar de Licitaciones <notificaciones@radar.aeroconce.cl>"
 RESEND_REPLY_TO=<casilla real: el dominio del radar no recibe correo>
 NOTIFY_TO=<destinatarios separados por coma>
-STORAGE_DIR=./storage
 SESSION_IDLE_MINUTES=60
 
 # Solo para `pnpm seed`, que crea el administrador inicial (docs/11)

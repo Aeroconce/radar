@@ -26,7 +26,6 @@ const schema = z.object({
   // responder un aviso enviaria el correo a una casilla que nadie lee (docs/08).
   RESEND_REPLY_TO: z.email("debe ser un correo valido"),
 
-  STORAGE_DIR: z.string().default("./storage"),
   SESSION_IDLE_MINUTES: z.coerce.number().int().positive().default(60),
 });
 

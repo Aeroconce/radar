@@ -153,7 +153,7 @@ del schema que el código espera.
 ## Operación
 
 - **Respaldo** diario 03:00 por cron: `pg_dump -Fc radar > /srv/backups/radar-$(date +%F).dump` más un
-  `tar` de `storage/`. Rotación de 14 días. Ensayar una restauración completa al menos una vez.
+  Rotación de 14 días. Ensayar una restauración completa al menos una vez.
 - **Monitoreo**: no hay endpoint de salud ni sonda externa (D-25). El worker lo reinicia systemd con
   `Restart=always`, y un barrido fallido se informa en el resumen diario por correo y en la pantalla (RN-07).
   Para mirar el estado a mano: `systemctl status radar-worker` y la tabla `JobRun`.
@@ -165,6 +165,5 @@ del schema que el código espera.
 | Síntoma | Dónde mirar |
 |---|---|
 | 502 en el dominio | `systemctl status radar` — el proceso no está escuchando en 3050 |
-| 413 al subir un adjunto | `client_max_body_size` en el sitio de nginx; debe ser ≥ 60m |
 | El barrido no corre | `journalctl -u radar-worker`; revisar `JobRun` y la cuota del ticket (`docs/03`) |
 | No llegan correos | `Notification` con `status = FAILED` y su columna `error` (`docs/08`) |

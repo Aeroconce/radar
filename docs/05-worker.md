@@ -9,7 +9,7 @@ Proceso separado (`pnpm worker`), mismo repositorio, mismo `DATABASE_URL`. Cada 
 | `history` (RF-05) | diario 04:00 | `getAwardedOn(ayer)`; para las coincidentes con las reglas (mismo motor, umbral 3): ficha, acta y parseo; crear `HistoricalAward` y `HistoricalBid`. Ejecución manual con rango de fechas: `pnpm worker:historico -- 2026-08-01 2026-08-31`. |
 | `awards` | diario 06:00 | Para `Tender` en SUBMITTED, VIABLE o IN_REVIEW con `awardEstimatedAt` ≤ hoy + 15 días: pedir ficha; si trae `Adjudicacion.UrlActa`, parsear el acta, guardar en el histórico y disparar `AWARD_PUBLISHED`. |
 | `alerts` (RF-10) | diario 08:00 | `CLOSING_SOON`: VIABLE o IN_REVIEW con cierre en ≤ 5 días. `QUESTIONS_CLOSING`: IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h. `DAILY_DIGEST`: resumen con nuevas del día, en revisión, viables y cierres de la semana. |
-| `cleanup` | semanal, domingo 03:00 | Archivar `JobRun` de más de 90 días; purgar `SeenTender` no vistas en 30 días; verificar archivos huérfanos en `storage/`. |
+| `cleanup` | semanal, domingo 03:00 | Archivar `JobRun` de más de 90 días; purgar `SeenTender` no vistas en 30 días. |
 
 ## Por qué hace falta refrescar a mano
 
@@ -20,7 +20,7 @@ del portal, fin de preguntas, adjudicación estimada. `pnpm worker:refrescar` lo
 
 Lo mismo con las reglas: acotar una regla no vacía el tablero, porque lo que ya entró no se vuelve a evaluar.
 `pnpm tablero:limpiar` muestra qué sacaría y `-- --aplicar` lo saca, y **nunca** toca una licitación con
-revisión, adjunto, favorita o estado distinto de «nueva».
+revisión, favorita o estado distinto de «nueva».
 
 ## Cuando se pide la ficha
 

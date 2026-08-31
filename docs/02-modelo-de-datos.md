@@ -12,7 +12,7 @@ discrepen, manda el schema — ese compila.
 | `Tender` | Licitación seleccionada, con su ficha completa de la API. Es lo que se ve en el tablero. |
 | `SeenTender` | **Toda** activa vista en un barrido, entre o no al tablero. |
 | `Review` | Una fila por cambio de estado o nota. La ficha muestra la última; la bitácora, todas. |
-| `Attachment` | Bases, anexos, foro y actas subidos a mano (RF-07). |
+| `Attachment` | Sin uso desde D-33: los adjuntos se descartaron y el análisis de bases ocurre fuera de la plataforma. |
 | `HistoricalAward` · `HistoricalBid` | Adjudicaciones pasadas con todos sus oferentes y montos. Sin pantalla propia desde D-27: alimentan el historial de la ficha (RF-05). |
 | `AffinityRule` | Palabras clave, exclusiones, patrones de comprador y señales, editables desde la interfaz (RF-09). `position` fija el orden de evaluación, que es semántico (D-28). |
 | `Setting` | Umbral, rango de montos, tipos de proceso, horas de cron, destinatarios de correo. |

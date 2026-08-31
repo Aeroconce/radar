@@ -8,20 +8,14 @@
  * de docs/07 como unica etiqueta, catorce motivos en una columna angosta se
  * envolvian a tres lineas cada uno y formaban un muro imposible de escanear.
  *
- * La validacion se repite en el servidor (`guardarRevision`). Aqui es solo para
- * avisar antes de enviar; el servidor es el que decide.
+ * Sin exigencias (D-33): motivos y nota son opcionales. El equipo se explica
+ * por WhatsApp; lo que se escriba aqui es para la memoria, no un requisito.
  */
 "use client";
 
 import { useActionState, useState } from "react";
 import type { ReviewStatus } from "@/generated/prisma/enums";
-import {
-  ESTADOS,
-  EXIGEN_JUSTIFICACION,
-  NOTA_MINIMA,
-  ORDEN_ESTADOS,
-  motivosPara,
-} from "@/lib/reviews";
+import { ESTADOS, ORDEN_ESTADOS, motivosPara } from "@/lib/reviews";
 import { Select } from "@/components/select";
 import { guardarRevision, type EstadoFormulario } from "./actions";
 
@@ -41,8 +35,6 @@ export function ReviewForm({
   const [state, formAction, pendiente] = useActionState(guardarRevision, INICIAL);
 
   const motivos = motivosPara(estado);
-  const exigeJustificacion = EXIGEN_JUSTIFICACION.includes(estado);
-  const faltanCaracteres = Math.max(0, NOTA_MINIMA - nota.trim().length);
 
   return (
     <form action={formAction} className="rounded-lg border border-neutral-200 bg-white p-5">
@@ -79,9 +71,7 @@ export function ReviewForm({
         <fieldset className="mt-5">
           <legend className="flex w-full items-baseline justify-between text-sm font-medium text-neutral-700">
             <span>Motivos</span>
-            {exigeJustificacion && (
-              <span className="text-xs font-normal text-neutral-400">al menos uno</span>
-            )}
+            <span className="text-xs font-normal text-neutral-400">opcional</span>
           </legend>
           <div className="mt-2 -mx-1.5">
             {motivos.map((m) => (
@@ -127,12 +117,6 @@ export function ReviewForm({
           placeholder="Qué encontraste en las bases y qué decidiste."
           className="mt-1.5 w-full resize-y rounded-md border border-neutral-300 px-3 py-2 text-sm leading-relaxed text-neutral-900 outline-none focus:border-[#1c2f4a] focus:ring-2 focus:ring-[#1c2f4a]/15"
         />
-        {exigeJustificacion && faltanCaracteres > 0 && (
-          <p className="mt-1.5 text-xs text-neutral-500">
-            Faltan <span className="font-mono tabular-nums">{faltanCaracteres}</span> caracteres.
-            Esta nota es la memoria de por qué se decidió esto.
-          </p>
-        )}
         {state.errores?.nota && (
           <p role="alert" className="mt-1.5 text-sm text-red-700">
             {state.errores.nota}

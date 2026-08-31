@@ -53,10 +53,10 @@ Es un dato declarado, no verificado. Para tres personas que se conocen alcanza; 
 que sea verificable, son cuentas individuales (`docs/12` T-17).
 
 ## Nota
-Texto libre, encabezado sugerido por la interfaz: "Por qué sí:" / "Por qué no:". Al pasar a VIABLE o DISCARDED se exige al menos un motivo y una nota de 20 caracteres o más. La nota de cierre (AWARDED/LOST) debe registrar el ganador, su precio y la lección aprendida: es la memoria de la empresa.
+Texto libre, opcional (D-33). La versión original exigía un motivo y 20 caracteres al pasar a VIABLE o DISCARDED; se quitó porque el equipo se explica por WhatsApp y un formulario que obliga a escribir lo ya conversado produce notas de relleno. La sugerencia sigue en pie sin ser requisito: en el cierre (AWARDED/LOST), registrar ganador, precio y lección aprendida es la memoria de la empresa.
 
 ## Permisos
-Revisor: crear revisiones y adjuntos, editar su propia nota dentro de las 24 horas. Administrador: todo, incluida la eliminación de adjuntos. Nadie borra revisiones: se corrigen con una nueva.
+Con la cuenta compartida (D-22) los roles no distinguen a nadie: quien entra puede revisar, y cada revisión queda con el perfil que la hizo. Nadie borra revisiones: se corrigen con una nueva.
 
-## Adjuntos (RF-07)
-Tipos: Bases, Anexo, Foro, Acta, Otro. Formatos: PDF, DOCX, XLSX, ZIP; verificación por contenido, no por extensión; 50 MB por archivo; nombre en disco aleatorio; descarga solo con sesión. Sugerencia de nombre al subir: `<código>_<tipo>_<n>.<ext>`.
+## Adjuntos
+Descartados (D-33). Las bases se descargan del portal y se analizan fuera de la plataforma; el sistema no guarda archivos. El modelo `Attachment` queda en el schema sin pantalla, como los del histórico (D-27).

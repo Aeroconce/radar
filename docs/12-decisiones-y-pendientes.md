@@ -16,6 +16,11 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-33** **Ni adjuntos ni exigencias en la revisión.** Decisión del usuario el 31-08-2026. Las bases se
+  descargan del portal y **se analizan fuera de la plataforma**: RF-07 se descarta y el sistema no guarda
+  archivos (el modelo `Attachment` queda en el schema sin pantalla, como los del histórico). Y el formulario
+  de revisión deja de exigir motivo y nota de 20 caracteres al marcar viable o descartada: «se puede explicar
+  por WhatsApp». Motivos y nota siguen disponibles, opcionales, para quien quiera dejar la memoria escrita.
 - **D-32** **La red de seguridad es una pantalla, no un script.** «Todas las vistas» (`/vistas`) busca
   sobre las ~4.700 activas de `SeenTender` —lo que el radar vio, haya entrado o no— y permite traer una al
   tablero con un clic: la acción pide la ficha a la API en el momento, con el mismo cliente y ritmo del

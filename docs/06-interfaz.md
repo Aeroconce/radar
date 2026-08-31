@@ -1,6 +1,6 @@
 # 06 — Interfaz
 
-Principio: tres pantallas resuelven todo el uso. Todo en español neutro, sin jerga técnica ("Revisar", "Guardar", "Adjuntar", "Descartar"). Diseño sobrio: una tipografía, dos tamaños, color solo para estados. Componentes de shadcn/ui: `Table`, `Input`, `Select`, `Badge`, `Dialog`, `Sheet`, `Textarea`, `Checkbox`, `Toast`, `DropdownMenu`.
+Principio: tres pantallas resuelven todo el uso. Todo en español neutro, sin jerga técnica ("Revisar", "Guardar", "Descartar"). Diseño sobrio: una tipografía, dos tamaños, color solo para estados. Componentes de shadcn/ui: `Table`, `Input`, `Select`, `Badge`, `Dialog`, `Sheet`, `Textarea`, `Checkbox`, `Toast`, `DropdownMenu`.
 
 ## Navegación (barra lateral fija)
 Tablero · Favoritas · Todas las vistas · Reglas · último barrido · perfil activo (cambiar, cerrar sesión).
@@ -24,7 +24,7 @@ Son tres y no más (D-27). Histórico, Configuración y Auditoría se descartaro
 Dos columnas en escritorio, una en móvil.
 - **Izquierda — Datos**: nombre, código, estado en el portal, organismo y unidad, región, tipo de proceso, monto y moneda, duración, contrato/toma de razón, fechas (publicación, fin de preguntas, respuestas, cierre, adjudicación estimada) con "en N días", descripción completa, ítems (producto, cantidad, descripción). Enlace al portal. Coincidencias que la seleccionaron y señales de incumbente como badges.
 - **Izquierda — Historial del comprador y de la vertical**: adjudicaciones anteriores del mismo organismo (si hay) y las últimas 10 de la misma vertical con ganador, número de oferentes y monto; enlace al histórico filtrado. Es el contexto que antes había que buscar a mano.
-- **Derecha — Revisión** (formulario, Server Action): estado (select), motivos (casillas del catálogo, `docs/07`), nota "Por qué sí / por qué no" (texto libre, mínimo 20 caracteres al pasar a Viable o Descartada), botón Guardar. Debajo, **Adjuntos**: lista con tipo, nombre, tamaño, quién y cuándo, descarga; zona para arrastrar archivos con selector de tipo (Bases, Anexo, Foro, Acta, Otro).
+- **Derecha — Revisión** (formulario, Server Action): estado (select), motivos (casillas del catálogo, `docs/07`) y nota "Por qué sí / por qué no", ambos opcionales (D-33), botón Guardar. Sin adjuntos: las bases se analizan fuera de la plataforma.
 - **Abajo — Bitácora**: todas las revisiones en orden cronológico inverso: fecha, usuario, estado, motivos, nota.
 
 ## 2b. Favoritas (`/favoritas`)

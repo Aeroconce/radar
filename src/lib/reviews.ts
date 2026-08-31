@@ -88,37 +88,10 @@ export function motivosPara(estado: ReviewStatus): Motivo[] {
   return [];
 }
 
-/** Largo minimo de la nota cuando se exige (docs/07). */
-export const NOTA_MINIMA = 20;
-
-/**
- * Estados que no se pueden guardar sin al menos un motivo y una nota de 20
- * caracteres: son los que cierran una decision y tienen que dejar el porque.
+/*
+ * Sin exigencias (D-33). La version original obligaba a un motivo y una nota de
+ * 20 caracteres al marcar VIABLE o DISCARDED. Se quito por decision del usuario:
+ * el equipo son tres personas que se explican por WhatsApp, y un formulario que
+ * exige escribir lo que ya se converso solo produce notas de relleno. Los
+ * motivos y la nota siguen ahi para quien quiera dejarlos.
  */
-export const EXIGEN_JUSTIFICACION: ReviewStatus[] = ["VIABLE", "DISCARDED"];
-
-export interface ProblemaRevision {
-  campo: "motivos" | "nota";
-  mensaje: string;
-}
-
-/** Valida una revision segun docs/07. Devuelve los problemas, vacio si esta bien. */
-export function validarRevision(input: {
-  estado: ReviewStatus;
-  motivos: string[];
-  nota: string;
-}): ProblemaRevision[] {
-  const problemas: ProblemaRevision[] = [];
-  if (!EXIGEN_JUSTIFICACION.includes(input.estado)) return problemas;
-
-  if (input.motivos.length === 0) {
-    problemas.push({ campo: "motivos", mensaje: "Marca al menos un motivo." });
-  }
-  if (input.nota.trim().length < NOTA_MINIMA) {
-    problemas.push({
-      campo: "nota",
-      mensaje: `La nota necesita al menos ${NOTA_MINIMA} caracteres: es la memoria de por qué se decidió esto.`,
-    });
-  }
-  return problemas;
-}

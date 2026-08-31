@@ -13,7 +13,7 @@ import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { perfilParaEscribir } from "@/lib/perfil";
 import { getSession } from "@/lib/session";
-import { ESTADOS, esMotivoValido, validarRevision } from "@/lib/reviews";
+import { ESTADOS, esMotivoValido } from "@/lib/reviews";
 
 export interface EstadoFormulario {
   ok: boolean;
@@ -43,12 +43,7 @@ export async function guardarRevision(
     return { ok: false, errores: { general: "Ese estado no existe." } };
   }
 
-  const problemas = validarRevision({ estado, motivos, nota });
-  if (problemas.length > 0) {
-    const errores: EstadoFormulario["errores"] = {};
-    for (const p of problemas) errores[p.campo] = p.mensaje;
-    return { ok: false, errores };
-  }
+  // Motivos y nota son opcionales (D-33): la justificacion se conversa fuera.
 
   const tender = await prisma.tender.findUnique({ where: { code }, select: { id: true } });
   if (!tender) return { ok: false, errores: { general: "Esa licitación ya no existe." } };
