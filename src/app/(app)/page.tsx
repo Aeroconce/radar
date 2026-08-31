@@ -9,10 +9,7 @@ import Link from "next/link";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
-import { perfilActivo } from "@/lib/perfil";
 import { ESTADOS } from "@/lib/reviews";
-import { cambiarPerfil } from "./perfil/actions";
-import { SignOutButton } from "./sign-out-button";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +42,6 @@ const ORDEN: ReviewStatus[] = [
 
 export default async function Home() {
   await requireSession();
-  const perfil = await perfilActivo();
 
   // Lo que espera trabajo. El tablero completo con busqueda y filtros (RF-04) va
   // en esta pantalla; por ahora, la lista basta para llegar a una ficha sin
@@ -74,39 +70,11 @@ export default async function Home() {
   const total = porEstado.reduce((s, r) => s + r._count, 0);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <header className="flex items-start justify-between border-b border-neutral-200 pb-6">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-neutral-500">
-            Aeroconce
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-neutral-900">
-            Radar de Licitaciones
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {perfil && (
-            <form action={cambiarPerfil}>
-              <button
-                type="submit"
-                title="Cambiar de perfil"
-                className="flex items-center gap-2 rounded-md border border-neutral-200 py-1 pl-1 pr-2.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
-              >
-                <span className="flex size-6 items-center justify-center rounded-full bg-[#1c2f4a] text-[11px] font-semibold text-white">
-                  {perfil.charAt(0).toUpperCase()}
-                </span>
-                {perfil}
-              </button>
-            </form>
-          )}
-          <SignOutButton />
-        </div>
-      </header>
+    <main className="mx-auto max-w-3xl px-6 py-10">
+      <h1 className="text-lg font-semibold tracking-tight text-neutral-900">Tablero</h1>
 
-      <section className="mt-8">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
-          Tablero
-        </h2>
+      <section className="mt-6">
+        <h2 className="sr-only">Estado por revisión</h2>
         <dl className="mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-4">
           {ORDEN.filter((e) => conteos.get(e)).map((estado) => (
             <div key={estado} className="bg-white px-4 py-3">
