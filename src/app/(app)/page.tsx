@@ -169,6 +169,19 @@ export default async function Tablero({
     p.delete("pagina");
     return `/?${p.toString()}`;
   };
+  /*
+   * Cada fila lleva de vuelta el estado del tablero. Sin esto, volver desde una
+   * ficha aterriza en el tablero sin filtros y hay que rehacer la busqueda.
+   *
+   * No sirve `history.back()`: los avisos por correo enlazan directo a una ficha,
+   * y ahi el "atras" del navegador saca de la aplicacion.
+   */
+  const consultaActual = new URLSearchParams(sp as Record<string, string>).toString();
+  const enlaceFicha = (code: string) => {
+    const base = `/licitaciones/${encodeURIComponent(code)}`;
+    return consultaActual ? `${base}?volver=${encodeURIComponent(`/?${consultaActual}`)}` : base;
+  };
+
   const enlacePagina = (n: number) => {
     const p = new URLSearchParams(sp as Record<string, string>);
     p.set("pagina", String(n));
@@ -249,7 +262,7 @@ export default async function Tablero({
                   </td>
                   <td className="max-w-md px-3 py-2.5 align-top">
                     <Link
-                      href={`/licitaciones/${encodeURIComponent(t.code)}`}
+                      href={enlaceFicha(t.code)}
                       className="line-clamp-2 font-medium text-neutral-900 hover:text-[#1c2f4a] hover:underline"
                     >
                       {t.name}

@@ -115,10 +115,22 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
   return { title: t?.name ?? "Licitación" };
 }
 
-export default async function FichaPage({ params }: { params: Promise<{ code: string }> }) {
+export default async function FichaPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ code: string }>;
+  searchParams: Promise<{ volver?: string }>;
+}) {
   await requireSession();
   const perfil = await perfilActivo();
   const { code } = await params;
+  const { volver } = await searchParams;
+
+  // Solo rutas internas: un destino externo convertiria el enlace de vuelta en
+  // una forma de sacar a alguien del sitio desde un enlace que parece propio.
+  const destinoVuelta =
+    volver && volver.startsWith("/") && !volver.startsWith("//") ? volver : "/";
 
   const tender = await prisma.tender.findUnique({
     where: { code },
@@ -155,10 +167,20 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
       <Link
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-neutral-500 transition-colors hover:text-neutral-900"
+        href={destinoVuelta}
+        className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-50"
       >
-        ← Tablero
+        <svg aria-hidden viewBox="0 0 12 12" className="size-3 text-neutral-400">
+          <path
+            d="M7.5 2 3.5 6l4 4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Volver al tablero
       </Link>
 
       <header className="mt-4 flex items-start justify-between gap-6">
