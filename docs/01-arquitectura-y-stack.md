@@ -21,7 +21,10 @@ radar-licitaciones/
       login/login-form.tsx             # el formulario, aparte por la frontera de Suspense
       (app)/layout.tsx                 # barra superior + navegación
       (app)/page.tsx                   # tablero (RF-04)
-      (app)/licitaciones/[id]/page.tsx # ficha (RF-05, RF-06, RF-07)
+      licitaciones/[code]/page.tsx      # ficha (RF-05, RF-06); por codigo, no por id
+      licitaciones/[code]/review-form.tsx
+      licitaciones/[code]/actions.ts    # guardar revision
+      perfil/page.tsx                  # elegir quien eres (D-24)
       (app)/historico/page.tsx         # RF-08
       (app)/reglas/page.tsx            # RF-09 (Administrador)
       (app)/configuracion/page.tsx     # usuarios, notificaciones (Administrador)
@@ -34,6 +37,8 @@ radar-licitaciones/
       db.ts                            # PrismaClient único
       auth.ts                          # Better Auth: cuenta compartida, sin registro (D-22)
       auth-client.ts                   # cliente del navegador; solo lo usa el login
+      perfil.ts                        # perfil activo, en cookie (D-24)
+      reviews.ts                       # estados, catalogo de motivos y validacion (docs/07)
       session.ts                       # getSession / requireSession del lado del servidor
       mp/client.ts                     # cliente API Mercado Público con ritmo y reintentos
       mp/parsers.ts                    # ficha, acta HTML

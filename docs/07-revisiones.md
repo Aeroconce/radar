@@ -34,12 +34,15 @@ Viabilidad:
 
 ## Quién deja la nota
 
-La sesión es compartida por el equipo (D-22), así que el autor **no se deduce de quién inició sesión**: se
-elige al guardar, en el mismo diálogo de la revisión, y queda en `Review.authorName`.
+La sesión es compartida por el equipo (D-22), así que el autor **no se deduce de quién inició sesión**.
+Al entrar se elige un perfil —Andrés, Javiera o Francisco, de `Setting.teamMembers`— y todo lo que se
+escriba queda a su nombre en `Review.authorName` sin volver a preguntarlo (D-24).
 
-Es un desplegable con los integrantes configurados en `Setting.teamMembers`, más una opción para escribir
-otro nombre. No es texto libre: «Fran», «Francisco» y «francisco» quedarían como tres personas distintas y
-el filtro por autor de la bitácora dejaría de servir.
+El autor **no viaja en el formulario**: lo pone el servidor desde el perfil activo. Enviarlo desde el
+cliente permitiría firmar a nombre de otro editando el HTML, y eso lo dejaría sin servir ni como etiqueta.
+
+La lista es cerrada, no texto libre: «Fran», «Francisco» y «francisco» quedarían como tres personas
+distintas y el filtro por autor dejaría de servir.
 
 Es un dato declarado, no verificado. Para tres personas que se conocen alcanza; si algún día hace falta
 que sea verificable, son cuentas individuales (`docs/12` T-17).
