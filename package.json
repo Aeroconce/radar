@@ -13,6 +13,7 @@
     "worker:avisos": "tsx worker/run.ts alerts",
     "reglas:sincronizar": "tsx scripts/sincronizar-reglas.ts",
     "tablero:limpiar": "tsx scripts/limpiar-tablero.ts",
+    "bitacora:limpiar": "tsx scripts/limpiar-bitacora.ts",
     "worker:barrido": "tsx worker/run.ts sweep",
     "seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"

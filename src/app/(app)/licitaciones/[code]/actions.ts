@@ -45,8 +45,38 @@ export async function guardarRevision(
 
   // Motivos y nota son opcionales (D-33): la justificacion se conversa fuera.
 
-  const tender = await prisma.tender.findUnique({ where: { code }, select: { id: true } });
+  const tender = await prisma.tender.findUnique({
+    where: { code },
+    select: {
+      id: true,
+      reviewStatus: true,
+      reviews: { orderBy: { createdAt: "desc" }, take: 1, select: { status: true, reasons: true, note: true } },
+    },
+  });
   if (!tender) return { ok: false, errores: { general: "Esa licitación ya no existe." } };
+
+  /*
+   * Una revision que no agrega nada no se registra. Sin esto, apretar Guardar
+   * tres veces deja tres filas identicas en la bitacora, y la bitacora es la
+   * memoria: tres "Perdida · Francisco" seguidas no cuentan nada.
+   *
+   * Se rechazan dos formas de repeticion: guardar el estado actual sin motivos
+   * ni nota (no hay decision nueva), y guardar algo identico a la ultima
+   * revision (el doble clic).
+   */
+  const notaLimpia = nota.trim();
+  const sinNada = estado === tender.reviewStatus && motivos.length === 0 && notaLimpia === "";
+  const ultima = tender.reviews[0];
+  const identica =
+    ultima !== undefined &&
+    ultima.status === estado &&
+    ultima.note === notaLimpia &&
+    ultima.reasons.length === motivos.length &&
+    ultima.reasons.every((r, i) => r === motivos[i]);
+
+  if (sinNada || identica) {
+    return { ok: true, mensaje: "Ya estaba registrado así: no se agregó nada a la bitácora." };
+  }
 
   // El estado del tablero y la revision se escriben juntos: si se separan, el
   // tablero puede quedar mostrando un estado que ninguna revision respalda
