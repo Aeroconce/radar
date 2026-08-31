@@ -48,7 +48,8 @@ sudo -u radar -i bash -lc 'npm install --prefix /home/radar/.local pnpm@11.18.0'
 `.env.example`; todas son obligatorias (`docs/01`).
 
 > El archivo debe tener **finales de línea LF**. Creado desde Windows queda con CRLF, y aunque systemd
-> los normaliza, no todas las herramientas lo hacen: un `` al final del ticket rompe las llamadas a la
+> los normaliza, no todas las herramientas lo hacen: un `
+` al final del ticket rompe las llamadas a la
 > API sin decir por qué.
 
 ## Despliegue
@@ -61,13 +62,17 @@ Desde tu máquina, con el remoto `vps` configurado (`git remote add vps radar:/h
 
 ```bash
 git push vps master
-ssh vps 'sudo -u radar -i bash -lc "cd app && pnpm install --frozen-lockfile && pnpm prisma migrate deploy && pnpm build"'
+ssh vps 'sudo -u radar -i bash -lc "cd app && pnpm install --frozen-lockfile && pnpm prisma migrate deploy && pnpm prisma generate && pnpm build"'
 ssh vps 'systemctl restart radar radar-worker'
 ssh vps 'systemctl status radar radar-worker --no-pager'
 ```
 
 El alias `radar` de `~/.ssh/config` apunta al usuario del proyecto, no a root: así los archivos quedan
 con el propietario correcto sin tener que hacer `chown` después.
+
+> **`prisma generate` va explicito.** El `postinstall` solo corre cuando `pnpm install` instala algo, y en
+> un despliegue donde cambió el schema pero no las dependencias no se ejecuta: el build falla con un
+> cliente viejo que no conoce las tablas nuevas.
 
 La primera vez, además: `pnpm seed` para cargar los datos de agosto de 2026 (`docs/11`).
 

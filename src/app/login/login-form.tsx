@@ -118,10 +118,6 @@ export function LoginForm() {
           </button>
         </form>
 
-        <p className="mt-6 text-xs leading-relaxed text-neutral-500">
-          La cuenta es compartida por el equipo. Al guardar una revisión se elige
-          quién la deja, para que la bitácora sepa de quién es cada nota.
-        </p>
       </div>
     </main>
   );
