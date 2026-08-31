@@ -51,6 +51,19 @@ const EXCLUDED = {
   "1978-44-LE26": "ciberseguridad",
   "609-25-LE26": "ciberseguridad",
   "1562-49-LR26": "ciberseguridad",
+  "548874-74-LR26": "SIEM: ciberseguridad, entraba por la palabra saas (D-29)",
+
+  /**
+   * D-29: un tema no es un sistema. `acreditacion`, `inventario` y
+   * `oficina de partes` bajaron a peso 2 y ya no llegan solos al umbral.
+   */
+  "1210-23-LE26": "acreditacion de saberes linguisticos, no un sistema",
+  "3378-54-LE26": "servicios profesionales para una autoevaluacion, no un sistema",
+  "824-3-LE26": "asesoria a la contraparte tecnica de un inventario",
+  "1671-30-LE26": "reestructuracion de una oficina de partes, no su digitalizacion",
+
+  /** D-29: una concesion es operar un negocio, no entregar software. */
+  "4237-12-LR26": "concesion de estacionamientos, entraba por sistema de control",
 } as const;
 
 const EXPECTED_SELECTED = candidates.length - Object.keys(EXCLUDED).length;

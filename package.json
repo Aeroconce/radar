@@ -9,6 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "worker": "tsx worker/index.ts",
+    "worker:refrescar": "tsx worker/run.ts refresh",
+    "reglas:sincronizar": "tsx scripts/sincronizar-reglas.ts",
+    "tablero:limpiar": "tsx scripts/limpiar-tablero.ts",
     "worker:barrido": "tsx worker/run.ts sweep",
     "seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"

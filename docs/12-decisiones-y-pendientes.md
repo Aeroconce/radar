@@ -16,6 +16,17 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-29** **Un tema no es un sistema.** `acreditacion`, `inventario`, `expediente` y `oficina de partes`
+  nombran de qué trata algo, no que sea software, y con peso 6 o 5 llegaban solos al umbral. El tablero tenía
+  el arriendo de una embarcación, una acreditación de saberes lingüísticos y la reestructuración de una
+  oficina de partes. Bajan a **peso 2**: solo entran acompañados de una palabra que sí diga sistema. Es lo
+  que `docs/04` ya decía —«las verticales describen de qué trata el sistema, no reemplazan la exigencia de
+  que sea un sistema»— y el motor no cumplía. Se agregan además dos exclusiones que faltaban: **ciberseguridad**,
+  que D-18 dejó fuera del alcance sin darle una regla (entraban un WAF y un SIEM por la palabra `saas`), y
+  **concesiones**, donde la contraparte opera un negocio en vez de entregar software. Sobre el barrido del
+  27-08-2026 la selección baja de 25 a 19 de 40, y las seis diferencias quedan declaradas en
+  `tests/baseline.test.ts`. Del tablero salieron 6 licitaciones; las 13 que también quedaron bajo el umbral
+  pero ya tenían revisión se conservan, porque un cambio de regla no deshace lo que el equipo decidió.
 - **D-28** **Las reglas tienen un orden explícito** (`AffinityRule.position`). No es cosmético: en los
   patrones de comprador gana el primero que coincide —un hospital dependiente de un municipio sigue siendo un
   hospital— y en las palabras clave el orden desempata los pesos iguales (`docs/04`). Hasta ahora las reglas se

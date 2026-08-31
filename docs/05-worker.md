@@ -5,10 +5,22 @@ Proceso separado (`pnpm worker`), mismo repositorio, mismo `DATABASE_URL`. Cada 
 | Tarea | Cron (hora de Chile) | Qué hace |
 |---|---|---|
 | `sweep` (RF-01, RF-02, RF-03) | cada 2 horas, minuto 15 | 1) `getActive()`; hacer `upsert` de **todas** en `SeenTender` con su puntaje, entren o no (es la base de la vista previa de reglas y de la detección de falsos negativos). 2) Para cada código no existente en `Tender`: calcular afinidad con el nombre; si ≥ umbral − 1, pedir ficha, recalcular con descripción; si ≥ umbral, crear `Tender` (NEW) con clasificación y coincidencias. 3) Para los existentes en estado NEW/IN_REVIEW/VIABLE/SUBMITTED cuya `FechaCierre` del listado cambió, refrescar la ficha. 4) Marcar `portalStatus` de los que ya no están activos. 5) Disparar `NEW_HIGH_AFFINITY` para las nuevas con afinidad ≥ umbral alto (Setting, inicial 8). 6) Marcar `SeenTender.selected` en las que entraron. |
+| `refresh` | manual | Vuelve a pedir **todas** las fichas guardadas y las deja al día, con el puntaje y la clasificación de las reglas de ahora. No entra al cron: son tantas llamadas como licitaciones en el tablero. No toca `reviewStatus`. `pnpm worker:refrescar`. |
 | `history` (RF-05) | diario 04:00 | `getAwardedOn(ayer)`; para las coincidentes con las reglas (mismo motor, umbral 3): ficha, acta y parseo; crear `HistoricalAward` y `HistoricalBid`. Ejecución manual con rango de fechas: `pnpm worker:historico -- 2026-08-01 2026-08-31`. |
 | `awards` | diario 06:00 | Para `Tender` en SUBMITTED, VIABLE o IN_REVIEW con `awardEstimatedAt` ≤ hoy + 15 días: pedir ficha; si trae `Adjudicacion.UrlActa`, parsear el acta, guardar en el histórico y disparar `AWARD_PUBLISHED`. |
 | `alerts` (RF-10) | diario 08:00 | `CLOSING_SOON`: VIABLE o IN_REVIEW con cierre en ≤ 5 días. `QUESTIONS_CLOSING`: IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h. `DAILY_DIGEST`: resumen con nuevas del día, en revisión, viables y cierres de la semana. |
 | `cleanup` | semanal, domingo 03:00 | Archivar `JobRun` de más de 90 días; purgar `SeenTender` no vistas en 30 días; verificar archivos huérfanos en `storage/`. |
+
+## Por qué hace falta refrescar a mano
+
+El barrido no vuelve a mirar una licitación que ya existe en `Tender`: solo la pide de nuevo si cambió su
+fecha de cierre, que es lo que indica una prórroga. Es la decisión correcta para la cuota —pedir 4.700 fichas
+por ciclo no cabe— pero deja el resto de los campos con el valor que tenían el día que entró: monto, estado
+del portal, fin de preguntas, adjudicación estimada. `pnpm worker:refrescar` los deja al día.
+
+Lo mismo con las reglas: acotar una regla no vacía el tablero, porque lo que ya entró no se vuelve a evaluar.
+`pnpm tablero:limpiar` muestra qué sacaría y `-- --aplicar` lo saca, y **nunca** toca una licitación con
+revisión, adjunto, favorita o estado distinto de «nueva».
 
 ## Cuando se pide la ficha
 

@@ -20,18 +20,39 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
   [
     "FIXED_ASSETS",
     6,
-    "activos? fijos?|gestion de activos|control de inventario|bienes de uso|inventario",
+    "activos? fijos?|gestion de activos|control de inventario|bienes de uso",
   ],
   [
     "QUALITY_ACCREDITATION",
     6,
-    "acreditacion|seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad",
+    "seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad",
   ],
   [
     "DOCUMENT_MGMT",
     5,
-    "gestion documental|archivo digital|digitalizacion|documentos electronicos|expediente|oficina de partes|gestor documental",
+    "gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental",
   ],
+  /*
+   * Temas, no sistemas (D-29).
+   *
+   * `acreditacion`, `inventario`, `expediente` y `oficina de partes` nombran de
+   * que trata algo, no que sea software. Con peso 6 entraban solos y traian al
+   * tablero el arriendo de una embarcacion, una acreditacion de saberes
+   * linguisticos y la reestructuracion de una oficina.
+   *
+   * Con peso 2 quedan bajo el umbral por si mismos y solo entran acompanados de
+   * una palabra que si diga sistema: "sistema de acreditacion" suma 2 + 2 y
+   * pasa; "acreditacion de saberes linguisticos" se queda en 2.
+   *
+   * Es lo que docs/04 ya decia y el motor no cumplia: las verticales describen
+   * de que trata el sistema, no reemplazan la exigencia de que sea un sistema.
+   *
+   * Van antes de la regla generica de peso 2 a proposito: con el mismo peso
+   * gana la primera, y asi la vertical que se asigna es la especifica.
+   */
+  ["QUALITY_ACCREDITATION", 2, "acreditacion"],
+  ["FIXED_ASSETS", 2, "inventario"],
+  ["DOCUMENT_MGMT", 2, "expediente|oficina de partes"],
   [
     "WEB_DEVELOPMENT",
     5,
@@ -72,6 +93,18 @@ const EXCLUSIONS: string[] = [
   "\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico",
   "sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico",
   "remuneraciones|gdp|forense|erp municipal|software integral .*municipal",
+  /*
+   * Ciberseguridad, que D-18 dejo fuera del alcance y no tenia exclusion. Sin
+   * ella entraban un WAF y un SIEM por la palabra `saas`: se contratan como
+   * servicio, pero no son desarrollo ni arriendo de un sistema nuestro.
+   */
+  "ciberseguridad|ethical hacking|hacking etico|pentest|\\bwaf\\b|\\bsiem\\b|firewall|antimalware",
+  /*
+   * Concesiones: la contraparte opera un negocio, no entrega software. "Sistema
+   * de control de estacionamientos en las vias publicas" es una concesion de
+   * estacionamientos, y matcheaba `sistema de control`.
+   */
+  "\\bconcesion",
 ];
 
 /**

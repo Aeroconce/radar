@@ -151,13 +151,20 @@ describe("las dos etapas del barrido (docs/04)", () => {
   });
 
   it("la descripcion puede sacar lo que el nombre habia dejado entrar", () => {
-    // Caso real del barrido del 27-08-2026 (824-3-LE26): el nombre menciona
-    // inventario, la descripcion revela que es una asesoria profesional.
-    const nombre = "ASES. A LA CONTRAPARTE TECN. INVENTARIO MAULE";
-    const conDescripcion = `${nombre} es el servicio profesional de asesoria a la contraparte tecnica`;
+    // El nombre suena a plataforma de expedientes; la descripcion revela que el
+    // trabajo es sacar los papeles de cada unidad, no construir nada.
+    const nombre = "Plataforma para el registro de expedientes";
+    const conDescripcion = `${nombre}. Consiste en el levantamiento de los expedientes en papel de cada unidad`;
 
     expect(evaluate({ text: nombre }, INITIAL_RULES).selected).toBe(true);
     expect(evaluate({ text: conDescripcion }, INITIAL_RULES).selected).toBe(false);
+  });
+
+  it("un tema sin sistema ya no entra ni por el nombre (D-29)", () => {
+    // Caso real del barrido del 27-08-2026 (824-3-LE26). Antes entraba con 6
+    // por la palabra "inventario" y recien la descripcion lo botaba, gastando
+    // una llamada a la API. Ahora "inventario" pesa 2 y no llega al umbral solo.
+    expect(evaluate({ text: "ASES. A LA CONTRAPARTE TECN. INVENTARIO MAULE" }, INITIAL_RULES).selected).toBe(false);
   });
 
   it("un nombre lejos del umbral nunca llega a mirar su descripcion", () => {

@@ -64,6 +64,7 @@ enum AttachmentKind {
 
 enum JobType {
   SWEEP
+  REFRESH
   HISTORY
   AWARDS
   ALERTS

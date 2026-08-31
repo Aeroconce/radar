@@ -17,15 +17,18 @@ Palabras clave (peso):
 | Vertical | Peso | Expresión |
 |---|---|---|
 | APPOINTMENTS | 6 | `agendamiento|confirmacion de (citas|horas)|recordatorio|whatsapp|chatbot|reserva de horas|contactabilidad|inasistencia` |
-| FIXED_ASSETS | 6 | `activos? fijos?|gestion de activos|control de inventario|bienes de uso|inventario` |
-| QUALITY_ACCREDITATION | 6 | `acreditacion|seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad` |
-| DOCUMENT_MGMT | 5 | `gestion documental|archivo digital|digitalizacion|documentos electronicos|expediente|oficina de partes|gestor documental` |
+| FIXED_ASSETS | 6 | `activos? fijos?|gestion de activos|control de inventario|bienes de uso` |
+| QUALITY_ACCREDITATION | 6 | `seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad` |
+| DOCUMENT_MGMT | 5 | `gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental` |
+| QUALITY_ACCREDITATION | 2 | `acreditacion` |
+| FIXED_ASSETS | 2 | `inventario` |
+| DOCUMENT_MGMT | 2 | `expediente|oficina de partes` |
 | WEB_DEVELOPMENT | 5 | `desarrollo (de )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica` |
 | WEB_DEVELOPMENT | 4 | `saas|arriendo (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|solucion tecnol` |
 | OTHER | 3 | `mesa de ayuda|help ?desk|tickets|intranet|extranet|dashboard|reporteria|interoperab|integracion (de |con )?(sistema|plataforma|dato|api|servicio)|tramite digital|e-?learning` |
 | OTHER | 2 | `informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema` |
 
-Exclusiones (peso −6): hardware y equipos (`impresor|computador|notebook|equipamiento computacional|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra`), licencias comerciales (`licencias? .*(microsoft|office|adobe|windows|antivirus|autocad|autodesk|archicad|arcgis|matlab|sap|oracle|vmware|fortinet|veeam)|renovacion .*licencias|suscripcion .*(software|licencias)`), insumos y laboratorio (`toner|insumos|reactivos|equipos de laboratorio|banco de sangre`), servicios no informáticos (`\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico`), sistemas que no son software (`sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico`), fuera de perfil (`remuneraciones|gdp|forense|erp municipal|software integral .*municipal`).
+Exclusiones (peso −6): hardware y equipos (`impresor|computador|notebook|equipamiento computacional|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra`), licencias comerciales (`licencias? .*(microsoft|office|adobe|windows|antivirus|autocad|autodesk|archicad|arcgis|matlab|sap|oracle|vmware|fortinet|veeam)|renovacion .*licencias|suscripcion .*(software|licencias)`), insumos y laboratorio (`toner|insumos|reactivos|equipos de laboratorio|banco de sangre`), servicios no informáticos (`\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico`), sistemas que no son software (`sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico`), fuera de perfil (`remuneraciones|gdp|forense|erp municipal|software integral .*municipal`), ciberseguridad (`ciberseguridad|ethical hacking|hacking etico|pentest|\bwaf\b|\bsiem\b|firewall|antimalware`) y concesiones (`\bconcesion`).
 
 Reglas de comprador (`BUYER_PATTERN`, para `BuyerType`): `hospital|instituto nacional|clinica` → HOSPITAL; `servicio de salud|s\.s\.|red asistencial|crs |cesfam` → HEALTH_SERVICE; `direccion de salud|departamento de salud|das |corporacion municipal` → MUNICIPAL_HEALTH; `municipalidad|i\. municipalidad|ilustre` → MUNICIPALITY; `universidad|centro de formacion tecnica|cft|instituto profesional` → HIGHER_EDUCATION; resto público → PUBLIC_SERVICE. Se aplica sobre `NombreOrganismo` y `NombreUnidad`.
 
@@ -40,6 +43,23 @@ Tipos de proceso seleccionados: **L1, LE, LP, LQ**, y **LR** con la etiqueta ant
 > y un ascensor. `integracion` ahora pide contexto de sistemas, porque sola matcheaba «Centro de Integración
 > del Adulto Mayor». **Ciberseguridad y ethical hacking quedan fuera** por la misma decisión: no son desarrollo
 > ni arriendo de sistemas.
+
+### Un tema no es un sistema
+
+Las verticales describen **de qué trata** el sistema. Cuatro términos nombraban solo el tema —`acreditacion`,
+`inventario`, `expediente`, `oficina de partes`— y con peso 6 o 5 llegaban solos al umbral: traían al tablero
+el arriendo de una embarcación, una acreditación de saberes lingüísticos, servicios profesionales para una
+autoevaluación y la reestructuración de una oficina.
+
+Desde el 31-08-2026 pesan **2** (D-29). Bajo el umbral por sí mismos, entran solo acompañados de una palabra
+que sí diga sistema: «sistema de acreditación» suma 2 + 2 y pasa; «acreditación de saberes lingüísticos» se
+queda en 2. Es lo que este documento ya decía y el motor no cumplía.
+
+Van **antes** de la regla genérica de peso 2 en la tabla: con el mismo peso gana la primera, así la vertical
+que se asigna sigue siendo la específica y no «Otros».
+
+Sobre el barrido del 27-08-2026 la selección baja de 25 a 19 de 40. Las seis que salen están declaradas una
+por una en `tests/baseline.test.ts`.
 
 ### Límites de palabra
 

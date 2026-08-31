@@ -46,7 +46,9 @@ pnpm seed                        # carga seed/ (datos reales de agosto 2026)
 pnpm dev                         # web en http://localhost:3000
 pnpm worker                      # worker con cron (proceso aparte)
 pnpm worker:barrido              # ejecuta un barrido ahora y termina
-pnpm worker:historico -- 2026-08-01 2026-08-31   # ⚠
+pnpm worker:refrescar            # vuelve a pedir todas las fichas guardadas
+pnpm reglas:sincronizar          # deja en la base las reglas de docs/04
+pnpm tablero:limpiar             # muestra que sacaria del tablero (--aplicar lo saca)
 pnpm test
 pnpm build && pnpm start
 ```
