@@ -280,7 +280,9 @@ export default async function FichaPage({ params }: { params: Promise<{ code: st
           </section>
         </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
+        {/* Pegado arriba, pero con scroll propio: si el formulario crece mas
+            que la ventana, el boton de guardar tiene que seguir alcanzable. */}
+        <aside className="space-y-4 lg:sticky lg:top-0 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:pb-4">
           <ReviewForm code={tender.code} estadoActual={tender.reviewStatus} perfil={perfil} />
           <a
             href={`https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?idlicitacion=${encodeURIComponent(tender.code)}`}

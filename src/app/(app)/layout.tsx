@@ -48,9 +48,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   });
 
   return (
-    <div className="flex min-h-screen bg-neutral-50">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-neutral-200 bg-white lg:flex">
-        <div className="px-5 pb-6 pt-6">
+    <div className="flex h-screen overflow-hidden bg-neutral-50">
+      <aside className="hidden h-full w-60 shrink-0 flex-col border-r border-neutral-200 bg-white lg:flex">
+        <div className="shrink-0 px-5 pb-6 pt-6">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
             Aeroconce
           </p>
@@ -59,7 +59,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           </p>
         </div>
 
-        <nav className="flex-1 px-3">
+        <nav className="min-h-0 flex-1 overflow-y-auto px-3">
           <ul className="space-y-0.5">
             {SECCIONES.map((s) => (
               <li key={s.href}>
@@ -79,7 +79,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           </ul>
         </nav>
 
-        <div className="border-t border-neutral-200 px-5 py-4">
+        <div className="shrink-0 border-t border-neutral-200 px-5 py-4">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-400">
             Último barrido
           </p>
@@ -91,7 +91,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           </p>
         </div>
 
-        <div className="border-t border-neutral-200 p-3">
+        <div className="shrink-0 border-t border-neutral-200 p-3">
           {perfil && (
             <form action={cambiarPerfil}>
               <button
@@ -116,8 +116,8 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       </aside>
 
       {/* En pantallas chicas el lateral desaparece y queda una barra arriba. */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-neutral-200 bg-white px-5 py-3 lg:hidden">
+      <div className="flex h-full min-w-0 flex-1 flex-col">
+        <header className="flex shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-5 py-3 lg:hidden">
           <Link href="/" className="text-sm font-semibold text-neutral-900">
             Radar de Licitaciones
           </Link>
@@ -134,7 +134,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           )}
         </header>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        <div className="min-w-0 flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );
