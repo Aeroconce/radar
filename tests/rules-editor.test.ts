@@ -9,6 +9,7 @@ import { INITIAL_RULES } from "@/lib/affinity/initial-rules";
 import { comparar, MAX_FILAS, type Candidata } from "@/lib/affinity/preview";
 import { DEFAULT_THRESHOLDS, RULE_KINDS, type Rule } from "@/lib/affinity/rules";
 import { PESO_MAXIMO, validarParametros, validarRegla } from "@/lib/affinity/validate";
+import { bordesDe, terminosDe, trozosDe } from "@/lib/rule-kinds";
 
 // ------------------------------------------------------------------ validacion
 
@@ -186,5 +187,81 @@ describe("comparar", () => {
     });
     expect(c.salen).toHaveLength(MAX_FILAS);
     expect(c.totalSalen).toBe(MAX_FILAS + 15);
+  });
+});
+
+// -------------------------------------------------------- lectura de un patron
+
+describe("terminosDe", () => {
+  it("corta por las barras de primer nivel", () => {
+    expect(terminosDe("agendamiento|whatsapp|chatbot")).toEqual([
+      "agendamiento",
+      "whatsapp",
+      "chatbot",
+    ]);
+  });
+
+  it("no corta dentro de un parentesis: es un solo termino", () => {
+    expect(terminosDe("confirmacion de (citas|horas)|recordatorio")).toEqual([
+      "confirmacion de (citas|horas)",
+      "recordatorio",
+    ]);
+  });
+
+  it("no corta dentro de una clase de caracteres", () => {
+    expect(terminosDe("informatic[oa]|digital")).toEqual(["informatic[oa]", "digital"]);
+  });
+
+  it("conserva el espacio del borde, que es parte de la regla", () => {
+    // "crs " con espacio no coincide dentro de otra palabra. Recortarlo para
+    // mostrarlo dejaria en pantalla una regla distinta de la que se evalua.
+    expect(terminosDe("crs |cesfam")).toEqual(["crs ", "cesfam"]);
+    expect(bordesDe("crs ")).toEqual({ inicio: "", nucleo: "crs", fin: " " });
+    expect(bordesDe("das ")).toEqual({ inicio: "", nucleo: "das", fin: " " });
+    expect(bordesDe("hospital")).toEqual({ inicio: "", nucleo: "hospital", fin: "" });
+  });
+
+  it("no corta por una barra escapada", () => {
+    // Una barra escapada es parte del termino, no un separador.
+    expect(terminosDe(String.raw`a\|b`)).toEqual([String.raw`a\|b`]);
+    // Como en la regla de comprador de los servicios de salud.
+    expect(terminosDe(String.raw`servicio de salud|s\.s\.|cesfam`)).toEqual([
+      "servicio de salud",
+      String.raw`s\.s\.`,
+      "cesfam",
+    ]);
+  });
+
+  it("respeta los limites de palabra", () => {
+    expect(terminosDe(String.raw`\bcurso|capacitacion en`)).toEqual([
+      String.raw`\bcurso`,
+      "capacitacion en",
+    ]);
+  });
+
+  it("devuelve todos los terminos de las reglas reales", () => {
+    // Ninguna regla de docs/04 debe quedar sin partir ni partirse de mas.
+    for (const r of INITIAL_RULES) {
+      const t = terminosDe(r.pattern);
+      expect(t.length).toBeGreaterThan(0);
+      // Volver a unirlos reconstruye el patron: no se pierde ni se agrega nada.
+      expect(t.join("|")).toBe(r.pattern);
+    }
+  });
+});
+
+describe("trozosDe", () => {
+  it("separa palabras de sintaxis", () => {
+    expect(trozosDe("activos? fijos?")).toEqual([
+      { texto: "activos", esTexto: true },
+      { texto: "?", esTexto: false },
+      { texto: " fijos", esTexto: true },
+      { texto: "?", esTexto: false },
+    ]);
+  });
+
+  it("conserva el termino entero", () => {
+    const t = "confirmacion de (citas|horas)";
+    expect(trozosDe(t).map((x) => x.texto).join("")).toBe(t);
   });
 });

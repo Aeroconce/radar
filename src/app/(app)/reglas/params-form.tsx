@@ -10,7 +10,7 @@
  */
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useLayoutEffect, useRef, useState, useTransition } from "react";
 import type { Comparacion } from "@/lib/affinity/preview";
 import { TIPOS_PROCESO_VALIDOS } from "@/lib/affinity/validate";
 import { nombreProceso } from "@/lib/tenders";
@@ -20,6 +20,16 @@ import { PreviewResult } from "./preview-result";
 const INICIAL: Resultado = { ok: false };
 
 const monto = new Intl.NumberFormat("es-CL");
+
+/** Posicion del cursor tras `digitos` cifras del texto, saltandose los puntos. */
+function posicionTras(texto: string, digitos: number): number {
+  let vistos = 0;
+  let i = 0;
+  for (; i < texto.length && vistos < digitos; i++) {
+    if (/\d/.test(texto[i])) vistos++;
+  }
+  return i;
+}
 
 function Campo({
   etiqueta,
@@ -61,6 +71,33 @@ export function ParamsForm({
   const [previa, setPrevia] = useState<Comparacion | null>(null);
   const [errorPrueba, setErrorPrueba] = useState<string | null>(null);
   const [probando, empezar] = useTransition();
+
+  const campoMaximo = useRef<HTMLInputElement>(null);
+  const cifrasAntesDelCursor = useRef<number | null>(null);
+
+  /*
+   * Reponer el cursor despues de formatear.
+   *
+   * Al reescribir el valor con puntos, el navegador manda el cursor al final: si
+   * alguien entra a corregir un digito del medio, el siguiente que escriba
+   * aparece al otro extremo del numero. Se guarda cuantas cifras habia a la
+   * izquierda y se vuelve a esa cifra, ya con los puntos puestos.
+   */
+  useLayoutEffect(() => {
+    const el = campoMaximo.current;
+    if (cifrasAntesDelCursor.current === null || !el) return;
+    const objetivo = cifrasAntesDelCursor.current;
+    cifrasAntesDelCursor.current = null;
+    const i = posicionTras(el.value, objetivo);
+    el.setSelectionRange(i, i);
+  });
+
+  function cambiarMaximo(e: React.ChangeEvent<HTMLInputElement>) {
+    const el = e.target;
+    const hastaElCursor = el.value.slice(0, el.selectionStart ?? el.value.length);
+    cifrasAntesDelCursor.current = hastaElCursor.replace(/\D/g, "").length;
+    setMaximo(el.value.replace(/\D/g, ""));
+  }
 
   function alternarProceso(t: string) {
     setProcesos((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]));
@@ -120,15 +157,20 @@ export function ParamsForm({
           etiqueta="Monto máximo"
           ayuda={`Sobre ${monto.format(Number(maximo) || 0)} se marca «fuera de escala»: se lista igual, con dos puntos menos.`}
         >
+          {/* Texto y no `number`: el navegador rechaza un valor con puntos, asi
+              que con `number` no hay forma de mostrar el separador de miles.
+              Al formulario viaja el campo oculto, con las cifras solas. */}
           <input
-            type="number"
-            name="maxAmount"
-            value={maximo}
-            onChange={(e) => setMaximo(e.target.value)}
-            min={1}
-            step={1_000_000}
+            ref={campoMaximo}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            aria-label="Monto máximo"
+            value={maximo ? monto.format(Number(maximo)) : ""}
+            onChange={cambiarMaximo}
             className={claseNumero}
           />
+          <input type="hidden" name="maxAmount" value={maximo} />
         </Campo>
       </div>
 

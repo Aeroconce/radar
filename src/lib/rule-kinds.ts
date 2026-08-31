@@ -64,3 +64,84 @@ export const TIPOS_REGLA: Record<string, TipoRegla> = {
 
 /** De lo que mas decide a lo que solo informa. */
 export const ORDEN_TIPOS = ["KEYWORD", "EXCLUSION", "BUYER_PATTERN", "INCUMBENT_SIGNAL"];
+
+/**
+ * Corta un patron en los terminos que busca.
+ *
+ * Una regla es una expresion regular, y escrita de corrido —cuarenta palabras
+ * separadas por barras, sin tildes y con algunas cortadas a proposito— se lee
+ * como un texto mal escrito. Separada en terminos se lee como lo que es: una
+ * lista de cosas que el radar busca.
+ *
+ * No reescribe nada: cada termino sale tal cual esta en la expresion. Un patron
+ * "embellecido" que no dijera exactamente lo que el motor evalua seria peor que
+ * el crudo.
+ *
+ * Solo corta por las barras de primer nivel. Las de adentro de un parentesis
+ * —`(citas|horas)`— son parte de un termino, no otro termino.
+ */
+export function terminosDe(patron: string): string[] {
+  const partes: string[] = [];
+  let actual = "";
+  let profundidad = 0;
+  let enClase = false;
+
+  for (let i = 0; i < patron.length; i++) {
+    const c = patron[i];
+
+    // Lo escapado va entero: una barra escapada no separa nada.
+    if (c === "\\") {
+      actual += c + (patron[i + 1] ?? "");
+      i++;
+      continue;
+    }
+    if (enClase) {
+      actual += c;
+      if (c === "]") enClase = false;
+      continue;
+    }
+    if (c === "[") {
+      enClase = true;
+      actual += c;
+      continue;
+    }
+    if (c === "(") profundidad++;
+    if (c === ")") profundidad--;
+    if (c === "|" && profundidad === 0) {
+      partes.push(actual);
+      actual = "";
+      continue;
+    }
+    actual += c;
+  }
+  partes.push(actual);
+
+  /*
+   * Sin recortar los espacios: en `crs ` el espacio final es parte de la regla
+   * —impide que coincida dentro de otra palabra— y quitarlo para mostrarla
+   * dejaria en pantalla una regla distinta de la que el motor evalua.
+   */
+  return partes.filter((p) => p.length > 0);
+}
+
+/** Separa un termino en sus espacios de los bordes y lo del medio. */
+export function bordesDe(termino: string): { inicio: string; nucleo: string; fin: string } {
+  const inicio = /^\s+/.exec(termino)?.[0] ?? "";
+  const resto = termino.slice(inicio.length);
+  const fin = /\s+$/.exec(resto)?.[0] ?? "";
+  return { inicio, nucleo: resto.slice(0, resto.length - fin.length), fin };
+}
+
+/**
+ * Separa un termino en lo que se lee y lo que es sintaxis.
+ *
+ * Sirve para atenuar los parentesis, las barras y los corchetes, y que la
+ * palabra se lea primero. `esTexto` marca los trozos legibles.
+ */
+export function trozosDe(termino: string): Array<{ texto: string; esTexto: boolean }> {
+  const trozos: Array<{ texto: string; esTexto: boolean }> = [];
+  for (const m of termino.matchAll(/[\p{L}\p{N} -]+|[^\p{L}\p{N} -]+/gu)) {
+    trozos.push({ texto: m[0], esTexto: /[\p{L}\p{N}]/u.test(m[0]) });
+  }
+  return trozos;
+}

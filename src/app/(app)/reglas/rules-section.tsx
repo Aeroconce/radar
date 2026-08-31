@@ -1,10 +1,14 @@
 /**
  * Un tipo de regla y sus filas (RF-09).
  *
- * Los patrones son expresiones regulares largas: se muestran completas y en
- * monoespaciada, envueltas si hace falta. Recortarlas con puntos suspensivos
- * ahorraria espacio y volveria la pantalla inutil, porque lo que hay que revisar
- * es justo el termino que sobra o el que falta.
+ * Un patron es una expresion regular larga, y de corrido —cuarenta palabras
+ * separadas por barras, sin tildes y con algunas cortadas a proposito— se lee
+ * como un texto mal escrito. Se muestra partido en los terminos que busca, con
+ * la sintaxis atenuada para que la palabra se lea primero.
+ *
+ * No se recorta ni se reescribe nada: lo que se ve es exactamente lo que el
+ * motor evalua, y lo que hay que revisar es justo el termino que sobra o el que
+ * falta. Para editarlo, el formulario muestra la expresion entera.
  *
  * Cada fila se edita en su lugar. Abrir una ventana encima obligaria a recordar
  * las otras reglas de memoria, y casi siempre se edita una comparandola con la
@@ -16,7 +20,7 @@ import { useState, useTransition } from "react";
 import { Select } from "@/components/select";
 import type { Comparacion } from "@/lib/affinity/preview";
 import { COMPRADORES_VALIDOS, VERTICALES_VALIDAS } from "@/lib/affinity/validate";
-import { TIPOS_REGLA } from "@/lib/rule-kinds";
+import { bordesDe, terminosDe, TIPOS_REGLA, trozosDe } from "@/lib/rule-kinds";
 import { nombreComprador, nombreVertical } from "@/lib/tenders";
 import {
   alternarRegla,
@@ -207,6 +211,44 @@ function Editor({
   );
 }
 
+/**
+ * Los terminos de un patron, uno por etiqueta.
+ *
+ * Un espacio al borde de un termino es parte de la regla —`crs ` no coincide
+ * dentro de otra palabra— y en una etiqueta seria invisible. Se dibuja con un
+ * punto gris, del mismo color que el resto de la sintaxis.
+ */
+function Terminos({ patron, activa }: { patron: string; activa: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {terminosDe(patron).map((termino, i) => {
+        const { inicio, nucleo, fin } = bordesDe(termino);
+        const espacio = (n: number) => (
+          <span className="text-neutral-400" title="Espacio que la regla exige">
+            {"·".repeat(n)}
+          </span>
+        );
+        return (
+          <span
+            key={`${i}-${termino}`}
+            className={`rounded px-1.5 py-0.5 font-mono text-[11px] leading-relaxed ${
+              activa ? "bg-neutral-100 text-neutral-800" : "bg-neutral-100/60 text-neutral-400"
+            }`}
+          >
+            {inicio && espacio(inicio.length)}
+            {trozosDe(nucleo).map((t, j) => (
+              <span key={j} className={t.esTexto ? "" : "text-neutral-400"}>
+                {t.texto}
+              </span>
+            ))}
+            {fin && espacio(fin.length)}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function Fila({
   regla,
   primera,
@@ -262,14 +304,8 @@ function Fila({
         )}
 
         <div className="min-w-0 flex-1">
-          <code
-            className={`block break-words font-mono text-xs leading-relaxed ${
-              regla.active ? "text-neutral-800" : "text-neutral-400 line-through"
-            }`}
-          >
-            {regla.pattern}
-          </code>
-          <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-neutral-500">
+          <Terminos patron={regla.pattern} activa={regla.active} />
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[11px] text-neutral-500">
             {destino && <span>{destino}</span>}
             {!regla.active && <span className="font-medium text-neutral-500">desactivada</span>}
             {regla.updatedBy && regla.updatedBy !== "seed" && <span>editada por {regla.updatedBy}</span>}
