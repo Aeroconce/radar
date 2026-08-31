@@ -4,33 +4,38 @@
 `NEW → IN_REVIEW → VIABLE | DISCARDED` · `VIABLE → SUBMITTED → AWARDED | LOST` · desde cualquier estado se puede volver a `IN_REVIEW` (con nota). `DISCARDED` puede reabrirse si cambian las bases o las respuestas del foro. Toda transición crea una `Review` y actualiza `Tender.reviewStatus`.
 
 ## Catálogo de motivos (códigos fijos; se muestran en español)
+
+Cada motivo tiene **rótulo** y **explicación**. El rótulo es lo que se lee al escanear catorce opciones; la
+explicación, lo que despeja la duda. Con la frase completa como única etiqueta, la lista se envolvía a tres
+líneas por motivo y se volvía un muro.
+
 Descarte:
-| Código | Texto en la interfaz |
-|---|---|
-| EXP_MIN | Exige experiencia mínima (contratos o años) como requisito |
-| EXP_PESO | Experiencia con peso alto en la evaluación sin poder acreditarla |
-| CERT_ISO | Exige certificación ISO 27001 u otra norma |
-| CERT_INTEROP | Exige certificación de interoperabilidad (HL7, CENS, HIS del comprador) |
-| INTEG_ACRED | Exige integraciones acreditadas (ClaveÚnica, FirmaGob, DocDigital, PISEE, Rayen, TrakCare, AVIS) |
-| PRODUCTO_NICHO | Requiere un producto especializado existente (ERP municipal, farmacia, LOD certificado, biometría) |
-| INCUMBENTE | Bases escritas alrededor del proveedor actual (continuidad, migración, plazos imposibles) |
-| PLAZO | Plazo de implementación o de cierre incompatible |
-| MONTO | Monto fuera de rango (muy bajo para el esfuerzo o fuera de escala) |
-| FORMA_PAGO | Documento tributario o forma de pago incompatible con el vehículo elegido |
-| GARANTIA | Garantías o exigencias financieras fuera de alcance |
-| HARDWARE | Incluye hardware, instalación en terreno o insumos |
-| SIN_TIEMPO | Sin tiempo para preparar una oferta de calidad |
-| OTRO | Otro (detallar en la nota) |
+| Código | Rótulo | Explicación |
+|---|---|---|
+| EXP_MIN | Experiencia mínima | Exige contratos o años como requisito habilitante |
+| EXP_PESO | Experiencia con peso | Pesa alto en la evaluación y no podemos acreditarla |
+| CERT_ISO | Certificación ISO | Exige ISO 27001 u otra norma |
+| CERT_INTEROP | Interoperabilidad | Exige HL7, CENS o el HIS del comprador |
+| INTEG_ACRED | Integraciones acreditadas | ClaveÚnica, FirmaGob, DocDigital, PISEE, Rayen, TrakCare, AVIS |
+| PRODUCTO_NICHO | Producto de nicho | ERP municipal, farmacia, LOD certificado, biometría |
+| INCUMBENTE | Proveedor instalado | Bases escritas alrededor del proveedor actual |
+| PLAZO | Plazo incompatible | De implementación o de cierre |
+| MONTO | Monto fuera de rango | Muy bajo para el esfuerzo, o fuera de escala |
+| FORMA_PAGO | Forma de pago | Documento tributario incompatible con el vehículo |
+| GARANTIA | Garantías | Exigencias financieras fuera de alcance |
+| HARDWARE | Hardware o terreno | Incluye equipos, instalación o insumos |
+| SIN_TIEMPO | Sin tiempo | No alcanza para una oferta de calidad |
+| OTRO | Otro | Detallar en la nota |
 
 Viabilidad:
-| Código | Texto |
-|---|---|
-| FIT_PRODUCTO | Calza con un producto existente (indicar cuál en la nota) |
-| FIT_DESARROLLO | Desarrollo a medida dentro de nuestras capacidades |
-| SIN_EXP_MIN | Sin mínimo de experiencia excluyente |
-| EXP_PESO_BAJO | Experiencia con peso bajo o nulo |
-| PRECIO_COMPETITIVO | Podemos ser competitivos en precio |
-| MANDANTE_FAVORABLE | Comprador con historial favorable (persona natural, boleta, desarrollos pequeños) |
+| Código | Rótulo | Explicación |
+|---|---|---|
+| FIT_PRODUCTO | Calza con un producto | Indicar cuál en la nota |
+| FIT_DESARROLLO | Desarrollo a medida | Dentro de nuestras capacidades |
+| SIN_EXP_MIN | Sin mínimo de experiencia | No hay requisito excluyente |
+| EXP_PESO_BAJO | Experiencia pesa poco | Peso bajo o nulo en la evaluación |
+| PRECIO_COMPETITIVO | Precio competitivo | Podemos competir |
+| MANDANTE_FAVORABLE | Comprador favorable | Persona natural, boleta, desarrollos pequeños |
 
 ## Quién deja la nota
 

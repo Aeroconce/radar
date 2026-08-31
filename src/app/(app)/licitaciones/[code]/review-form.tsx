@@ -4,6 +4,10 @@
  * Los motivos cambian segun el estado: descartar y viable piden cosas distintas,
  * y mostrar las veinte juntas obliga a leerlas todas cada vez.
  *
+ * Cada uno lleva rotulo corto arriba y explicacion debajo. Con la frase completa
+ * de docs/07 como unica etiqueta, catorce motivos en una columna angosta se
+ * envolvian a tres lineas cada uno y formaban un muro imposible de escanear.
+ *
  * La validacion se repite en el servidor (`guardarRevision`). Aqui es solo para
  * avisar antes de enviar; el servidor es el que decide.
  */
@@ -44,11 +48,14 @@ export function ReviewForm({
     <form action={formAction} className="rounded-lg border border-neutral-200 bg-white p-5">
       <input type="hidden" name="code" value={code} />
 
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
         <h2 className="text-sm font-semibold text-neutral-900">Revisión</h2>
         {perfil && (
-          <span className="text-xs text-neutral-500">
-            queda a nombre de <strong className="font-medium text-neutral-700">{perfil}</strong>
+          <span className="flex items-center gap-1.5 text-xs text-neutral-500">
+            <span className="flex size-5 items-center justify-center rounded-full bg-[#1c2f4a] text-[10px] font-semibold text-white">
+              {perfil.charAt(0).toUpperCase()}
+            </span>
+            {perfil}
           </span>
         )}
       </div>
@@ -69,15 +76,18 @@ export function ReviewForm({
       </div>
 
       {motivos.length > 0 && (
-        <fieldset className="mt-4">
-          <legend className="text-sm font-medium text-neutral-700">
-            Motivos{exigeJustificacion && <span className="text-neutral-400"> · al menos uno</span>}
+        <fieldset className="mt-5">
+          <legend className="flex w-full items-baseline justify-between text-sm font-medium text-neutral-700">
+            <span>Motivos</span>
+            {exigeJustificacion && (
+              <span className="text-xs font-normal text-neutral-400">al menos uno</span>
+            )}
           </legend>
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-2 -mx-1.5">
             {motivos.map((m) => (
               <label
                 key={m.codigo}
-                className="flex cursor-pointer items-start gap-2.5 rounded px-1 py-0.5 text-sm text-neutral-700 hover:bg-neutral-50"
+                className="flex cursor-pointer items-start gap-2.5 rounded-md px-1.5 py-1.5 transition-colors hover:bg-neutral-50"
               >
                 <input
                   type="checkbox"
@@ -85,7 +95,14 @@ export function ReviewForm({
                   value={m.codigo}
                   className="mt-0.5 size-4 shrink-0 rounded border-neutral-300 accent-[#1c2f4a]"
                 />
-                <span className="leading-snug">{m.texto}</span>
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-medium leading-tight text-neutral-800">
+                    {m.rotulo}
+                  </span>
+                  <span className="mt-0.5 block text-[11px] leading-snug text-neutral-500">
+                    {m.texto}
+                  </span>
+                </span>
               </label>
             ))}
           </div>
@@ -112,7 +129,8 @@ export function ReviewForm({
         />
         {exigeJustificacion && faltanCaracteres > 0 && (
           <p className="mt-1.5 text-xs text-neutral-500">
-            Faltan {faltanCaracteres} caracteres. Esta nota es la memoria de por qué se decidió esto.
+            Faltan <span className="font-mono tabular-nums">{faltanCaracteres}</span> caracteres.
+            Esta nota es la memoria de por qué se decidió esto.
           </p>
         )}
         {state.errores?.nota && (

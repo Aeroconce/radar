@@ -27,43 +27,56 @@ export const ORDEN_ESTADOS: ReviewStatus[] = [
   "DISCARDED",
 ];
 
+/**
+ * Un motivo tiene rotulo y explicacion.
+ *
+ * Los textos de docs/07 son frases completas: sirven para entender el motivo,
+ * no para reconocerlo de un vistazo entre catorce. El rotulo es lo que se lee
+ * al escanear la lista; la explicacion, lo que despeja la duda.
+ */
 export interface Motivo {
   codigo: string;
+  /** Dos o tres palabras, para escanear. */
+  rotulo: string;
+  /** La frase de docs/07, para entender. */
   texto: string;
 }
 
 /** Por que no se sigue (docs/07). */
 export const MOTIVOS_DESCARTE: Motivo[] = [
-  { codigo: "EXP_MIN", texto: "Exige experiencia mínima (contratos o años) como requisito" },
-  { codigo: "EXP_PESO", texto: "Experiencia con peso alto en la evaluación sin poder acreditarla" },
-  { codigo: "CERT_ISO", texto: "Exige certificación ISO 27001 u otra norma" },
-  { codigo: "CERT_INTEROP", texto: "Exige certificación de interoperabilidad (HL7, CENS, HIS del comprador)" },
-  { codigo: "INTEG_ACRED", texto: "Exige integraciones acreditadas (ClaveÚnica, FirmaGob, DocDigital, PISEE, Rayen, TrakCare, AVIS)" },
-  { codigo: "PRODUCTO_NICHO", texto: "Requiere un producto especializado existente (ERP municipal, farmacia, LOD certificado, biometría)" },
-  { codigo: "INCUMBENTE", texto: "Bases escritas alrededor del proveedor actual" },
-  { codigo: "PLAZO", texto: "Plazo de implementación o de cierre incompatible" },
-  { codigo: "MONTO", texto: "Monto fuera de rango" },
-  { codigo: "FORMA_PAGO", texto: "Documento tributario o forma de pago incompatible" },
-  { codigo: "GARANTIA", texto: "Garantías o exigencias financieras fuera de alcance" },
-  { codigo: "HARDWARE", texto: "Incluye hardware, instalación en terreno o insumos" },
-  { codigo: "SIN_TIEMPO", texto: "Sin tiempo para preparar una oferta de calidad" },
-  { codigo: "OTRO", texto: "Otro (detallar en la nota)" },
+  { codigo: "EXP_MIN", rotulo: "Experiencia mínima", texto: "Exige contratos o años como requisito habilitante" },
+  { codigo: "EXP_PESO", rotulo: "Experiencia con peso", texto: "Pesa alto en la evaluación y no podemos acreditarla" },
+  { codigo: "CERT_ISO", rotulo: "Certificación ISO", texto: "Exige ISO 27001 u otra norma" },
+  { codigo: "CERT_INTEROP", rotulo: "Interoperabilidad", texto: "Exige HL7, CENS o el HIS del comprador" },
+  { codigo: "INTEG_ACRED", rotulo: "Integraciones acreditadas", texto: "ClaveÚnica, FirmaGob, DocDigital, PISEE, Rayen, TrakCare, AVIS" },
+  { codigo: "PRODUCTO_NICHO", rotulo: "Producto de nicho", texto: "ERP municipal, farmacia, LOD certificado, biometría" },
+  { codigo: "INCUMBENTE", rotulo: "Proveedor instalado", texto: "Bases escritas alrededor del proveedor actual" },
+  { codigo: "PLAZO", rotulo: "Plazo incompatible", texto: "De implementación o de cierre" },
+  { codigo: "MONTO", rotulo: "Monto fuera de rango", texto: "Muy bajo para el esfuerzo, o fuera de escala" },
+  { codigo: "FORMA_PAGO", rotulo: "Forma de pago", texto: "Documento tributario incompatible con el vehículo" },
+  { codigo: "GARANTIA", rotulo: "Garantías", texto: "Exigencias financieras fuera de alcance" },
+  { codigo: "HARDWARE", rotulo: "Hardware o terreno", texto: "Incluye equipos, instalación o insumos" },
+  { codigo: "SIN_TIEMPO", rotulo: "Sin tiempo", texto: "No alcanza para una oferta de calidad" },
+  { codigo: "OTRO", rotulo: "Otro", texto: "Detallar en la nota" },
 ];
 
 /** Por que sí se sigue (docs/07). */
 export const MOTIVOS_VIABILIDAD: Motivo[] = [
-  { codigo: "FIT_PRODUCTO", texto: "Calza con un producto existente (indicar cuál en la nota)" },
-  { codigo: "FIT_DESARROLLO", texto: "Desarrollo a medida dentro de nuestras capacidades" },
-  { codigo: "SIN_EXP_MIN", texto: "Sin mínimo de experiencia excluyente" },
-  { codigo: "EXP_PESO_BAJO", texto: "Experiencia con peso bajo o nulo" },
-  { codigo: "PRECIO_COMPETITIVO", texto: "Podemos ser competitivos en precio" },
-  { codigo: "MANDANTE_FAVORABLE", texto: "Comprador con historial favorable (persona natural, boleta, desarrollos pequeños)" },
+  { codigo: "FIT_PRODUCTO", rotulo: "Calza con un producto", texto: "Indicar cuál en la nota" },
+  { codigo: "FIT_DESARROLLO", rotulo: "Desarrollo a medida", texto: "Dentro de nuestras capacidades" },
+  { codigo: "SIN_EXP_MIN", rotulo: "Sin mínimo de experiencia", texto: "No hay requisito excluyente" },
+  { codigo: "EXP_PESO_BAJO", rotulo: "Experiencia pesa poco", texto: "Peso bajo o nulo en la evaluación" },
+  { codigo: "PRECIO_COMPETITIVO", rotulo: "Precio competitivo", texto: "Podemos competir" },
+  { codigo: "MANDANTE_FAVORABLE", rotulo: "Comprador favorable", texto: "Persona natural, boleta, desarrollos pequeños" },
 ];
 
 const TODOS = [...MOTIVOS_DESCARTE, ...MOTIVOS_VIABILIDAD];
 const POR_CODIGO = new Map(TODOS.map((m) => [m.codigo, m]));
 
-/** Texto de un codigo. Devuelve el codigo si no esta en el catalogo, en vez de vacio. */
+/** Rotulo de un codigo. Devuelve el codigo si no esta en el catalogo, en vez de vacio. */
+export const rotuloMotivo = (codigo: string): string => POR_CODIGO.get(codigo)?.rotulo ?? codigo;
+
+/** Explicacion completa, para el titulo emergente y la bitacora. */
 export const textoMotivo = (codigo: string): string => POR_CODIGO.get(codigo)?.texto ?? codigo;
 
 export const esMotivoValido = (codigo: string): boolean => POR_CODIGO.has(codigo);
