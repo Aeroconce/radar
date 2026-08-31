@@ -1,9 +1,11 @@
 # 06 — Interfaz
 
-Principio: tres pantallas resuelven el 95 % del uso. Todo en español neutro, sin jerga técnica ("Revisar", "Guardar", "Adjuntar", "Descartar"). Diseño sobrio: una tipografía, dos tamaños, color solo para estados. Componentes de shadcn/ui: `Table`, `Input`, `Select`, `Badge`, `Dialog`, `Sheet`, `Textarea`, `Checkbox`, `Toast`, `DropdownMenu`.
+Principio: tres pantallas resuelven todo el uso. Todo en español neutro, sin jerga técnica ("Revisar", "Guardar", "Adjuntar", "Descartar"). Diseño sobrio: una tipografía, dos tamaños, color solo para estados. Componentes de shadcn/ui: `Table`, `Input`, `Select`, `Badge`, `Dialog`, `Sheet`, `Textarea`, `Checkbox`, `Toast`, `DropdownMenu`.
 
-## Navegación (barra superior)
-Tablero · Histórico · Reglas (solo Administrador) · Configuración (solo Administrador) · Auditoría (solo Administrador) · menú de usuario (nombre, cerrar sesión).
+## Navegación (barra lateral fija)
+Tablero · Favoritas · Reglas · último barrido · perfil activo (cambiar, cerrar sesión).
+
+Son tres y no más (D-27). Histórico, Configuración y Auditoría se descartaron: el equipo son tres personas que hablan entre sí, y una pantalla que nadie abre igual hay que mantenerla.
 
 ## 1. Tablero (`/`) — RF-04
 - **Búsqueda** con foco automático al entrar: texto libre sobre código, nombre, organismo, unidad y descripción; sin distinción de tildes ni mayúsculas; resultados mientras se escribe (300 ms).
@@ -33,25 +35,24 @@ cierre y no por cuando se marcaron: lo que urge manda. El contador va junto al e
 No reemplaza al estado: VIABLE dice que el equipo la sigue, la estrella dice que alguien quiere volver a
 mirarla. Son cosas distintas y por eso conviven.
 
-## 3. Histórico (`/historico`) — RF-08
-Dos pestañas:
-- **Adjudicaciones**: búsqueda y filtros por vertical, comprador, proveedor, fechas; tabla con fecha, código, comprador, nombre, duración, oferentes, ganador, monto estimado, monto adjudicado; fila expandible con todos los oferentes y sus montos (marcando los unitarios). Exportar a Excel.
-- **Proveedores**: por vertical, ofertas, ganadas, tasa de éxito, monto mediano; clic en un proveedor lista sus ofertas.
+## 3. Reglas (`/reglas`) — RF-09
+De lo que más decide a lo que solo informa:
 
-## 4. Reglas (`/reglas`) — RF-09, Administrador
-Tabla editable por tipo (palabras clave por vertical, exclusiones, patrones de comprador, señales de incumbente) con peso y activo/inactivo; parámetros (umbral, umbral alto para avisos, monto máximo, tipos de proceso); botón "Probar con las activas de hoy" y confirmación al guardar. Cada cambio queda en auditoría.
+1. **Parámetros**: umbral de selección, umbral de aviso, monto máximo y tipos de proceso. Cada campo lleva escrito al lado qué hace; un campo llamado «umbral» sin más es una perilla a ciegas.
+2. **Palabras clave**, **Exclusiones**, **Tipo de comprador** y **Señales de proveedor instalado**, cada tipo con su explicación. Cada regla se edita en su lugar, se activa o desactiva sin borrarla, y se elimina con confirmación en la misma fila.
+3. **Aplicar al tablero**: vuelve a puntuar las licitaciones ya guardadas con las reglas de ahora, sin llamar a la API. Hace falta porque el barrido no las vuelve a mirar (`docs/05`): sin esto, editar una regla no se nota hasta que aparezca una licitación nueva. No borra ninguna; una que baja del umbral se queda con su puntaje nuevo.
 
-## 5. Configuración (`/configuracion`) — Administrador
-Usuarios (crear, rol, activar/desactivar, restablecer contraseña), notificaciones (destinatarios de correo, hora del resumen, activar/desactivar cada tipo), estado del worker (últimas ejecuciones con conteos y errores, botón "Ejecutar barrido ahora").
+Las flechas de orden solo aparecen donde la posición cambia el resultado: en las palabras clave desempata los pesos iguales y en los patrones de comprador gana el primero que coincide (`docs/04`).
 
-## 6. Auditoría (`/auditoria`) — RF-13
-Tabla con filtros por usuario, acción y fechas; exportación.
+**Vista previa.** Cada formulario trae «Probar», que calcula sobre las activas del último barrido —sin escribir y sin llamar a la API— cuántas se seleccionan hoy, cuántas con el cambio, y las listas de las que entrarían y dejarían de entrar. Si alguna de las que salen ya fue revisada por el equipo, se dice aparte: es el aviso de que el cambio afecta algo sobre lo que ya se decidió.
+
+RF-09 reserva esta pantalla al Administrador. Con una sola cuenta compartida (D-22) ese rol no distingue a nadie; el control que queda es la bitácora, que anota cada cambio con el perfil que lo hizo.
 
 ## Estados y colores
 Nueva (azul), En revisión (ámbar), Viable (verde), Descartada (gris), Ofertada (violeta), Adjudicada (verde oscuro), Perdida (rojo apagado). Los colores acompañan siempre al texto del estado.
 
 ## Estados vacíos y errores
-"No hay licitaciones con estos filtros" con botón para limpiarlos; "El último barrido falló: ver Configuración" cuando `JobRun` reciente terminó con error; mensajes de validación junto al campo.
+"No hay licitaciones con estos filtros" con botón para limpiarlos; el estado del último barrido en la barra lateral, con «falló» en rojo cuando `JobRun` reciente terminó con error (RN-07); mensajes de validación junto al campo.
 
 ## Responsive
 El tablero en móvil muestra tarjetas (nombre, organismo, cierre, estado, afinidad) con la misma búsqueda y filtros en un panel lateral (`Sheet`).

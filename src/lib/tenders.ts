@@ -27,8 +27,20 @@ export const PROCESOS: Record<string, string> = {
   OTHER: "otro tipo",
 };
 
+/** Tipo de comprador (RF-03). */
+export const COMPRADORES: Record<string, string> = {
+  HOSPITAL: "Hospital",
+  HEALTH_SERVICE: "Servicio de salud",
+  MUNICIPAL_HEALTH: "Salud municipal",
+  MUNICIPALITY: "Municipio",
+  HIGHER_EDUCATION: "Universidad o CFT",
+  PUBLIC_SERVICE: "Servicio público",
+  OTHER: "Otro",
+};
+
 export const nombreVertical = (v: string) => VERTICALES[v] ?? v;
 export const nombreProceso = (p: string) => PROCESOS[p] ?? p;
+export const nombreComprador = (c: string) => COMPRADORES[c] ?? c;
 
 /**
  * Dias que faltan para una fecha.

@@ -65,5 +65,16 @@ gestión documental» queda en DOCUMENT_MGMT y no en WEB_DEVELOPMENT, que pesa l
 El tipo de comprador funciona igual pero sin pesos: gana el primer patrón que coincide, porque se solapan
 a propósito. Un hospital dependiente de un municipio sigue siendo un hospital, y HOSPITAL va antes.
 
+## Orden de las reglas
+El orden es parte de la regla, no del montón de Postgres: `AffinityRule.position` lo fija (D-28) y todas las lecturas ordenan por él. La semilla lo numera con el orden de este documento, y la pantalla lo cambia con flechas donde importa —palabras clave y patrones de comprador—, no donde da lo mismo.
+
 ## Vista previa (RF-09)
-Al editar reglas, un botón "Probar con las activas de hoy" recalcula sobre `SeenTender` (la última lista de activas guardada, sin llamar a la API) y muestra cuántas y cuáles entrarían y cuáles saldrían respecto de las reglas vigentes. Guardar exige confirmar.
+Al editar reglas, un botón "Probar" recalcula sobre `SeenTender` (la última lista de activas guardada, sin llamar a la API) y muestra cuántas se seleccionan hoy, cuántas con el cambio, y las listas de las que entrarían y dejarían de entrar. Guardar exige confirmar.
+
+Dos detalles que hacen que la vista previa no mienta:
+
+- **Se puntúa con lo que el barrido tendría.** `SeenTender` guarda solo el nombre, pero el barrido pide la ficha y recalcula con la descripción cuando el nombre deja el puntaje cerca del umbral. Las que ya están en `Tender` se puntúan con nombre y descripción, que están guardadas; con el nombre solo, media docena de licitaciones del tablero aparecería como «saldría» cuando entró justamente por su descripción.
+- **Se avisa cuando algo revisado sale.** Si una de las que dejarían de entrar ya tiene una revisión escrita, se dice aparte: es la señal de que el cambio toca algo sobre lo que el equipo ya decidió.
+
+## Aplicar al tablero (RF-09)
+Guardar una regla cambia lo que el radar traerá; no cambia lo que ya está en la lista. El barrido no vuelve a puntuar una licitación que ya existe en `Tender`: solo la refresca si cambió su fecha de cierre (`docs/05`). El botón «Recalcular el tablero» las vuelve a puntuar con las reglas de ahora, usando el nombre y la descripción guardados, sin llamar a la API. No borra ninguna: una que baja del umbral se queda con su puntaje nuevo, porque un cambio de regla no deshace lo que el equipo ya revisó.

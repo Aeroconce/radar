@@ -19,16 +19,16 @@ radar-licitaciones/
     app/
       login/page.tsx                   # acceso (RF-12)
       login/login-form.tsx             # el formulario, aparte por la frontera de Suspense
-      (app)/layout.tsx                 # barra superior + navegación
+      (app)/layout.tsx                 # barra lateral + navegación (tres secciones, D-27)
       (app)/page.tsx                   # tablero (RF-04)
+      (app)/tender-table.tsx           # la tabla, compartida con favoritas
+      (app)/favoritas/page.tsx         # marcador personal por perfil (D-26)
       licitaciones/[code]/page.tsx      # ficha (RF-05, RF-06); por codigo, no por id
       licitaciones/[code]/review-form.tsx
       licitaciones/[code]/actions.ts    # guardar revision
       perfil/page.tsx                  # elegir quien eres (D-24)
-      (app)/historico/page.tsx         # RF-08
-      (app)/reglas/page.tsx            # RF-09 (Administrador)
-      (app)/configuracion/page.tsx     # usuarios, notificaciones (Administrador)
-      (app)/auditoria/page.tsx         # RF-13
+      (app)/reglas/page.tsx            # RF-09
+      (app)/reglas/actions.ts          # editar reglas, parametros y vista previa
       api/attachments/[id]/route.ts    # descarga con sesión
       api/export/route.ts              # RF-11
       api/auth/[...all]/route.ts       # Better Auth
@@ -45,21 +45,23 @@ radar-licitaciones/
       affinity/rules.ts                # motor de afinidad (docs/04)
       affinity/initial-rules.ts        # reglas de partida; la semilla y las pruebas las comparten
       affinity/classify.ts             # vertical, tipo de comprador, señales
+      affinity/preview.ts              # que entra y que sale con un cambio de reglas (RF-09)
+      affinity/validate.ts             # rechaza la regla que el motor ignoraria en silencio
+      tenders.ts                       # nombres de vertical, proceso, comprador y plazo
+      rule-kinds.ts                    # como se presenta cada tipo de regla
       notifications/email.ts           # plantillas y entrega via Resend
       notifications/dispatch.ts        # la cola de avisos y sus reintentos
       env.ts                           # valida las variables con zod al arrancar
       logger.ts                        # pino en JSON, con el ticket tapado
       settings.ts                      # umbral y reglas leidos de la base (RF-09)
       format.ts                        # fechas y montos en español neutro
-    actions/                           # Server Actions (revisiones, reglas, usuarios)
   src/proxy.ts                         # en Next 16 reemplaza a middleware; solo mira la cookie
   worker/
     index.ts                           # arranque de cron
-    jobs/sweep.ts                      # RF-01, RF-02, RF-03
-    jobs/history.ts                    # RF-08
-    jobs/alerts.ts                     # RF-10
-    jobs/awards.ts                     # detección de actas de licitaciones ofertadas
-    run.ts                             # ejecución puntual: pnpm worker:barrido / worker:historico
+    jobs/sweep.ts                      # RF-01, RF-02, RF-03; envía los avisos en cola al cerrar
+    jobs/alerts.ts                     # ⚠ RF-10: cierre a 5 días, fin de preguntas, resumen diario
+    jobs/awards.ts                     # ⚠ actas de licitaciones ofertadas
+    run.ts                             # ejecución puntual: pnpm worker:barrido
   prisma/
     schema.prisma
     seed.ts                            # carga seed/

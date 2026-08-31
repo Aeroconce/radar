@@ -7,7 +7,7 @@ Base: `https://api.mercadopublico.cl/servicios/v1/publico/`. Todas las llamadas 
 |---|---|---|
 | Activas (barrido, RF-01) | `licitaciones.json?estado=activas` | Todas las licitaciones activas (≈ 4.600): `CodigoExterno`, `Nombre`, `CodigoEstado`, `FechaCierre`. Una sola llamada. |
 | Ficha (RF-02) | `licitaciones.json?codigo=<código>` | Registro completo: `Nombre`, `Descripcion`, `Estado`, `Tipo`, `MontoEstimado`, `Moneda`, `TiempoDuracionContrato`, `UnidadTiempoDuracionContrato` (2 = días, 3 = semanas, 4 = meses, 5 = años; 0 y 1 aparecen siempre con duración 0 y se tratan como «sin informar». La 3 es una inferencia: sus valores, 10 y 36, serían absurdos en años), `Contrato`, `TomaRazon`, `Etapas`, `Fechas{FechaPublicacion, FechaInicio, FechaFinal (fin de preguntas), FechaPubRespuestas, FechaCierre, FechaAdjudicacion, FechaEstimadaAdjudicacion}`, `Comprador{CodigoOrganismo, NombreOrganismo, NombreUnidad, RegionUnidad, RutUnidad}`, `Items.Listado[]`, `Adjudicacion{Tipo, Fecha, Numero, NumeroOferentes, UrlActa}` cuando está adjudicada, y en cada ítem `Adjudicacion{RutProveedor, NombreProveedor, Cantidad, MontoUnitario}`. |
-| Histórico diario (RF-08) | `licitaciones.json?fecha=ddmmaaaa&estado=adjudicada` | Licitaciones adjudicadas ese día (la fecha se refiere al evento, no a la publicación). |
+| Histórico diario (RF-05) | `licitaciones.json?fecha=ddmmaaaa&estado=adjudicada` | Licitaciones adjudicadas ese día (la fecha se refiere al evento, no a la publicación). |
 | Organismo por fecha | `licitaciones.json?fecha=ddmmaaaa&CodigoOrganismo=<código>` | Licitaciones de ese organismo con evento ese día. |
 | Organismos | `Empresas/BuscarComprador` | 899 organismos con `CodigoEmpresa` y `NombreEmpresa`; base para clasificar el tipo de comprador. |
 | Órdenes de compra (opcional) | `ordenesdecompra.json?codigo=<código OC>` | No se usa en esta versión. |
@@ -24,7 +24,7 @@ Base: `https://api.mercadopublico.cl/servicios/v1/publico/`. Todas las llamadas 
 - `getActive()`, `getTender(code)`, `getAwardedOn(date)`, `getBuyers()`.
 - Respuesta cruda guardada en `Tender.raw`; errores tipados: `RateLimited`, `NotFound`, `Upstream`.
 
-## Actas de adjudicación (RF-08)
+## Actas de adjudicación (RF-05)
 `Adjudicacion.UrlActa` (`http://www.mercadopublico.cl/Procurement/Modules/RFB/StepsProcessAward/PreviewAwardAct.aspx?qs=...`) es HTML público, sin sesión. Parseo con cheerio sobre el texto plano:
 1. Sección "Resultado de la Adjudicación": para cada ítem, filas `RUT · nombre del oferente · especificación · $ monto · cantidad · total · estado` con estado `Adjudicada`, `No Adjudicada`, `Rechazada`, `Desierta` o `Inadmisible`.
 2. "Monto Neto Estimado del Contrato" y "Monto Neto Adjudicado".

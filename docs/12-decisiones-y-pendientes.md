@@ -16,6 +16,19 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-28** **Las reglas tienen un orden explícito** (`AffinityRule.position`). No es cosmético: en los
+  patrones de comprador gana el primero que coincide —un hospital dependiente de un municipio sigue siendo un
+  hospital— y en las palabras clave el orden desempata los pesos iguales (`docs/04`). Hasta ahora las reglas se
+  leían sin `ORDER BY` y funcionaba por casualidad, porque nadie las había editado nunca y el montón de
+  Postgres coincidía con el orden de la semilla. La primera edición desde la pantalla lo habría roto en
+  silencio: la fila editada se mueve de lugar y la clasificación cambia sin que nada lo anuncie.
+- **D-27** **Tres pantallas: Tablero, Favoritas y Reglas.** Se descartan Histórico (RF-08), Auditoría (RF-13)
+  y Configuración. Decisión del usuario el 2026-08-30: «no es necesario para un equipo de tres que siempre
+  tiene comunicación». Lo que cada una aportaba no se pierde, cambia de lugar: el histórico de adjudicaciones
+  ya se muestra donde se usa, en la ficha (RF-05); `AuditLog` se sigue escribiendo y se consulta contra la
+  base si alguna vez hace falta; y los parámetros que vivían en Configuración son parte de RF-09, así que
+  están en Reglas. Lo único que desaparece de verdad es la administración de usuarios, que con una sola
+  cuenta compartida (D-22) no administra nada.
 - **D-26** **Las favoritas son por perfil, no del equipo.** El estado compartido ya lo lleva
   `Tender.reviewStatus`: VIABLE significa que el equipo la sigue, asi que una favorita compartida seria lo
   mismo. Por perfil sirve para otra cosa: «quiero volver a esta» sin comprometer al equipo con un estado.

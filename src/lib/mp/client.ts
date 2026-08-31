@@ -197,7 +197,7 @@ export class MpClient {
     return first;
   }
 
-  /** Adjudicadas cuyo evento cayo en esa fecha (RF-08). */
+  /** Adjudicadas cuyo evento cayo en esa fecha; alimentan el historial de la ficha (RF-05). */
   async getAwardedOn<T = ActiveListing>(date: Date): Promise<T[]> {
     const body = await this.enqueue<T>("licitaciones.json", {
       fecha: formatApiDate(date),

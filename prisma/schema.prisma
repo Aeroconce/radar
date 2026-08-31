@@ -267,7 +267,7 @@ model Attachment {
   @@index([tenderId])
 }
 
-/// Adjudicaciones del histórico (RF-08).
+/// Adjudicaciones del histórico. Alimentan el historial de la ficha (RF-05); la pantalla propia se descartó (D-27).
 model HistoricalAward {
   id            String    @id @default(cuid())
   code          String    @unique
@@ -313,11 +313,17 @@ model AffinityRule {
   buyerType BuyerType? // destino de las reglas kind = BUYER_PATTERN (docs/04)
   pattern   String // expresión regular en minúsculas
   weight    Int        @default(0) // positivo para palabras clave, negativo para exclusiones
+  /// Orden de evaluación dentro del tipo. Es semántico, no cosmético: en
+  /// BUYER_PATTERN gana el primer patrón que coincide y en KEYWORD desempata
+  /// los pesos iguales (docs/04). Sin esta columna el orden lo daría el montón
+  /// de Postgres, que cambia cada vez que se edita una fila.
+  position  Int        @default(0)
   active    Boolean    @default(true)
   updatedBy String?
   updatedAt DateTime   @updatedAt
 
   @@index([kind, active])
+  @@index([kind, position])
 }
 
 /// Umbral, rango de montos, tipos de proceso, horas de cron, destinatarios de correo.

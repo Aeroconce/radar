@@ -1,4 +1,4 @@
-# 09 — Seguridad (RF-12, RF-13)
+# 09 — Seguridad (RF-12)
 
 - **Autenticación**: Better Auth con correo y contraseña; mínimo 12 caracteres; el hash lo calcula la
   librería. Cierre por inactividad: la sesión dura `SESSION_IDLE_MINUTES` y se renueva en cada petición,

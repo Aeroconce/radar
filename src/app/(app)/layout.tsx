@@ -5,9 +5,9 @@
  * en vez de apilarse todo en una sola. El login y la eleccion de perfil quedan
  * fuera de este grupo de rutas: ahi no hay nada que navegar.
  *
- * Las secciones que todavia no existen se muestran apagadas y marcadas, no
- * ocultas: asi el equipo ve la forma que va a tener sin toparse con enlaces
- * que no llevan a ninguna parte.
+ * Son tres y no mas (D-27). Historico, auditoria y configuracion se descartaron:
+ * el equipo son tres personas que hablan entre si, y una pantalla que nadie abre
+ * igual hay que mantenerla.
  */
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -20,12 +20,9 @@ import { NavLink } from "./nav-link";
 export const dynamic = "force-dynamic";
 
 const SECCIONES = [
-  { href: "/", etiqueta: "Tablero", listo: true },
-  { href: "/favoritas", etiqueta: "Favoritas", listo: true },
-  { href: "/historico", etiqueta: "Histórico", listo: false },
-  { href: "/reglas", etiqueta: "Reglas", listo: false },
-  { href: "/configuracion", etiqueta: "Configuración", listo: false },
-  { href: "/auditoria", etiqueta: "Auditoría", listo: false },
+  { href: "/", etiqueta: "Tablero" },
+  { href: "/favoritas", etiqueta: "Favoritas" },
+  { href: "/reglas", etiqueta: "Reglas" },
 ];
 
 const fechaHora = new Intl.DateTimeFormat("es-CL", {
@@ -67,24 +64,14 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
           <ul className="space-y-0.5">
             {SECCIONES.map((s) => (
               <li key={s.href}>
-                {s.listo ? (
-                  <NavLink href={s.href}>
-                    {s.etiqueta}
-                    {s.href === "/favoritas" && favoritas > 0 && (
-                      <span className="ml-auto font-mono text-[11px] tabular-nums opacity-70">
-                        {favoritas}
-                      </span>
-                    )}
-                  </NavLink>
-                ) : (
-                  <span
-                    className="flex cursor-default items-center justify-between rounded-md px-3 py-2 text-sm text-neutral-400"
-                    title="Todavía no está construida"
-                  >
-                    {s.etiqueta}
-                    <span className="text-[10px] uppercase tracking-wider">pronto</span>
-                  </span>
-                )}
+                <NavLink href={s.href}>
+                  {s.etiqueta}
+                  {s.href === "/favoritas" && favoritas > 0 && (
+                    <span className="ml-auto font-mono text-[11px] tabular-nums opacity-70">
+                      {favoritas}
+                    </span>
+                  )}
+                </NavLink>
               </li>
             ))}
           </ul>

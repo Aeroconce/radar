@@ -13,12 +13,12 @@ discrepen, manda el schema — ese compila.
 | `SeenTender` | **Toda** activa vista en un barrido, entre o no al tablero. |
 | `Review` | Una fila por cambio de estado o nota. La ficha muestra la última; la bitácora, todas. |
 | `Attachment` | Bases, anexos, foro y actas subidos a mano (RF-07). |
-| `HistoricalAward` · `HistoricalBid` | Adjudicaciones pasadas con todos sus oferentes y montos (RF-08). |
-| `AffinityRule` | Palabras clave, exclusiones, patrones de comprador y señales, editables desde la interfaz (RF-09). |
+| `HistoricalAward` · `HistoricalBid` | Adjudicaciones pasadas con todos sus oferentes y montos. Sin pantalla propia desde D-27: alimentan el historial de la ficha (RF-05). |
+| `AffinityRule` | Palabras clave, exclusiones, patrones de comprador y señales, editables desde la interfaz (RF-09). `position` fija el orden de evaluación, que es semántico (D-28). |
 | `Setting` | Umbral, rango de montos, tipos de proceso, horas de cron, destinatarios de correo. |
 | `Notification` | Un aviso enviado o por enviar, con su estado y reintentos (RF-10). |
 | `JobRun` | Cada ejecución del worker: inicio, fin, resultado, conteos, error. |
-| `AuditLog` | Accesos y cambios, consultable por el Administrador (RF-13). |
+| `AuditLog` | Accesos y cambios. Sin pantalla desde D-27: se escribe y se consulta contra la base. |
 | `Favorite` | Marcador **personal** de un perfil sobre una licitación (D-26). |
 
 ## Invariantes

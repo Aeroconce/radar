@@ -61,9 +61,19 @@ export async function loadSettings(): Promise<RadarSettings> {
   };
 }
 
-/** Solo las reglas activas: desactivar una en la interfaz debe surtir efecto ya. */
+/**
+ * Solo las reglas activas: desactivar una en la interfaz debe surtir efecto ya.
+ *
+ * El orden no es cosmetico. En `BUYER_PATTERN` gana el primer patron que coincide
+ * y en `KEYWORD` desempata los pesos iguales (docs/04), asi que se pide explicito:
+ * sin `ORDER BY`, Postgres devuelve las filas en el orden del monton, que cambia
+ * cada vez que se edita una desde la interfaz.
+ */
 export async function loadRules(): Promise<Rule[]> {
-  const rows = await prisma.affinityRule.findMany({ where: { active: true } });
+  const rows = await prisma.affinityRule.findMany({
+    where: { active: true },
+    orderBy: [{ position: "asc" }, { id: "asc" }],
+  });
   return rows.map((r) => ({
     kind: r.kind,
     pattern: r.pattern,

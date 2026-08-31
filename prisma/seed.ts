@@ -130,12 +130,15 @@ async function seedSettings(): Promise<number> {
 async function seedRules(): Promise<number> {
   await prisma.affinityRule.deleteMany({ where: { updatedBy: SEED_AUTHOR } });
   await prisma.affinityRule.createMany({
-    data: INITIAL_RULES.map((r) => ({
+    // El indice es la posicion: el orden de docs/04 es parte de la regla, no
+    // una casualidad de como quedaron las filas (`position` en docs/02).
+    data: INITIAL_RULES.map((r, i) => ({
       kind: r.kind,
       vertical: r.vertical ?? null,
       buyerType: r.buyerType ?? null,
       pattern: r.pattern,
       weight: r.weight,
+      position: i + 1,
       updatedBy: SEED_AUTHOR,
     })),
   });
