@@ -4,9 +4,11 @@
  *   pnpm bitacora:limpiar             muestra que borraria, sin tocar nada
  *   pnpm bitacora:limpiar -- --aplicar   las borra
  *
- * Repetida: identica a la revision inmediatamente anterior de la misma
- * licitacion (mismo estado, mismos motivos, misma nota). Son el rastro del
- * boton apretado varias veces, no decisiones. Se conserva siempre la primera.
+ * Repetida: o identica a la revision inmediatamente anterior de la misma
+ * licitacion (mismo estado, mismos motivos, misma nota), o una que repite el
+ * estado anterior sin motivos ni nota, es decir, sin agregar nada. Son el
+ * rastro del boton apretado varias veces, no decisiones. Se conserva siempre
+ * la primera de cada racha.
  *
  * No toca el estado del tablero: borrar una copia no cambia lo que la copia
  * decia.
@@ -35,15 +37,15 @@ async function main(): Promise<void> {
   for (let i = 1; i < revisiones.length; i++) {
     const previa = revisiones[i - 1];
     const actual = revisiones[i];
-    if (
-      actual.tenderId === previa.tenderId &&
-      actual.status === previa.status &&
+    if (actual.tenderId !== previa.tenderId || actual.status !== previa.status) continue;
+
+    const identica =
       actual.note === previa.note &&
       actual.reasons.length === previa.reasons.length &&
-      actual.reasons.every((r, j) => r === previa.reasons[j])
-    ) {
-      repetidas.push(actual);
-    }
+      actual.reasons.every((r, j) => r === previa.reasons[j]);
+    const sinNada = actual.note === "" && actual.reasons.length === 0;
+
+    if (identica || sinNada) repetidas.push(actual);
   }
 
   console.log(`${revisiones.length} revisiones · ${repetidas.length} repetidas\n`);
