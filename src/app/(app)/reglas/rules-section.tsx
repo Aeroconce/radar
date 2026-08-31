@@ -1,14 +1,13 @@
 /**
  * Un tipo de regla y sus filas (RF-09).
  *
- * Un patron es una expresion regular larga, y de corrido —cuarenta palabras
- * separadas por barras, sin tildes y con algunas cortadas a proposito— se lee
- * como un texto mal escrito. Se muestra partido en los terminos que busca, con
- * la sintaxis atenuada para que la palabra se lea primero.
+ * Una regla es una expresion regular, y una expresion regular no es texto: es
+ * notacion. `desarrollo (de )?(sistema|software)` no se lee, se descifra, y
+ * quien revisa estas reglas no tiene por que descifrar nada.
  *
- * No se recorta ni se reescribe nada: lo que se ve es exactamente lo que el
- * motor evalua, y lo que hay que revisar es justo el termino que sobra o el que
- * falta. Para editarlo, el formulario muestra la expresion entera.
+ * Se muestra en palabras —"desarrollo de sistema o software"—, una etiqueta por
+ * cosa que la regla busca. Es un resumen y como tal pierde matices, asi que la
+ * expresion exacta esta a un clic, en «Editar», y es la que el motor evalua.
  *
  * Cada fila se edita en su lugar. Abrir una ventana encima obligaria a recordar
  * las otras reglas de memoria, y casi siempre se edita una comparandola con la
@@ -20,7 +19,7 @@ import { useState, useTransition } from "react";
 import { Select } from "@/components/select";
 import type { Comparacion } from "@/lib/affinity/preview";
 import { COMPRADORES_VALIDOS, VERTICALES_VALIDAS } from "@/lib/affinity/validate";
-import { bordesDe, terminosDe, TIPOS_REGLA, trozosDe } from "@/lib/rule-kinds";
+import { frasesDe, TIPOS_REGLA } from "@/lib/rule-kinds";
 import { nombreComprador, nombreVertical } from "@/lib/tenders";
 import {
   alternarRegla,
@@ -212,39 +211,24 @@ function Editor({
 }
 
 /**
- * Los terminos de un patron, uno por etiqueta.
+ * Lo que busca una regla, escrito en palabras.
  *
- * Un espacio al borde de un termino es parte de la regla —`crs ` no coincide
- * dentro de otra palabra— y en una etiqueta seria invisible. Se dibuja con un
- * punto gris, del mismo color que el resto de la sintaxis.
+ * Sin monoespaciada: es una lista de cosas, no codigo, y la monoespaciada
+ * invita a leerla como si lo fuera.
  */
 function Terminos({ patron, activa }: { patron: string; activa: boolean }) {
   return (
     <div className="flex flex-wrap gap-1">
-      {terminosDe(patron).map((termino, i) => {
-        const { inicio, nucleo, fin } = bordesDe(termino);
-        const espacio = (n: number) => (
-          <span className="text-neutral-400" title="Espacio que la regla exige">
-            {"·".repeat(n)}
-          </span>
-        );
-        return (
-          <span
-            key={`${i}-${termino}`}
-            className={`rounded px-1.5 py-0.5 font-mono text-[11px] leading-relaxed ${
-              activa ? "bg-neutral-100 text-neutral-800" : "bg-neutral-100/60 text-neutral-400"
-            }`}
-          >
-            {inicio && espacio(inicio.length)}
-            {trozosDe(nucleo).map((t, j) => (
-              <span key={j} className={t.esTexto ? "" : "text-neutral-400"}>
-                {t.texto}
-              </span>
-            ))}
-            {fin && espacio(fin.length)}
-          </span>
-        );
-      })}
+      {frasesDe(patron).map((frase, i) => (
+        <span
+          key={`${i}-${frase}`}
+          className={`rounded px-2 py-0.5 text-xs leading-relaxed ${
+            activa ? "bg-neutral-100 text-neutral-700" : "bg-neutral-100/60 text-neutral-400"
+          }`}
+        >
+          {frase}
+        </span>
+      ))}
     </div>
   );
 }

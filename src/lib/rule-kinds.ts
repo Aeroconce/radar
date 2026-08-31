@@ -124,24 +124,58 @@ export function terminosDe(patron: string): string[] {
   return partes.filter((p) => p.length > 0);
 }
 
-/** Separa un termino en sus espacios de los bordes y lo del medio. */
-export function bordesDe(termino: string): { inicio: string; nucleo: string; fin: string } {
-  const inicio = /^\s+/.exec(termino)?.[0] ?? "";
-  const resto = termino.slice(inicio.length);
-  const fin = /\s+$/.exec(resto)?.[0] ?? "";
-  return { inicio, nucleo: resto.slice(0, resto.length - fin.length), fin };
+/** Une una lista en espanol: "a, b o c". */
+function enumerar(partes: string[]): string {
+  if (partes.length <= 1) return partes[0] ?? "";
+  return `${partes.slice(0, -1).join(", ")} o ${partes[partes.length - 1]}`;
 }
 
 /**
- * Separa un termino en lo que se lee y lo que es sintaxis.
+ * Un termino escrito como frase, sin signos.
  *
- * Sirve para atenuar los parentesis, las barras y los corchetes, y que la
- * palabra se lea primero. `esTexto` marca los trozos legibles.
+ * La expresion es exacta pero no se lee: `desarrollo (de )?(sistema|software)`
+ * no es texto, es notacion. Esto la pasa a palabras —"desarrollo de sistema o
+ * software"— que es lo que alguien necesita para decidir si la regla busca lo
+ * que tiene que buscar.
+ *
+ * Es un resumen, no la regla. Pierde matices a proposito: que el "de" sea
+ * opcional, o que un espacio al borde sea obligatorio, no cambia lo que la
+ * regla persigue y sí estorba al leerla. La expresion exacta esta en «Editar»,
+ * y es la que el motor evalua.
  */
-export function trozosDe(termino: string): Array<{ texto: string; esTexto: boolean }> {
-  const trozos: Array<{ texto: string; esTexto: boolean }> = [];
-  for (const m of termino.matchAll(/[\p{L}\p{N} -]+|[^\p{L}\p{N} -]+/gu)) {
-    trozos.push({ texto: m[0], esTexto: /[\p{L}\p{N}]/u.test(m[0]) });
-  }
-  return trozos;
+export function comoFrase(termino: string): string {
+  let t = termino;
+
+  // Una letra entre corchetes multiplica la palabra: informatic[oa] son dos.
+  t = t.replace(/(\p{L}+)\[(\p{L}+)\]/gu, (_, raiz: string, letras: string) =>
+    enumerar([...letras].map((l) => raiz + l)),
+  );
+
+  /*
+   * Grupo, sea opcional o no: pasa a lista.
+   *
+   * El interrogante final se toma junto con el parentesis. Tratarlos por
+   * separado dejaba las barras de un grupo opcional con alternativas —como
+   * `(de |con )?`— sin convertir, y salian a pantalla.
+   *
+   * Lo opcional se deja escrito: "desarrollo de sistema" se lee mejor que
+   * "desarrollo sistema", y la regla acepta las dos formas igual.
+   */
+  t = t.replace(/\(([^()]*)\)\??/g, (_, dentro: string) => enumerar(dentro.split("|")));
+
+  // "cualquier cosa en el medio", que es lo que dice `.*`.
+  t = t.replace(/\.\*/g, " y luego ");
+
+  t = t.replace(/\\b/g, ""); // limite de palabra: no se ve ni se lee
+  t = t.replace(/\\(.)/g, "$1"); // lo escapado vale por si mismo: \. es un punto
+  t = t.replace(/(.)\?/g, "$1"); // lo opcional se deja: activos? es "activos"
+
+  return t.replace(/\s+/g, " ").trim();
+}
+
+/** Las frases de una regla, listas para mostrar. */
+export function frasesDe(patron: string): string[] {
+  return terminosDe(patron)
+    .map(comoFrase)
+    .filter((f) => f.length > 0);
 }

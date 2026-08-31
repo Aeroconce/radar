@@ -9,7 +9,7 @@ import { INITIAL_RULES } from "@/lib/affinity/initial-rules";
 import { comparar, MAX_FILAS, type Candidata } from "@/lib/affinity/preview";
 import { DEFAULT_THRESHOLDS, RULE_KINDS, type Rule } from "@/lib/affinity/rules";
 import { PESO_MAXIMO, validarParametros, validarRegla } from "@/lib/affinity/validate";
-import { bordesDe, terminosDe, trozosDe } from "@/lib/rule-kinds";
+import { comoFrase, frasesDe, terminosDe } from "@/lib/rule-kinds";
 
 // ------------------------------------------------------------------ validacion
 
@@ -213,12 +213,8 @@ describe("terminosDe", () => {
   });
 
   it("conserva el espacio del borde, que es parte de la regla", () => {
-    // "crs " con espacio no coincide dentro de otra palabra. Recortarlo para
-    // mostrarlo dejaria en pantalla una regla distinta de la que se evalua.
+    // "crs " con espacio no coincide dentro de otra palabra.
     expect(terminosDe("crs |cesfam")).toEqual(["crs ", "cesfam"]);
-    expect(bordesDe("crs ")).toEqual({ inicio: "", nucleo: "crs", fin: " " });
-    expect(bordesDe("das ")).toEqual({ inicio: "", nucleo: "das", fin: " " });
-    expect(bordesDe("hospital")).toEqual({ inicio: "", nucleo: "hospital", fin: "" });
   });
 
   it("no corta por una barra escapada", () => {
@@ -250,18 +246,47 @@ describe("terminosDe", () => {
   });
 });
 
-describe("trozosDe", () => {
-  it("separa palabras de sintaxis", () => {
-    expect(trozosDe("activos? fijos?")).toEqual([
-      { texto: "activos", esTexto: true },
-      { texto: "?", esTexto: false },
-      { texto: " fijos", esTexto: true },
-      { texto: "?", esTexto: false },
-    ]);
+describe("comoFrase", () => {
+  it("pasa las alternativas a una lista", () => {
+    expect(comoFrase("confirmacion de (citas|horas)")).toBe("confirmacion de citas o horas");
+    expect(comoFrase("sistema de (registro|control|seguimiento)")).toBe(
+      "sistema de registro, control o seguimiento",
+    );
   });
 
-  it("conserva el termino entero", () => {
-    const t = "confirmacion de (citas|horas)";
-    expect(trozosDe(t).map((x) => x.texto).join("")).toBe(t);
+  it("deja el contenido de un grupo opcional", () => {
+    expect(comoFrase("desarrollo (de )?(sistema|software)")).toBe(
+      "desarrollo de sistema o software",
+    );
+    expect(comoFrase("saas|arriendo (de )?software")).toBe("saas|arriendo de software");
+  });
+
+  it("multiplica la palabra que lleva una letra entre corchetes", () => {
+    expect(comoFrase("informatic[oa]")).toBe("informatico o informatica");
+  });
+
+  it("quita lo opcional de una sola letra", () => {
+    expect(comoFrase("activos? fijos?")).toBe("activos fijos");
+    expect(comoFrase("help ?desk")).toBe("help desk");
+    expect(comoFrase("e-?learning")).toBe("e-learning");
+  });
+
+  it("dice en palabras lo que hay en el medio", () => {
+    expect(comoFrase("renovacion .*licencias")).toBe("renovacion y luego licencias");
+  });
+
+  it("quita el limite de palabra y las barras de escape", () => {
+    expect(comoFrase(String.raw`\bcurso`)).toBe("curso");
+    expect(comoFrase(String.raw`\bups\b`)).toBe("ups");
+    expect(comoFrase(String.raw`s\.s\.`)).toBe("s.s.");
+  });
+
+  it("ninguna regla real deja un signo en pantalla", () => {
+    // Es la prueba del cambio: si algo se escapa, se ve como notacion.
+    for (const r of INITIAL_RULES) {
+      for (const frase of frasesDe(r.pattern)) {
+        expect(frase, `${r.pattern} → ${frase}`).not.toMatch(/[()[\]|?\\*]/);
+      }
+    }
   });
 });

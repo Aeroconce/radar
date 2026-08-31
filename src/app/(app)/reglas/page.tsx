@@ -66,33 +66,23 @@ export default async function ReglasPage() {
         lo que no se entrega como software no entra, aunque su tema suene afín.
       </p>
 
-      {/* Sin esta nota los terminos parecen escritos con errores. Van sin tildes
-          porque el texto se compara sin ellas, y varios cortados a proposito. */}
+      {/* Sin esta nota, dos cosas parecen errores y no lo son: las palabras sin
+          tildes y las cortadas a la mitad. */}
       <div className="mt-4 max-w-3xl rounded-lg border border-neutral-200 bg-white px-4 py-3">
         <p className="text-xs font-semibold text-neutral-700">Cómo leer los términos</p>
         <ul className="mt-1.5 space-y-1 text-xs leading-relaxed text-neutral-600">
           <li>
             Van <strong className="font-medium">sin tildes y en minúsculas</strong> porque el texto de
-            las licitaciones se compara así. <code className="font-mono text-[11px]">acreditacion</code>{" "}
-            encuentra «Acreditación».
+            las licitaciones se compara así. «acreditacion» encuentra «Acreditación».
           </li>
           <li>
             Algunos están <strong className="font-medium">cortados a propósito</strong>, para atrapar
-            todas sus terminaciones: <code className="font-mono text-[11px]">interoperab</code>{" "}
-            encuentra interoperable, interoperabilidad e interoperar.
+            todas sus terminaciones: «interoperab» encuentra interoperable, interoperabilidad e
+            interoperar.
           </li>
           <li>
-            Los signos en gris son del buscador, no palabras:{" "}
-            <code className="font-mono text-[11px]">activos? fijos?</code> acepta singular y plural,{" "}
-            <code className="font-mono text-[11px]">(citas|horas)</code> acepta cualquiera de las dos, y{" "}
-            <code className="font-mono text-[11px]">{"\\bcurso"}</code> exige que la palabra empiece ahí,
-            para que no coincida dentro de «recursos».
-          </li>
-          <li>
-            Un punto gris al borde de un término es un{" "}
-            <strong className="font-medium">espacio que la regla exige</strong>:{" "}
-            <code className="font-mono text-[11px]">crs·</code> encuentra «CRS Maipú» pero no
-            «CRSalud».
+            Es un resumen de lo que busca cada regla. La forma exacta, con la que trabaja el buscador,
+            aparece al abrir <strong className="font-medium">Editar</strong>.
           </li>
         </ul>
       </div>
