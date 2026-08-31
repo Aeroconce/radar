@@ -18,6 +18,7 @@ import {
   ORDEN_ESTADOS,
   motivosPara,
 } from "@/lib/reviews";
+import { Select } from "@/components/select";
 import { guardarRevision, type EstadoFormulario } from "./actions";
 
 const INICIAL: EstadoFormulario = { ok: false };
@@ -53,22 +54,18 @@ export function ReviewForm({
       </div>
 
       <div className="mt-4">
-        <label htmlFor="estado" className="block text-sm font-medium text-neutral-700">
+        <label className="block text-sm font-medium text-neutral-700">
           Estado
         </label>
-        <select
-          id="estado"
-          name="estado"
-          value={estado}
-          onChange={(e) => setEstado(e.target.value as ReviewStatus)}
-          className="mt-1.5 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-[#1c2f4a] focus:ring-2 focus:ring-[#1c2f4a]/15"
-        >
-          {ORDEN_ESTADOS.map((e) => (
-            <option key={e} value={e}>
-              {ESTADOS[e].etiqueta}
-            </option>
-          ))}
-        </select>
+        <div className="mt-1.5">
+          <Select
+            name="estado"
+            etiquetaAccesible="Estado de la revisión"
+            valor={estado}
+            onChange={(v) => setEstado(v as ReviewStatus)}
+            opciones={ORDEN_ESTADOS.map((e) => ({ valor: e, etiqueta: ESTADOS[e].etiqueta }))}
+          />
+        </div>
       </div>
 
       {motivos.length > 0 && (

@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { ESTADOS, ORDEN_ESTADOS } from "@/lib/reviews";
+import { Select } from "@/components/select";
 
 export interface ConteoEstado {
   estado: ReviewStatus;
@@ -85,19 +86,20 @@ export function BoardFilters({
           />
         </div>
 
-        <select
-          value={verticalActiva}
-          onChange={(e) => navegar({ vertical: e.target.value || null })}
-          aria-label="Filtrar por vertical"
-          className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 outline-none focus:border-[#1c2f4a] focus:ring-2 focus:ring-[#1c2f4a]/15"
-        >
-          <option value="">Todas las verticales</option>
-          {verticales.map((v) => (
-            <option key={v.valor} value={v.valor}>
-              {v.etiqueta} ({v.total})
-            </option>
-          ))}
-        </select>
+        <Select
+          className="w-56"
+          etiquetaAccesible="Filtrar por vertical"
+          valor={verticalActiva}
+          onChange={(v) => navegar({ vertical: v || null })}
+          opciones={[
+            { valor: "", etiqueta: "Todas las verticales" },
+            ...verticales.map((v) => ({
+              valor: v.valor,
+              etiqueta: v.etiqueta,
+              detalle: String(v.total),
+            })),
+          ]}
+        />
 
         {hayFiltros && (
           <button
