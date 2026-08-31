@@ -5,29 +5,46 @@
  * deprecado; verificable en node_modules/next/dist/docs/01-app/03-api-reference/
  * 03-file-conventions/proxy.md.
  *
- * Aqui **solo** se mira si existe la cookie de sesion. La documentacion advierte
- * que el proxy puede desplegarse en un CDN y no debe depender de modulos
- * compartidos, asi que no toca la base de datos: la sesion se valida de verdad
- * en el servidor, en `requireSession()`.
+ * Aqui **solo** se mira si existen las cookies. La documentacion advierte que el
+ * proxy puede desplegarse en un CDN y no debe depender de modulos compartidos,
+ * asi que no toca la base: la sesion se valida de verdad en `requireSession()` y
+ * el perfil en `perfilParaEscribir()`.
  *
- * Sirve para evitar que una peticion sin sesion llegue siquiera a renderizar.
+ * Dos puertas, en orden:
+ *   1. sin sesion            -> /login
+ *   2. con sesion, sin perfil -> /perfil   (D-24)
  */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "better-auth.session_token";
+const PERFIL_COOKIE = "radar_perfil";
+
+function tieneSesion(request: NextRequest): boolean {
+  return (
+    request.cookies.has(SESSION_COOKIE) ||
+    request.cookies.has(`__Secure-${SESSION_COOKIE}`)
+  );
+}
 
 export function proxy(request: NextRequest) {
-  const tieneCookie =
-    request.cookies.has(SESSION_COOKIE) ||
-    request.cookies.has(`__Secure-${SESSION_COOKIE}`);
+  const ruta = request.nextUrl.pathname;
+  const destino = ruta + request.nextUrl.search;
 
-  if (tieneCookie) return NextResponse.next();
+  if (!tieneSesion(request)) {
+    const login = new URL("/login", request.url);
+    login.searchParams.set("destino", destino);
+    return NextResponse.redirect(login);
+  }
 
-  const login = new URL("/login", request.url);
-  // Para volver a donde iba despues de entrar.
-  login.searchParams.set("destino", request.nextUrl.pathname + request.nextUrl.search);
-  return NextResponse.redirect(login);
+  // La pantalla de perfil no puede exigir perfil: seria un ciclo.
+  if (ruta !== "/perfil" && !request.cookies.has(PERFIL_COOKIE)) {
+    const perfil = new URL("/perfil", request.url);
+    perfil.searchParams.set("destino", destino);
+    return NextResponse.redirect(perfil);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

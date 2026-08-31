@@ -16,6 +16,8 @@ export const SETTING_KEYS = {
   highAffinityThreshold: "highAffinityThreshold",
   maxAmount: "maxAmount",
   processTypes: "processTypes",
+  /** El equipo, para elegir perfil al entrar (D-24). */
+  teamMembers: "teamMembers",
 } as const;
 
 /** Umbral a partir del cual una licitacion nueva dispara aviso (docs/05). */

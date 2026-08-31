@@ -102,10 +102,11 @@ const SETTINGS: Array<[string, Prisma.InputJsonValue]> = [
   ["processTypes", ["L1", "LE", "LP", "LQ", "LR"]],
   ["sweepCron", "15 */2 * * *"],
   ["dailyDigestHour", 8],
-  // Quienes pueden figurar como autor de una revision. La sesion es compartida,
-  // asi que el autor se elige de esta lista al guardar (D-22). Un desplegable
-  // evita que "Fran", "Francisco" y "francisco" queden como tres personas.
-  ["teamMembers", ["Francisco", "Equipo"]],
+  // El equipo. La sesion es compartida (D-22), asi que al entrar se elige un
+  // perfil de esta lista y todo lo que se escriba queda a su nombre (D-24).
+  // Una lista cerrada evita que "Fran", "Francisco" y "francisco" queden como
+  // tres personas distintas y el filtro por autor deje de servir.
+  ["teamMembers", ["Andrés", "Javiera", "Francisco"]],
 ];
 
 // ---------------------------------------------------------------- carga

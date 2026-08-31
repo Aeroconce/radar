@@ -8,6 +8,8 @@
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
+import { perfilActivo } from "@/lib/perfil";
+import { cambiarPerfil } from "./perfil/actions";
 import { SignOutButton } from "./sign-out-button";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +37,7 @@ const ORDEN: ReviewStatus[] = [
 
 export default async function Home() {
   await requireSession();
+  const perfil = await perfilActivo();
 
   const [porEstado, ultimoBarrido, avisos, vistas] = await Promise.all([
     prisma.tender.groupBy({ by: ["reviewStatus"], _count: true }),
@@ -57,7 +60,23 @@ export default async function Home() {
             Radar de Licitaciones
           </h1>
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-3">
+          {perfil && (
+            <form action={cambiarPerfil}>
+              <button
+                type="submit"
+                title="Cambiar de perfil"
+                className="flex items-center gap-2 rounded-md border border-neutral-200 py-1 pl-1 pr-2.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-50"
+              >
+                <span className="flex size-6 items-center justify-center rounded-full bg-[#1c2f4a] text-[11px] font-semibold text-white">
+                  {perfil.charAt(0).toUpperCase()}
+                </span>
+                {perfil}
+              </button>
+            </form>
+          )}
+          <SignOutButton />
+        </div>
       </header>
 
       <section className="mt-8">
