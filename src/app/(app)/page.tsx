@@ -30,11 +30,16 @@ const VERTICALES: Array<{ valor: string; etiqueta: string }> = [
   { valor: "OTHER", etiqueta: "Otros" },
 ];
 
+/*
+ * `nulls` solo se acepta en campos que aceptan nulo: pasarselo a uno obligatorio
+ * hace que Prisma rechace la consulta entera. `affinityScore` es Int @default(0),
+ * asi que se ordena sin esa opcion.
+ */
 const ORDENES = {
-  cierre: { etiqueta: "Cierre", campo: "closesAt" },
-  afinidad: { etiqueta: "Afinidad", campo: "affinityScore" },
-  monto: { etiqueta: "Monto", campo: "estimatedAmount" },
-  publicacion: { etiqueta: "Publicación", campo: "publishedAt" },
+  cierre: { etiqueta: "Cierre", campo: "closesAt", nulos: true },
+  afinidad: { etiqueta: "Afinidad", campo: "affinityScore", nulos: false },
+  monto: { etiqueta: "Monto", campo: "estimatedAmount", nulos: true },
+  publicacion: { etiqueta: "Publicación", campo: "publishedAt", nulos: true },
 } as const;
 
 type ClaveOrden = keyof typeof ORDENES;
@@ -112,9 +117,14 @@ export default async function Tablero({
     prisma.tender.count({ where }),
     prisma.tender.findMany({
       where,
-      // Las que no tienen fecha al final: una licitacion sin cierre no es lo
-      // primero que hay que mirar.
-      orderBy: [{ [ORDENES[orden].campo]: { sort: dir, nulls: "last" } }, { affinityScore: "desc" }],
+      // Las que no tienen fecha van al final: una licitacion sin cierre no es lo
+      // primero que hay que mirar. El desempate siempre es la afinidad.
+      orderBy: [
+        ORDENES[orden].nulos
+          ? { [ORDENES[orden].campo]: { sort: dir, nulls: "last" } }
+          : { [ORDENES[orden].campo]: dir },
+        { affinityScore: "desc" },
+      ],
       skip: (pagina - 1) * POR_PAGINA,
       take: POR_PAGINA,
       select: {
