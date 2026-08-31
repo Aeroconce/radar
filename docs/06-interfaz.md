@@ -25,6 +25,14 @@ Dos columnas en escritorio, una en móvil.
 - **Derecha — Revisión** (formulario, Server Action): estado (select), motivos (casillas del catálogo, `docs/07`), nota "Por qué sí / por qué no" (texto libre, mínimo 20 caracteres al pasar a Viable o Descartada), botón Guardar. Debajo, **Adjuntos**: lista con tipo, nombre, tamaño, quién y cuándo, descarga; zona para arrastrar archivos con selector de tipo (Bases, Anexo, Foro, Acta, Otro).
 - **Abajo — Bitácora**: todas las revisiones en orden cronológico inverso: fecha, usuario, estado, motivos, nota.
 
+## 2b. Favoritas (`/favoritas`)
+
+Marcador **personal** de cada perfil, con la estrella de la primera columna del tablero. Se ordenan por
+cierre y no por cuando se marcaron: lo que urge manda. El contador va junto al enlace de la barra lateral.
+
+No reemplaza al estado: VIABLE dice que el equipo la sigue, la estrella dice que alguien quiere volver a
+mirarla. Son cosas distintas y por eso conviven.
+
 ## 3. Histórico (`/historico`) — RF-08
 Dos pestañas:
 - **Adjudicaciones**: búsqueda y filtros por vertical, comprador, proveedor, fechas; tabla con fecha, código, comprador, nombre, duración, oferentes, ganador, monto estimado, monto adjudicado; fila expandible con todos los oferentes y sus montos (marcando los unitarios). Exportar a Excel.

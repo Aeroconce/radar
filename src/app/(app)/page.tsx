@@ -14,8 +14,10 @@ import type { Prisma } from "@/generated/prisma/client";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/session";
+import { perfilActivo } from "@/lib/perfil";
 import { ESTADOS } from "@/lib/reviews";
 import { BoardFilters } from "./board-filters";
+import { StarButton } from "./star-button";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +83,7 @@ export default async function Tablero({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   await requireSession();
+  const perfil = await perfilActivo();
   const sp = await searchParams;
 
   const q = (sp.q ?? "").trim();
@@ -155,6 +158,18 @@ export default async function Tablero({
     prisma.tender.groupBy({ by: ["vertical"], _count: true }),
   ]);
 
+  // Las favoritas son del perfil activo, no del equipo (D-24).
+  const favoritas = new Set(
+    perfil
+      ? (
+          await prisma.favorite.findMany({
+            where: { profile: perfil, tender: { code: { in: licitaciones.map((t) => t.code) } } },
+            select: { tender: { select: { code: true } } },
+          })
+        ).map((f) => f.tender.code)
+      : [],
+  );
+
   const conteos = conteosCrudos.map((c) => ({ estado: c.reviewStatus, total: c._count }));
   const verticales = VERTICALES.map((v) => ({
     ...v,
@@ -205,6 +220,9 @@ export default async function Tablero({
         <table className="w-full min-w-[860px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70">
+              <th scope="col" className="w-9 px-2 py-2.5">
+                <span className="sr-only">Favorita</span>
+              </th>
               {[
                 ["Estado", null],
                 ["Licitación", null],
@@ -244,7 +262,7 @@ export default async function Tablero({
           <tbody>
             {licitaciones.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-12 text-center text-sm text-neutral-500">
+                <td colSpan={7} className="px-3 py-12 text-center text-sm text-neutral-500">
                   No hay licitaciones con estos filtros.
                 </td>
               </tr>
@@ -253,6 +271,9 @@ export default async function Tablero({
               const d = diasPara(t.closesAt);
               return (
                 <tr key={t.code} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
+                  <td className="px-2 py-2 align-top">
+                    <StarButton code={t.code} favorita={favoritas.has(t.code)} />
+                  </td>
                   <td className="px-3 py-2.5 align-top">
                     <span
                       className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${ESTADOS[t.reviewStatus].color}`}

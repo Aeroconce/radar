@@ -16,6 +16,10 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-26** **Las favoritas son por perfil, no del equipo.** El estado compartido ya lo lleva
+  `Tender.reviewStatus`: VIABLE significa que el equipo la sigue, asi que una favorita compartida seria lo
+  mismo. Por perfil sirve para otra cosa: «quiero volver a esta» sin comprometer al equipo con un estado.
+  `Favorite.profile` guarda el nombre del perfil, no un id de usuario, porque la cuenta es compartida (D-22).
 - **D-25** **Sin endpoint de salud.** RF-14 se elimino: una sonda que nadie consulta es decorativa, y no hay
   monitoreo externo montado. La necesidad real —enterarse de que el barrido fallo— se cubre donde el equipo ya
   mira: el resumen diario por correo y la pantalla (RN-07). systemd cubre las caidas del proceso.

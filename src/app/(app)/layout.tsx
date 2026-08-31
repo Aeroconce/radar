@@ -21,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 const SECCIONES = [
   { href: "/", etiqueta: "Tablero", listo: true },
+  { href: "/favoritas", etiqueta: "Favoritas", listo: true },
   { href: "/historico", etiqueta: "Histórico", listo: false },
   { href: "/reglas", etiqueta: "Reglas", listo: false },
   { href: "/configuracion", etiqueta: "Configuración", listo: false },
@@ -41,11 +42,14 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   // Estado del ultimo barrido: es el unico lugar de la interfaz donde se ve que
   // el worker fallo, ahora que no hay endpoint de salud (RN-07, D-25).
-  const barrido = await prisma.jobRun.findFirst({
-    where: { type: "SWEEP" },
-    orderBy: { startedAt: "desc" },
-    select: { finishedAt: true, ok: true },
-  });
+  const [barrido, favoritas] = await Promise.all([
+    prisma.jobRun.findFirst({
+      where: { type: "SWEEP" },
+      orderBy: { startedAt: "desc" },
+      select: { finishedAt: true, ok: true },
+    }),
+    perfil ? prisma.favorite.count({ where: { profile: perfil } }) : 0,
+  ]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-neutral-50">
@@ -64,7 +68,14 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
             {SECCIONES.map((s) => (
               <li key={s.href}>
                 {s.listo ? (
-                  <NavLink href={s.href}>{s.etiqueta}</NavLink>
+                  <NavLink href={s.href}>
+                    {s.etiqueta}
+                    {s.href === "/favoritas" && favoritas > 0 && (
+                      <span className="ml-auto font-mono text-[11px] tabular-nums opacity-70">
+                        {favoritas}
+                      </span>
+                    )}
+                  </NavLink>
                 ) : (
                   <span
                     className="flex cursor-default items-center justify-between rounded-md px-3 py-2 text-sm text-neutral-400"

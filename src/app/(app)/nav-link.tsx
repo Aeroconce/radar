@@ -18,7 +18,7 @@ export function NavLink({ href, children }: { href: string; children: React.Reac
     <Link
       href={href}
       aria-current={activo ? "page" : undefined}
-      className={`block rounded-md px-3 py-2 text-sm transition-colors ${
+      className={`flex items-center rounded-md px-3 py-2 text-sm transition-colors ${
         activo
           ? "bg-[#1c2f4a] font-medium text-white"
           : "text-neutral-700 hover:bg-neutral-100"

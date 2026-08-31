@@ -190,6 +190,7 @@ model Tender {
   reviews       Review[]
   attachments   Attachment[]
   notifications Notification[]
+  favorites     Favorite[]
 
   @@index([reviewStatus])
   @@index([vertical])
@@ -216,6 +217,23 @@ model SeenTender {
 }
 
 /// Cada cambio de estado o nota es una fila; la ficha muestra la última y la bitácora todas.
+/// Marcador personal de un perfil (D-24), no del equipo.
+///
+/// El estado del equipo ya lo lleva `Tender.reviewStatus`: VIABLE significa que
+/// la estamos siguiendo. Una favorita compartida seria lo mismo. Esta sirve para
+/// otra cosa: "quiero volver a esta" sin comprometer al equipo.
+model Favorite {
+  id        String   @id @default(cuid())
+  tenderId  String
+  tender    Tender   @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  /// Nombre del perfil, no un id de usuario: la cuenta es compartida (D-22).
+  profile   String
+  createdAt DateTime @default(now())
+
+  @@unique([tenderId, profile])
+  @@index([profile])
+}
+
 model Review {
   id         String       @id @default(cuid())
   tenderId   String

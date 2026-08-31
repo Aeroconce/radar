@@ -19,6 +19,7 @@ discrepen, manda el schema — ese compila.
 | `Notification` | Un aviso enviado o por enviar, con su estado y reintentos (RF-10). |
 | `JobRun` | Cada ejecución del worker: inicio, fin, resultado, conteos, error. |
 | `AuditLog` | Accesos y cambios, consultable por el Administrador (RF-13). |
+| `Favorite` | Marcador **personal** de un perfil sobre una licitación (D-26). |
 
 ## Invariantes
 
@@ -45,6 +46,11 @@ avisos por licitación y `<tipo>:<fecha>` para el resumen.
 `providerId` de Resend, o a `FAILED` con el error. Así `dedupeKey` reserva el aviso, un fallo queda
 registrado y el ciclo siguiente lo reintenta (`docs/08`). Si la fila se creara solo al tener éxito,
 un fallo no dejaría rastro.
+
+**Una favorita es de un perfil, no del equipo.** El estado compartido ya lo lleva `Tender.reviewStatus`:
+VIABLE significa que el equipo la está siguiendo. Una favorita compartida sería lo mismo. `Favorite` sirve
+para otra cosa —«quiero volver a esta»— y por eso guarda el **nombre del perfil**, no un id de usuario:
+la cuenta es compartida (D-22).
 
 **La respuesta de la API se guarda íntegra en `Tender.raw`** además de los campos normalizados. Si
 mañana hace falta un campo nuevo, se lee de ahí en vez de volver a consultar. Lo mismo con el texto
