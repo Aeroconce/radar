@@ -16,6 +16,13 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-32** **La red de seguridad es una pantalla, no un script.** «Todas las vistas» (`/vistas`) busca
+  sobre las ~4.700 activas de `SeenTender` —lo que el radar vio, haya entrado o no— y permite traer una al
+  tablero con un clic: la acción pide la ficha a la API en el momento, con el mismo cliente y ritmo del
+  worker, y la crea con su puntaje real aunque esté bajo el umbral. El puntaje bajo no es un error: registra
+  que la trajo una persona y no una regla, y la bitácora (`tender.pull`) queda como lista de falsos negativos
+  documentados para ajustar las reglas. Nace de la auditoría D-31: esa revisión la hizo un script y debía
+  poder hacerla el equipo.
 - **D-31** **Los huecos del motor se buscan, no se esperan.** Auditoría del 31-08-2026 sobre las 4.721
   activas del día, por los dos lados. Las descartadas estaban bien descartadas; entre ellas aparecieron
   **seis falsos negativos reales**, todos huecos de escritura y no de criterio: el patrón de desarrollo no

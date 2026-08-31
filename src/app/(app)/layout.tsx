@@ -5,9 +5,11 @@
  * en vez de apilarse todo en una sola. El login y la eleccion de perfil quedan
  * fuera de este grupo de rutas: ahi no hay nada que navegar.
  *
- * Son tres y no mas (D-27). Historico, auditoria y configuracion se descartaron:
- * el equipo son tres personas que hablan entre si, y una pantalla que nadie abre
- * igual hay que mantenerla.
+ * Pocas secciones a proposito (D-27). Historico, auditoria y configuracion se
+ * descartaron: el equipo son tres personas que hablan entre si, y una pantalla
+ * que nadie abre igual hay que mantenerla. "Todas las vistas" entro despues
+ * (D-32) porque responde una pregunta que el tablero no puede: ¿se le escapo
+ * algo a las reglas?
  */
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -22,6 +24,7 @@ export const dynamic = "force-dynamic";
 const SECCIONES = [
   { href: "/", etiqueta: "Tablero" },
   { href: "/favoritas", etiqueta: "Favoritas" },
+  { href: "/vistas", etiqueta: "Todas las vistas" },
   { href: "/reglas", etiqueta: "Reglas" },
 ];
 

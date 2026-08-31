@@ -220,9 +220,17 @@ export default async function Tablero({
         </nav>
       )}
 
-      <p className="mt-6 text-xs text-neutral-400">
-        Faltan por construir los filtros de región, monto, tipo de comprador y tipo de proceso, y la
-        exportación a Excel (RF-11).
+      {/* La red de seguridad contra un falso negativo (D-32): el tablero es lo
+          seleccionado; si no aparece, hay que poder mirar en todo lo visto. */}
+      <p className="mt-6 text-xs text-neutral-500">
+        ¿No está lo que buscas?{" "}
+        <Link
+          href={q ? `/vistas?q=${encodeURIComponent(q)}` : "/vistas"}
+          className="font-medium text-[#1c2f4a] hover:underline"
+        >
+          Buscar entre todas las activas vistas
+        </Link>
+        {q ? ` con «${q}»` : ""}. El tablero muestra lo seleccionado; el radar vio unas 4.700.
       </p>
     </main>
   );

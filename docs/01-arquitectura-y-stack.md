@@ -27,6 +27,7 @@ radar-licitaciones/
       licitaciones/[code]/review-form.tsx
       licitaciones/[code]/actions.ts    # guardar revision
       perfil/page.tsx                  # elegir quien eres (D-24)
+      (app)/vistas/page.tsx            # todas las activas vistas; trae una al tablero (D-32)
       (app)/reglas/page.tsx            # RF-09
       (app)/reglas/actions.ts          # editar reglas, parametros y vista previa
       api/attachments/[id]/route.ts    # descarga con sesión

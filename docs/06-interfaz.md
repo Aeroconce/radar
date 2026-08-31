@@ -3,7 +3,7 @@
 Principio: tres pantallas resuelven todo el uso. Todo en español neutro, sin jerga técnica ("Revisar", "Guardar", "Adjuntar", "Descartar"). Diseño sobrio: una tipografía, dos tamaños, color solo para estados. Componentes de shadcn/ui: `Table`, `Input`, `Select`, `Badge`, `Dialog`, `Sheet`, `Textarea`, `Checkbox`, `Toast`, `DropdownMenu`.
 
 ## Navegación (barra lateral fija)
-Tablero · Favoritas · Reglas · último barrido · perfil activo (cambiar, cerrar sesión).
+Tablero · Favoritas · Todas las vistas · Reglas · último barrido · perfil activo (cambiar, cerrar sesión).
 
 Son tres y no más (D-27). Histórico, Configuración y Auditoría se descartaron: el equipo son tres personas que hablan entre sí, y una pantalla que nadie abre igual hay que mantenerla.
 
@@ -34,6 +34,13 @@ cierre y no por cuando se marcaron: lo que urge manda. El contador va junto al e
 
 No reemplaza al estado: VIABLE dice que el equipo la sigue, la estrella dice que alguien quiere volver a
 mirarla. Son cosas distintas y por eso conviven.
+
+## 2c. Todas las vistas (`/vistas`) — D-32
+Las ~4.700 activas que el radar vio en el último barrido, hayan entrado al tablero o no. Sin búsqueda no
+lista nada: existe para una pregunta concreta («¿se le escapó algo a las reglas?»), no para hojear. Cada
+resultado muestra afinidad y cierre; si ya está en el tablero enlaza la ficha, y si no, un botón la trae:
+pide la ficha a la API, la crea con su puntaje real y anota en la bitácora quién la trajo. El tablero
+enlaza aquí desde «¿No está lo que buscas?», arrastrando la búsqueda escrita.
 
 ## 3. Reglas (`/reglas`) — RF-09
 De lo que más decide a lo que solo informa:
