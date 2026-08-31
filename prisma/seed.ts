@@ -286,9 +286,23 @@ async function seedHistory(): Promise<{ awardCount: number; bidCount: number }> 
  * Muchas no estan en `Tender` porque no salieron en el ultimo barrido: se piden a
  * la API. Es idempotente por la nota, que es unica por revision.
  */
-async function seedReviews(): Promise<{ created: number; fetched: number; missing: string[] }> {
+async function seedReviews(): Promise<{
+  created: number;
+  fetched: number;
+  missing: string[];
+  blocked?: string;
+}> {
   const admin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
-  if (!admin) return { created: 0, fetched: 0, missing: revisiones.map((r) => r.codigo) };
+  if (!admin) {
+    // Sin usuario no hay a quien atribuir la revision. Se dice el motivo real en
+    // vez de listar 36 codigos como si les faltara la ficha, que no es el caso.
+    return {
+      created: 0,
+      fetched: 0,
+      missing: [],
+      blocked: "no hay administrador; define SEED_ADMIN_EMAIL y vuelve a sembrar",
+    };
+  }
 
   const known = new Set(
     (await prisma.tender.findMany({ select: { code: true } })).map((t) => t.code),
@@ -393,9 +407,13 @@ async function main(): Promise<void> {
   console.log(`  ${awardCount} adjudicaciones historicas con ${bidCount} ofertas`);
 
   const rev = await seedReviews();
-  console.log(`  ${rev.created} revisiones del equipo (${rev.fetched} fichas traidas de la API)`);
-  if (rev.missing.length) {
-    console.log(`  sin cargar por falta de ficha: ${rev.missing.join(", ")}`);
+  if (rev.blocked) {
+    console.log(`  revisiones del equipo: no se cargaron, ${rev.blocked}`);
+  } else {
+    console.log(`  ${rev.created} revisiones del equipo (${rev.fetched} fichas traidas de la API)`);
+    if (rev.missing.length) {
+      console.log(`  sin cargar porque la API no devolvio ficha: ${rev.missing.join(", ")}`);
+    }
   }
 
   console.log("\nLos puntajes son los de la version Python: seed/candidatas_2026-08-27.json");
