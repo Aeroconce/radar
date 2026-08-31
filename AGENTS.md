@@ -12,7 +12,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 Herramienta interna de Aeroconce Servicios SpA para **encontrar, ordenar y registrar** licitaciones públicas de Mercado Público relacionadas con el perfil de la empresa. El sistema busca y ordena; las personas descargan las bases, las leen y dejan una nota de por qué sí o por qué no. No calcula probabilidades ni emite veredictos.
 
 ## Reglas de trabajo
-1. **pnpm** para todo. No usar npm ni yarn. Node 20.20.0 en el VPS (subir a 22 LTS está pendiente, `docs/12` T-07).
+1. **pnpm** para todo. No usar npm ni yarn. Node **22** — en el VPS va instalado solo para el usuario `radar`, porque pnpm 11 exige `node:sqlite` y el Node del sistema sigue en 20 para los otros proyectos (`docs/10`).
 2. Código en **TypeScript**, identificadores en **inglés** (convención de Next/Prisma). Textos de interfaz, mensajes y documentación en **español neutro**: sin regionalismos, sin jerga técnica visible al usuario, tuteo neutro ("Revisa", "Guarda").
 3. Interfaz **simple**: una lista con búsqueda y filtros, una ficha, un formulario de revisión. Nada de paneles decorativos. Cada pantalla debe poder usarse solo con teclado.
 4. Cada comportamiento implementado tiene un identificador de requisito (`RF-xx`, `RN-xx`) de `docs/00`. Lo que no tiene identificador no se construye; se anota en `docs/12`.

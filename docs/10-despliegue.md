@@ -15,37 +15,59 @@ No toques la configuración global de nginx ni el PostgreSQL de otros proyectos.
 | Base de datos | PostgreSQL 16, rol y base `radar` |
 | nginx | `/etc/nginx/sites-available/radar.aeroconce.cl` → `127.0.0.1:3050`, `client_max_body_size 60m` (RF-07: 50 MB por archivo) |
 | TLS | Let's Encrypt vía certbot `--nginx`, renovación automática |
-| Node | 20.20.0 (Next 16 exige ≥ 20.9; subir a 22 LTS está pendiente, T-07) |
+| Node | **22.23.2**, instalado solo para el usuario `radar` en `/home/radar/.local/node`. El del sistema sigue en 20.20.0 porque lo usan otros cuatro servicios |
+| Repositorio | `/home/radar/radar.git`, bare. Se despliega con `git push vps master` |
 
-## Antes del primer despliegue
+## Node y pnpm: por qué hay una instalación aparte
 
-**pnpm.** El `pnpm` del servidor es un shim de corepack que falla con `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`
-bajo Node 20. Instálalo standalone solo para el usuario `radar`, sin tocar el corepack global que usan
-los otros proyectos:
+**pnpm 11 no corre en Node 20.** Necesita `node:sqlite`, que existe recién desde Node 22. El error que da
+es `ERR_UNKNOWN_BUILTIN_MODULE: node:sqlite`, y por corepack aparece disfrazado de
+`ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`, que manda a buscar el problema al lugar equivocado.
+
+El VPS es compartido: cuatro servicios de otros proyectos corren sobre el Node 20 del sistema. Así que
+**Node 22 se instala solo para el usuario `radar`** y el del sistema no se toca.
 
 ```bash
-sudo -u radar bash -lc 'curl -fsSL https://get.pnpm.io/install.sh | SHELL=bash sh -'
+# Node 22 LTS aislado, verificando la firma contra nodejs.org
+VER=v22.23.2; ARCH=linux-x64
+cd /tmp && curl -fsSLO https://nodejs.org/dist/$VER/node-$VER-$ARCH.tar.xz
+curl -fsSLO https://nodejs.org/dist/$VER/SHASUMS256.txt
+grep " node-$VER-$ARCH.tar.xz$" SHASUMS256.txt | sha256sum -c -
+tar -xJf node-$VER-$ARCH.tar.xz && mv node-$VER-$ARCH /home/radar/.local/node
+chown -R radar:radar /home/radar/.local/node
+
+# pnpm en la version exacta del packageManager, con ese Node
+echo 'export PATH="/home/radar/.local/node/bin:/home/radar/.local/node_modules/.bin:$PATH"' >> /home/radar/.profile
+sudo -u radar -i bash -lc 'npm install --prefix /home/radar/.local pnpm@11.18.0'
 ```
+
+> No se usa `curl | sh` del instalador de pnpm: `npm install` con la versión pineada del `packageManager`
+> hace lo mismo sin ejecutar un script descargado.
 
 **Variables.** `/home/radar/app/.env`, propiedad de `radar`, permisos `600`. La referencia es
 `.env.example`; todas son obligatorias (`docs/01`).
 
+> El archivo debe tener **finales de línea LF**. Creado desde Windows queda con CRLF, y aunque systemd
+> los normaliza, no todas las herramientas lo hacen: un `` al final del ticket rompe las llamadas a la
+> API sin decir por qué.
+
 ## Despliegue
 
+El servidor tiene un repositorio bare en `/home/radar/radar.git`. Su hook de recepción deja los archivos
+en `/home/radar/app` y **no hace nada más**: no instala, no compila y no reinicia. Un hook que reinicia
+solo puede tumbar producción con un push a medio terminar, así que el despliegue es deliberado.
+
+Desde tu máquina, con el remoto `vps` configurado (`git remote add vps radar:/home/radar/radar.git`):
+
 ```bash
-ssh vps
-sudo -u radar -i
-cd /home/radar/app
-
-git pull                                  # la primera vez: git clone <repo> .
-pnpm install --frozen-lockfile            # postinstall ejecuta prisma generate
-pnpm prisma migrate deploy
-pnpm build
-exit
-
-systemctl restart radar radar-worker
-systemctl status radar radar-worker --no-pager
+git push vps master
+ssh vps 'sudo -u radar -i bash -lc "cd app && pnpm install --frozen-lockfile && pnpm prisma migrate deploy && pnpm build"'
+ssh vps 'systemctl restart radar radar-worker'
+ssh vps 'systemctl status radar radar-worker --no-pager'
 ```
+
+El alias `radar` de `~/.ssh/config` apunta al usuario del proyecto, no a root: así los archivos quedan
+con el propietario correcto sin tener que hacer `chown` después.
 
 La primera vez, además: `pnpm seed` para cargar los datos de agosto de 2026 (`docs/11`).
 
@@ -65,7 +87,7 @@ Type=simple
 User=radar
 WorkingDirectory=/home/radar/app
 EnvironmentFile=/home/radar/app/.env
-ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3050
+ExecStart=/home/radar/.local/node/bin/node node_modules/next/dist/bin/next start -p 3050
 Restart=always
 RestartSec=5
 NoNewPrivileges=true
@@ -76,7 +98,8 @@ ProtectSystem=full
 WantedBy=multi-user.target
 ```
 
-`/etc/systemd/system/radar-worker.service` — worker con cron:
+`/etc/systemd/system/radar-worker.service` — worker con cron. Ojo con `Environment=PATH`: sin eso el
+servicio tomaría el Node 20 del sistema y pnpm fallaría:
 
 ```ini
 [Unit]
@@ -88,7 +111,7 @@ Type=simple
 User=radar
 WorkingDirectory=/home/radar/app
 EnvironmentFile=/home/radar/app/.env
-ExecStart=/home/radar/.local/share/pnpm/pnpm worker
+ExecStart=/home/radar/.local/node_modules/.bin/pnpm worker
 Restart=always
 RestartSec=15
 NoNewPrivileges=true
