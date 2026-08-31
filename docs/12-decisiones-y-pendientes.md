@@ -16,6 +16,12 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-22** **Una sola cuenta compartida por el equipo**, en vez de una por persona. Decision del usuario tras
+  descartar no tener autenticacion: la pagina no muestra solo datos publicos, sino los montos ofertados, las
+  debilidades declaradas por escrito y la estrategia de seleccion. Y el subdominio no es secreto, porque
+  Let's Encrypt publica todos los certificados en los logs de Certificate Transparency.
+  La atribucion se resuelve aparte: **el autor de cada nota se elige al guardar la revision** y queda en
+  `Review.authorName`, de una lista configurable en vez de texto libre.
 - **D-20** **Node 22 aislado para el usuario `radar`**, en `/home/radar/.local/node`, en vez de subir el del sistema. pnpm 11 exige `node:sqlite`, que existe desde Node 22, pero el VPS es compartido y cuatro servicios de otros proyectos corren sobre el Node 20 del sistema. Resuelve T-07 sin arriesgar a los demas.
 - **D-21** **El codigo viaja por un repositorio bare en el propio VPS** (`/home/radar/radar.git`), no por un servicio de terceros. El hook de recepcion solo deja los archivos: no instala, no compila y no reinicia, porque un push a medio terminar no debe poder tumbar produccion. El despliegue es deliberado (docs/10).
 - **D-19** **Los avisos se despachan al cerrar el barrido, no al encolarlos.** Si el ciclo falla a mitad, no sale un correo anunciando algo que no se guardo. Tras cuatro intentos fallidos se deja de reintentar y el aviso queda `FAILED` con su error, visible en Configuracion. `RESEND_REPLY_TO` resuelve T-09: el dominio del radar no recibe correo, asi que las respuestas necesitan una casilla real.
@@ -28,6 +34,9 @@
 - **T-03** Umbral inicial (3) y umbral de aviso (8): ajustar con la primera semana de uso.
 - **T-04** Si el histórico debe recorrer también 2023 (más llamadas; más referencias de precios).
 - **T-05** Perfil de vehículos (Aeroconce / persona natural) como etiqueta en la revisión, para filtrar por vehículo posible.
+- **T-17** Evaluar cuentas individuales. Con la cuenta compartida (D-22) la bitácora no puede decir quién
+  inició sesión ni quién cambió una regla, y la norma de `docs/07` de «el revisor edita su propia nota dentro
+  de las 24 horas» no se puede aplicar. El modelo ya lo soporta: son filas, no código.
 - **T-14** Completar los ocho códigos de reventa de licencias de `seed/revisiones.json`: vienen sin el sufijo
   de tipo y año (`4447-14` en vez de `4447-14-LE26`), así que no se pueden buscar en la API. Igual con los
   siete organismos de baja prioridad, que no tienen código: Macul, Bulnes, MNBA CEDOC, CRS Peñalolén,
@@ -47,8 +56,17 @@
 - **2026-08-30** El stack real quedó por delante de la guía: **Next.js 16.3.3** (no 15) y **Prisma 7.10** (no 6), porque es lo que instaló el andamiaje. D-03 sigue vigente en lo esencial (App Router + TypeScript). Next 16 eliminó `next lint`; el script `lint` usa `eslint` directo.
 - **2026-08-30** En el VPS no hay **Caddy**: los ocho sitios existentes corren sobre **nginx**. La guía decía Caddy por error. `docs/10` debe revisarse con esto.
 - **2026-08-30** `prisma@latest` en npm apunta a un release candidate de la 8 mientras `@prisma/client@latest` es 7.10.0 estable. Ambos quedaron **pineados a 7.10.0**; no actualizar sin verificar `npm view prisma dist-tags`.
+- **2026-08-31** Autenticacion (RF-12). Better Auth 1.7.2 con correo y contrasena, una cuenta compartida
+  (D-22), sin registro publico. Tres cosas que solo se supieron leyendo la version instalada en vez de la
+  memoria: **(a)** en Next 16 `middleware` esta deprecado y se llama **`proxy`**; **(b)** `Account.issuer` es
+  obligatorio en Better Auth 1.7 y vale `local:credential`, que se obtiene de `createLocalAccountIssuer` en
+  vez de escribirlo a mano; **(c)** la sesion no devuelve `role` ni `active` salvo que se declaren en
+  `user.additionalFields`. El esquema de las tablas se obtuvo llamando a `getAuthTables()` de la version
+  instalada, no de ejemplos. Comprobado de punta a punta: entra con la clave correcta, rechaza la incorrecta
+  y bloquea el registro publico.
 - **2026-08-31** **Worker desplegado y corriendo en el VPS.** Barrido agendado cada dos horas en el minuto 15, hora de Chile. La base de produccion quedo con 50 licitaciones, 36 revisiones, 45 adjudicaciones historicas y las 20 reglas.
-  Tres cosas que aparecieron al desplegar. **(a)** El problema de pnpm no era corepack: **pnpm 11 exige `node:sqlite`, que solo existe desde Node 22**, y corepack lo disfrazaba de un error de import dinamico. Se instalo Node 22 solo para el usuario `radar` (D-20). **(b)** `referencia/fetch.py` y `hist.py` **tenian el ticket de Mercado Publico hardcodeado**; commitearlos lo habria dejado en el historial de git para siempre, contra lo que dice `docs/09`. Ahora lo leen del entorno. **(c)** El `.env` del servidor, creado desde Windows en el aprovisionamiento, tenia **10 retornos de carro**. systemd los normaliza, asi que no se manifesto, pero un `` al final del ticket habria roto las llamadas a la API sin decir por que. Archivo normalizado a LF.
+  Tres cosas que aparecieron al desplegar. **(a)** El problema de pnpm no era corepack: **pnpm 11 exige `node:sqlite`, que solo existe desde Node 22**, y corepack lo disfrazaba de un error de import dinamico. Se instalo Node 22 solo para el usuario `radar` (D-20). **(b)** `referencia/fetch.py` y `hist.py` **tenian el ticket de Mercado Publico hardcodeado**; commitearlos lo habria dejado en el historial de git para siempre, contra lo que dice `docs/09`. Ahora lo leen del entorno. **(c)** El `.env` del servidor, creado desde Windows en el aprovisionamiento, tenia **10 retornos de carro**. systemd los normaliza, asi que no se manifesto, pero un `
+` al final del ticket habria roto las llamadas a la API sin decir por que. Archivo normalizado a LF.
 - **2026-08-31** Cargadas las **36 revisiones** que el equipo ya había hecho (`seed/revisiones.json`), lo que
   cierra T-12. El tablero queda con 30 descartadas, 2 ofertadas, 2 viables, 1 en revisión y 1 perdida, y esas
   **no volverán a aparecer como nuevas**: el barrido preserva `reviewStatus` al actualizar una ficha, así que

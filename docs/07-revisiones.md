@@ -32,6 +32,18 @@ Viabilidad:
 | PRECIO_COMPETITIVO | Podemos ser competitivos en precio |
 | MANDANTE_FAVORABLE | Comprador con historial favorable (persona natural, boleta, desarrollos pequeños) |
 
+## Quién deja la nota
+
+La sesión es compartida por el equipo (D-22), así que el autor **no se deduce de quién inició sesión**: se
+elige al guardar, en el mismo diálogo de la revisión, y queda en `Review.authorName`.
+
+Es un desplegable con los integrantes configurados en `Setting.teamMembers`, más una opción para escribir
+otro nombre. No es texto libre: «Fran», «Francisco» y «francisco» quedarían como tres personas distintas y
+el filtro por autor de la bitácora dejaría de servir.
+
+Es un dato declarado, no verificado. Para tres personas que se conocen alcanza; si algún día hace falta
+que sea verificable, son cuentas individuales (`docs/12` T-17).
+
 ## Nota
 Texto libre, encabezado sugerido por la interfaz: "Por qué sí:" / "Por qué no:". Al pasar a VIABLE o DISCARDED se exige al menos un motivo y una nota de 20 caracteres o más. La nota de cierre (AWARDED/LOST) debe registrar el ganador, su precio y la lección aprendida: es la memoria de la empresa.
 

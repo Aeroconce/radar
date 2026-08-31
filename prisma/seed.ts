@@ -17,6 +17,8 @@ import { INITIAL_RULES, SEED_AUTHOR } from "@/lib/affinity/initial-rules";
 import { evaluate, scoreText, worthFetchingDetail } from "@/lib/affinity/rules";
 import { MpClient } from "@/lib/mp/client";
 import { env } from "@/lib/env";
+import { auth } from "@/lib/auth";
+import { createLocalAccountIssuer } from "better-auth/db";
 import { prisma } from "@/lib/db";
 import { parseTenderDetail, parseDurationLabel, parseAmount } from "@/lib/mp/parsers";
 import type { TenderDetail } from "@/lib/mp/parsers";
@@ -78,7 +80,12 @@ interface Revision {
   estado: "NEW" | "IN_REVIEW" | "VIABLE" | "DISCARDED" | "SUBMITTED" | "AWARDED" | "LOST";
   motivos: string[];
   nota: string;
+  /** Quien la dejo. Las capturadas en bloque no tienen autor individual conocido. */
+  autor?: string;
 }
+
+/** Autor de las revisiones historicas, capturadas sin atribucion individual. */
+const AUTOR_HISTORICO = "Equipo";
 
 const details = read<Record<string, TenderDetail>>("licitaciones_detalle.json");
 const candidates = read<Candidate[]>("candidatas_2026-08-27.json");
@@ -95,6 +102,10 @@ const SETTINGS: Array<[string, Prisma.InputJsonValue]> = [
   ["processTypes", ["L1", "LE", "LP", "LQ", "LR"]],
   ["sweepCron", "15 */2 * * *"],
   ["dailyDigestHour", 8],
+  // Quienes pueden figurar como autor de una revision. La sesion es compartida,
+  // asi que el autor se elige de esta lista al guardar (D-22). Un desplegable
+  // evita que "Fran", "Francisco" y "francisco" queden como tres personas.
+  ["teamMembers", ["Francisco", "Equipo"]],
 ];
 
 // ---------------------------------------------------------------- carga
@@ -130,20 +141,58 @@ async function seedRules(): Promise<number> {
   return INITIAL_RULES.length;
 }
 
+/**
+ * La cuenta compartida del equipo (D-22).
+ *
+ * El hash lo calcula Better Auth, no la semilla: usar otro algoritmo daria una
+ * contrasena que la propia libreria no puede verificar. Lo mismo con `issuer`,
+ * que se pide a `createLocalAccountIssuer` en vez de escribir "local:credential"
+ * a mano, para seguir el formato si cambia.
+ */
 async function seedAdmin(): Promise<string | null> {
   const email = process.env.SEED_ADMIN_EMAIL;
   if (!email) return null;
-  await prisma.user.upsert({
+
+  const user = await prisma.user.upsert({
     where: { email },
     update: { role: "ADMIN", active: true },
     create: {
       id: randomUUID(),
-      name: "Administrador",
+      name: "Equipo Aeroconce",
       email,
       role: "ADMIN",
       emailVerified: true,
     },
   });
+
+  const password = process.env.SEED_ADMIN_PASSWORD;
+  if (!password) {
+    console.log("  aviso: sin SEED_ADMIN_PASSWORD no se puede iniciar sesion");
+    return email;
+  }
+
+  const ctx = await auth.$context;
+  const hash = await ctx.password.hash(password);
+  const providerId = "credential";
+
+  const existente = await prisma.account.findFirst({
+    where: { userId: user.id, providerId },
+  });
+
+  if (existente) {
+    await prisma.account.update({ where: { id: existente.id }, data: { password: hash } });
+  } else {
+    await prisma.account.create({
+      data: {
+        issuer: createLocalAccountIssuer(providerId),
+        accountId: user.id,
+        providerId,
+        userId: user.id,
+        password: hash,
+      },
+    });
+  }
+
   return email;
 }
 
@@ -376,6 +425,7 @@ async function seedReviews(): Promise<{
         data: {
           tenderId: tender.id,
           status: r.estado,
+          authorName: r.autor ?? AUTOR_HISTORICO,
           reasons: r.motivos,
           note: r.nota,
           userId: admin.id,
@@ -418,7 +468,7 @@ async function main(): Promise<void> {
 
   console.log("\nLos puntajes son los de la version Python: seed/candidatas_2026-08-27.json");
   console.log("es la base de comparacion del motor en TypeScript (docs/11).");
-  console.log("El administrador aun no tiene contrasena: la crea Better Auth (docs/09).");
+  console.log("Para entrar: el correo de SEED_ADMIN_EMAIL y la clave de SEED_ADMIN_PASSWORD.");
 }
 
 main()

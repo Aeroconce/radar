@@ -17,7 +17,8 @@
 radar-licitaciones/
   src/
     app/
-      (auth)/login/page.tsx
+      login/page.tsx                   # acceso (RF-12)
+      login/login-form.tsx             # el formulario, aparte por la frontera de Suspense
       (app)/layout.tsx                 # barra superior + navegación
       (app)/page.tsx                   # tablero (RF-04)
       (app)/licitaciones/[id]/page.tsx # ficha (RF-05, RF-06, RF-07)
@@ -32,7 +33,9 @@ radar-licitaciones/
     components/                        # ui (shadcn) + componentes propios
     lib/
       db.ts                            # PrismaClient único
-      auth.ts                          # Better Auth
+      auth.ts                          # Better Auth: cuenta compartida, sin registro (D-22)
+      auth-client.ts                   # cliente del navegador; solo lo usa el login
+      session.ts                       # getSession / requireSession del lado del servidor
       mp/client.ts                     # cliente API Mercado Público con ritmo y reintentos
       mp/parsers.ts                    # ficha, acta HTML
       affinity/rules.ts                # motor de afinidad (docs/04)
@@ -45,6 +48,7 @@ radar-licitaciones/
       settings.ts                      # umbral y reglas leidos de la base (RF-09)
       format.ts                        # fechas y montos en español neutro
     actions/                           # Server Actions (revisiones, reglas, usuarios)
+  src/proxy.ts                         # en Next 16 reemplaza a middleware; solo mira la cookie
   worker/
     index.ts                           # arranque de cron
     jobs/sweep.ts                      # RF-01, RF-02, RF-03

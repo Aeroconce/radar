@@ -90,16 +90,68 @@ enum NotificationType {
 /// Better Auth administra la autenticación y genera además Session, Account y Verification
 /// con su CLI. Aquí se declaran los campos base que exige más los propios (role, active).
 model User {
-  id            String   @id
+  id            String    @id
   name          String
-  email         String   @unique
-  emailVerified Boolean  @default(false)
+  email         String    @unique
+  emailVerified Boolean   @default(false)
   image         String?
-  role          Role     @default(REVIEWER)
-  active        Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          Role      @default(REVIEWER)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   reviews       Review[]
+  sessions      Session[]
+  accounts      Account[]
+}
+
+/// Tablas de Better Auth. La forma no se invento: se obtuvo de `getAuthTables()`
+/// de la version instalada (1.7.2). Ojo con `Account.issuer`, que es obligatorio
+/// en esta version y no aparece en ejemplos mas antiguos.
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  issuer                String
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  /// Hash de la contrasena, no la contrasena. Lo calcula Better Auth.
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }
 
 model Tender {
@@ -165,15 +217,18 @@ model SeenTender {
 
 /// Cada cambio de estado o nota es una fila; la ficha muestra la última y la bitácora todas.
 model Review {
-  id        String       @id @default(cuid())
-  tenderId  String
-  tender    Tender       @relation(fields: [tenderId], references: [id])
-  status    ReviewStatus
-  reasons   String[] // códigos del catálogo (docs/07)
-  note      String       @default("")
-  userId    String
-  user      User         @relation(fields: [userId], references: [id])
-  createdAt DateTime     @default(now())
+  id         String       @id @default(cuid())
+  tenderId   String
+  tender     Tender       @relation(fields: [tenderId], references: [id])
+  status     ReviewStatus
+  /// Quien dejo la nota, elegido en el modal al guardar. La sesion es
+  /// compartida por el equipo, asi que el autor no se puede derivar de ella.
+  authorName String
+  reasons    String[] // códigos del catálogo (docs/07)
+  note       String       @default("")
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  createdAt  DateTime     @default(now())
 
   @@index([tenderId, createdAt])
 }

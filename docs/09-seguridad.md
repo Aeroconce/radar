@@ -1,7 +1,17 @@
 # 09 — Seguridad (RF-12, RF-13)
 
-- **Autenticación**: Better Auth con correo y contraseña; contraseñas de 12 caracteres mínimo; hash de la librería (scrypt/argon2 según versión); bloqueo tras 5 intentos fallidos por 15 minutos; cierre de sesión por inactividad (`SESSION_IDLE_MINUTES`, 60). Sin registro público: los usuarios los crea el Administrador.
-- **Autorización**: en Server Actions y Route Handlers, siempre en el servidor. Revisor no accede a Reglas, Configuración ni Auditoría. La interfaz oculta; el servidor niega.
+- **Autenticación**: Better Auth con correo y contraseña; mínimo 12 caracteres; el hash lo calcula la
+  librería. Cierre por inactividad: la sesión dura `SESSION_IDLE_MINUTES` y se renueva en cada petición,
+  así que el reloj cuenta desde el último uso. **Sin registro público** (`disableSignUp`), comprobado.
+- **Una sola cuenta, compartida por el equipo** (D-22). No da atribución por sesión, así que **el autor de
+  cada nota se elige al guardar la revisión** y queda en `Review.authorName`. Se elige de una lista
+  configurable, no en texto libre: «Fran», «Francisco» y «francisco» quedarían como tres personas y el
+  filtro por autor dejaría de servir.
+- **La bitácora no puede distinguir quién inició sesión ni quién cambió una regla**, porque la cuenta es
+  una sola. Es el costo aceptado de D-22; el modelo ya soporta cuentas individuales (`docs/12` T-17).
+- **Autorización**: en Server Actions y Route Handlers, siempre en el servidor. `src/proxy.ts` — que en
+  Next 16 reemplaza a `middleware` — solo comprueba que exista la cookie, porque puede desplegarse en un
+  CDN y no debe tocar la base. La validación real es `requireSession()`. Revisor no accede a Reglas, Configuración ni Auditoría. La interfaz oculta; el servidor niega.
 - **Archivos**: verificación de tipo por contenido, tamaño máximo 50 MB, nombre aleatorio en disco, `storage/` fuera de `public/`, descarga por Route Handler con sesión, protección contra path traversal.
 - **Entrada**: zod en toda acción y ruta; Prisma parametrizado.
 - **Cabeceras**: `next.config.ts` con CSP (`script-src 'self'`), `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Content-Type-Options: nosniff`; HSTS en nginx.
