@@ -170,7 +170,9 @@ export function comoFrase(termino: string): string {
   t = t.replace(/\\(.)/g, "$1"); // lo escapado vale por si mismo: \. es un punto
   t = t.replace(/(.)\?/g, "$1"); // lo opcional se deja: activos? es "activos"
 
-  return t.replace(/\s+/g, " ").trim();
+  // Un grupo de alternativas que terminan en espacio ("un |una |la ") deja la
+  // coma despegada: "un , una". La coma se pega a la palabra.
+  return t.replace(/\s+,/g, ",").replace(/\s+/g, " ").trim();
 }
 
 /** Las frases de una regla, listas para mostrar. */
