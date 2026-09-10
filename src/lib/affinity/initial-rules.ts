@@ -282,11 +282,37 @@ const EXCLUSIONS: string[] = [
   "mantenimiento (preventivo|correctivo|integral) (correctivo |y correctivo |y preventivo |sanitizacion |y sanitizacion )?(y puesta en marcha |puesta en marcha )?(de |a |del |de la |de las |de los )?(equipos|ascensores|climatizacion|calderas|generadores|vehiculos|infraestructura|instalaciones|maquinaria|plantas?)",
 
   // Infraestructura y monitoreo: la familia que D-18 dejo fuera del alcance,
-  // igual que la ciberseguridad. Observabilidad multicloud (FONASA), "servicio
+  // igual que la ciberseguridad. `administracion (de |e )?infraestructura` desde
+  // D-49: FOSIS decia "Administracion infraestructura tecnologica", sin la
+  // preposicion, y pasaba por texto. Observabilidad multicloud (FONASA), "servicio
   // tecnologico integral" de una red regional (Subtrans) y la administracion de
   // infraestructura (FOSIS) se contratan como servicio, pero no son desarrollo
   // ni arriendo de un sistema nuestro.
-  "observabilidad|multicloud|monitoreo de (infraestructura|red|servidores)|\\bapm\\b|administracion de infraestructura|servicio tecnologico integral",
+  "observabilidad|multicloud|monitoreo de (infraestructura|red|servidores)|\\bapm\\b|administracion (de |e )?infraestructura|servicio tecnologico integral",
+
+  /*
+   * D-49. Hardware biometrico. ATTENDANCE tiene `reloj control` y `biometri` a
+   * peso 6 para el software; la compra, el arriendo o el soporte del aparato es
+   * hardware y debe restar. "Conectividad licencia y soporte reloj biometrico"
+   * (1057512-10-LE26) pasaba con 4.
+   *
+   * Acotada a proposito. La lista simple (`reloj(es)? (biometric|control)|
+   * huellero|...`) restaba 6 al SLEP 1305527-3-LP26, que arrienda "un sistema
+   * de reloj control y software de gestion de asistencia" y es del rubro; y la
+   * acotacion `(adquisicion|arriendo|compra|suministro) de.*(reloj|...)` tambien
+   * lo alcanzaba (el `.*` cruza todo el texto) y no atrapaba a 1057512, que
+   * dice "adquirir el servicio". Lo que separa los casos es el verbo pegado al
+   * aparato: comprarlo o arrendarlo (nombrado justo tras el verbo), o darle
+   * soporte, conectividad, mantencion o instalacion. `dispositivo` exige
+   * `biometric` para no botar "soporte para dispositivos moviles" de una app.
+   * Grupos de un solo nivel: la pantalla de reglas los muestra como frase.
+   */
+  "(adquisicion|arriendo|compra|suministro) de (relojes?|huelleros?|lectores? biometric|terminales? biometric)|(soporte|mantencion|mantenimiento|conectividad|instalacion|reparacion) (tecnico |tecnica )?(de |para |a )?(los |las |el |la |un |una )?(reloj|huellero|lector biometric|lectores biometric|terminal biometric|terminales biometric|dispositivo biometric|dispositivos biometric)",
+
+  // Productos comerciales de mesa de ayuda: soporte y actualizacion de una
+  // licencia (ServiceTonic del MOP, 1020-46-LE26, pasaba con 4), no desarrollo
+  // ni arriendo de un sistema nuestro. Misma logica que las licencias de marca.
+  "servicetonic|servicenow|freshdesk|zendesk|jira service|manageengine|glpi|otrs",
 ];
 
 /**

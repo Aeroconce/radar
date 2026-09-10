@@ -16,6 +16,15 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-49** **Exclusiones de infraestructura sin preposición, y hardware y licencias que se colaban** (11-09-2026).
+  FOSIS «Administracion infraestructura tecnológica» (762-7-LP26) no lo atrapaba D-44 porque el patrón exigía la
+  preposición: pasa a `administracion (de |e )?infraestructura`, y ahora queda bajo el umbral por texto solo. El reloj
+  biométrico (1057512-10-LE26) y ServiceTonic (1020-46-LE26) quedaban en 4; los dos traen ítems clasificados, así
+  que pasaban por texto. Dos exclusiones: hardware biométrico —acotada al verbo pegado al aparato (comprarlo,
+  arrendarlo, darle soporte o conectividad), porque la lista simple restaba 6 al SLEP 1305527-3-LP26 que arrienda «un
+  sistema de reloj control y software de gestión de asistencia», y la acotación con `de.*` también lo alcanzaba sin
+  atrapar a 1057512— y productos comerciales de mesa de ayuda (ServiceTonic, ServiceNow, Freshdesk, Zendesk, Jira
+  Service, ManageEngine, GLPI, OTRS). Alto Hospicio y el SLEP conservan su puntaje (`puntajeEsperado` en el fixture).
 - **D-48** **Mantenimiento de equipos no es software, y el CMMS conserva su vertical con contexto de sistema**
   (11-09-2026). «SERVICIO DE MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA EN MARCHA DE LA PLANTA DE TRATAMIENTO DE
   AGUA» (1350296-81-LP26) seguía visible con 4 tras D-47: mantención de equipos físicos. Exclusión de −6 para

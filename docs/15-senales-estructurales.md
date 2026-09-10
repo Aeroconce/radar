@@ -86,7 +86,9 @@ if (cats.some((c) => HARDWARE_CATS.some((r) => r.test(c)))) {
 }
 ```
 
-Es la señal más barata y más fuerte: el comprador clasifica lo que compra, y casi nunca se equivoca. Desde el
+Es la señal más barata y más fuerte: el comprador clasifica lo que compra, y casi nunca se equivoca. Ojo: no basta
+por sí sola cuando el texto suma mucho —el reloj biométrico de 1057512-10-LE26 traía su ítem de bienes y aun así
+pasaba con 4 (12 de texto, −8 de ficha)—; ahí entra una exclusión de texto (D-49). Desde el
 11-09-2026 vale lo mismo que una exclusión de texto, −6 (D-45): con −4, los sensores de temperatura de Arica
 (1075963-403-L126) sumaban 12 por texto y se quedaban en 6 pese a «sin item de software» e «item de bienes».
 

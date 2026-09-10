@@ -239,6 +239,28 @@ Los dos CMMS reales de septiembre no se tocan: Ancud entra por "gestion de mante
 Ancud (2048-57-LP26) y Sótero del Río (1057501-431-LE26) siguen en MAINTENANCE con el mismo puntaje: es una prueba
 con `puntajeEsperado` en el fixture.
 
+## D-49 — Infraestructura sin preposición, y hardware y licencias que se colaban (11-09-2026)
+
+FOSIS "Administracion infraestructura tecnológica" (762-7-LP26) no lo atrapaba D-44 porque el patrón exigía
+`administracion de infraestructura`; pasa a `administracion (de |e )?infraestructura`. "Conectividad licencia y
+soporte reloj biométrico" (1057512-10-LE26) y "Adq. Sopor. y Actual. Software ServiceTonic" (1020-46-LE26)
+quedaban en 4. Los dos **sí traen ítems clasificados** (uno cada uno; el del reloj es de bienes): pasaban por
+texto, no por falta de ítems.
+
+```ts
+// Hardware biometrico: el verbo pegado al aparato, no la palabra suelta.
+"(adquisicion|arriendo|compra|suministro) de (relojes?|huelleros?|lectores? biometric|terminales? biometric)|(soporte|mantencion|mantenimiento|conectividad|instalacion|reparacion) (tecnico |tecnica )?(de |para |a )?(los |las |el |la |un |una )?(reloj|huellero|lector biometric|lectores biometric|terminal biometric|terminales biometric|dispositivo biometric|dispositivos biometric)",
+// Productos comerciales de mesa de ayuda.
+"servicetonic|servicenow|freshdesk|zendesk|jira service|manageengine|glpi|otrs",
+```
+
+**Ajuste documentado**: la lista simple (`reloj(es)? (biometric|control)|huellero|lector(es)? biometric|terminal(es)?
+biometric`) restaba 6 al SLEP 1305527-3-LP26 ("sistema de reloj control y software de gestión de asistencia", del
+rubro), y la acotación `(adquisicion|arriendo|compra|suministro) de.*(reloj|huellero|lector|terminal)` también lo
+alcanzaba —el `.*` cruza todo el texto— y no atrapaba a 1057512, que dice "adquirir el servicio". Se acotó a
+comprar o arrendar el aparato (nombrado justo tras el verbo), o darle soporte, conectividad, mantención o
+instalación. Alto Hospicio y el SLEP conservan puntaje y vertical (`puntajeEsperado` en el fixture).
+
 ## Orden final recomendado de `KEYWORDS`
 
 1. DOCUMENT_MGMT 6 (D-43: delante de APPOINTMENTS, porque entre pesos iguales gana la primera)
