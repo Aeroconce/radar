@@ -114,6 +114,23 @@ texto de `affinity.test.ts`. Son la evidencia de D-43 a D-47.
 
 Además, toda licitación con esperado «entra» debe rankear sobre toda «no entra», en las dos muestras juntas.
 
+### Segunda tanda del 11-09-2026 (D-48 y D-49)
+
+Tres residuos con afinidad 4 tras D-47 y cuatro **controles**: licitaciones del rubro que una exclusión nueva podría
+rozar. Los controles llevan `puntajeEsperado`, el puntaje exacto de producción antes del cambio: si una regla los
+mueve un punto, la prueba falla. FOSIS lleva además `textoBajoUmbral`: debe caer con el texto solo.
+
+| Código | Nombre | Esperado |
+|---|---|---|
+| 1350296-81-LP26 | SERVICIO DE MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA … | no entra |
+| 762-7-LP26 | Administracion infraestructura tecnológica | no entra · bajo el umbral por texto solo |
+| 1057512-10-LE26 | Conectividad licencia y soporte reloj biométrico | no entra |
+| 1020-46-LE26 | Adq. Sopor. y Actual. Software ServiceTonic MOP. | no entra |
+| 3447-142-LE26 | Adquisición de Sistema de Control de Asistencia | entra · vertical ATTENDANCE, puntaje 17 (control) |
+| 1305527-3-LP26 | CONTRAT. ARRIENDO DEL SIST. DE CONTROL DE ASIS | entra · vertical ATTENDANCE, puntaje 9 (control) |
+| 2048-57-LP26 | Convenio de Software de Gestión de Mantenimiento | entra · vertical MAINTENANCE, puntaje 12 (control) |
+| 1057501-431-LE26 | SERV. PLAT. INFORMÁTICA DE REG. CONTROL Y SEGUI. | entra · vertical MAINTENANCE, puntaje 18 (control) |
+
 ## Cómo usarlo
 
 ```ts

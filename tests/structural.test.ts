@@ -272,8 +272,8 @@ describe("primer dia de barrido con las reglas de septiembre (docs/19, D-43 a D-
   const entran = DEL_11.filter((c) => c.esperado === "entra");
   const noEntran = DEL_11.filter((c) => c.esperado === "no entra");
 
-  it("son ocho", () => {
-    expect(DEL_11).toHaveLength(8);
+  it("son dieciseis: ocho de la manana y ocho de la tarde", () => {
+    expect(DEL_11).toHaveLength(16);
   });
 
   it.each(entran.map((c) => [c.code, c] as const))("entra: %s", (_, c) => {
@@ -299,6 +299,20 @@ describe("primer dia de barrido con las reglas de septiembre (docs/19, D-43 a D-
     "%s lleva la etiqueta %s",
     (_, tag, c) => {
       expect(total(c).tags).toContain(tag);
+    },
+  );
+
+  it.each(DEL_11.filter((c) => c.puntajeEsperado !== undefined).map((c) => [c.code, c.puntajeEsperado, c] as const))(
+    "%s conserva su puntaje de %s (control)",
+    (_, puntaje, c) => {
+      expect(total(c).score).toBe(puntaje);
+    },
+  );
+
+  it.each(DEL_11.filter((c) => c.textoBajoUmbral).map((c) => [c.code, c] as const))(
+    "%s queda bajo el umbral con el texto solo, sin la ficha",
+    (_, c) => {
+      expect(evaluate({ text: texto(c), amount: c.amount, processType: c.processType }, INITIAL_RULES).selected).toBe(false);
     },
   );
 

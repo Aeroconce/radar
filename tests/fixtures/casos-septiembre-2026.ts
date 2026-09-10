@@ -34,6 +34,10 @@ export interface Caso {
   verticalNo?: string;
   /** Etiqueta estructural que debe aparecer (docs/15). */
   tagEsperada?: string;
+  /** Puntaje total exacto: un control que no debe moverse con una regla nueva. */
+  puntajeEsperado?: number;
+  /** Debe quedar bajo el umbral con el texto solo, sin la ficha. */
+  textoBajoUmbral?: boolean;
   name: string;
   description: string;
   processType: string;
@@ -432,5 +436,144 @@ export const CASOS: Caso[] = [
     durationUnit: "meses",
     item: "Servicios profesionales, administrativos y consultorías de gestión empresarial / Servicios de recursos humanos / Contratación de personal",
     items: ["Servicios profesionales, administrativos y consultorías de gestión empresarial / Servicios de recursos humanos / Contratación de personal"],
+  },
+
+  // ---- segunda tanda del 11-09-2026: residuos con afinidad 4 y controles (D-48, D-49) ----
+  // Planta de tratamiento de agua: mantenimiento de equipos, no software (D-48)
+  {
+    code: "1350296-81-LP26",
+    muestra: "2026-09-11",
+    esperado: "no entra",
+    name: "SERVICIO DE MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA EN MARCHA DE LA PLANTA DE TRATAMIENTO DE AGUA PARA HEMODIÁLISIS DEL HOSPITAL ALTO HOSPICIO POR 24 MESES",
+    description:
+      "Que, se requiere celebrar un contrato para la prestación del servicio integral de puesta en marcha, mantenimiento preventivo y correctivo, sanitización, atención de emergencias y control de calidad de la planta de tratamiento de agua para hemodiálisis del Hospital Alto Hospicio, por un período de 24 meses. La contratación de este servicio resulta indispensable, dado que la calidad del agua utilizada en los tratamientos realizados por la Unidad de Hemodiálisis constituye un factor crítico para la seguridad de los pacientes, la prevención de eventos adversos y el cumplimiento de la normativa y los estándares sanitarios vigentes, asegurando así la continuidad operativa de la prestación asistencial.",
+    processType: "LP",
+    amount: 83300000,
+    months: null,
+    durationValue: 24,
+    durationUnit: "meses",
+    item: "Equipamiento y suministros médicos / Equipo y suministros para diálisis / Equipo de hemodiálisis extracorpórea y suministros",
+    items: ["Equipamiento y suministros médicos / Equipo y suministros para diálisis / Equipo de hemodiálisis extracorpórea y suministros"],
+  },
+  // FOSIS: administracion de infraestructura sin preposicion; cae por texto solo (D-49)
+  {
+    code: "762-7-LP26",
+    muestra: "2026-09-11",
+    esperado: "no entra",
+    textoBajoUmbral: true,
+    name: "Administracion infraestructura tecnológica",
+    description:
+      "CONTRATAR LOS SERVICIOS PROFESIONALES DE UNA EMPRESA ESPECIALIZADA PARA LA ADMINISTRACIÓN, OPERACIÓN, SOPORTE, MONITOREO, CONTINUIDAD OPERACIONAL, SEGURIDAD OPERATIVA Y GOBIERNO TÉCNICO-OPERATIVO DE LA PLATAFORMA TECNOLÓGICA DE FOSIS, CONSIDERANDO LA INFRAESTRUCTURA DE MICROINFORMÁTICA, MACROINFORMÁTICA, SERVICIOS EN NUBE, MONITOREO EXTERNO, CONTINGENCIA DEL SITIO WEB INSTITUCIONAL Y DNS PÚBLICOS.",
+    processType: "LP",
+    amount: 129045433,
+    months: null,
+    durationValue: 24,
+    durationUnit: "meses",
+    item: "Servicios profesionales, administrativos y consultorías de gestión empresarial / Servicios de recursos humanos / Contratación de personal",
+    items: ["Servicios profesionales, administrativos y consultorías de gestión empresarial / Servicios de recursos humanos / Contratación de personal"],
+  },
+  // Reloj biometrico: soporte al aparato, hardware (D-49)
+  {
+    code: "1057512-10-LE26",
+    muestra: "2026-09-11",
+    esperado: "no entra",
+    name: "Conectividad licencia y soporte reloj biométrico",
+    description:
+      "Mediante la presente, se pretende adquirir el “SERVICIO DE CONTECTIVIDAD, LICENCIAMIENTO DE SOFTWARE DE CONTROL DE ASIASTENCIA Y SOPORTE TECNICO PARA DISPOSITIVOS BIOMETRICOS DEL HOSPITAL COMUNITARIO DE SALUD FAMILIAR DE YUNGAY",
+    processType: "LE",
+    amount: null,
+    months: null,
+    durationValue: 36,
+    durationUnit: "meses",
+    item: "Equipos, accesorios y suministros de oficina / Maquinarias, suministros y accesorios de oficina / Máquinas y accesorios para registro de hora y asistencia en la oficina",
+    items: ["Equipos, accesorios y suministros de oficina / Maquinarias, suministros y accesorios de oficina / Máquinas y accesorios para registro de hora y asistencia en la oficina"],
+  },
+  // ServiceTonic: soporte y actualizacion de una licencia de mesa de ayuda (D-49)
+  {
+    code: "1020-46-LE26",
+    muestra: "2026-09-11",
+    esperado: "no entra",
+    name: "Adq. Sopor. y Actual. Software ServiceTonic MOP.",
+    description:
+      "El objetivo de la Adquisición de Soporte y Actualizaciones Software ServiceTonic Licencias en modalidad On-Premise, usuarios nombrados, por 12 meses.",
+    processType: "LE",
+    amount: 22500000,
+    months: null,
+    durationValue: 12,
+    durationUnit: "meses",
+    item: "Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión",
+    items: ["Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión"],
+  },
+  // Control: Alto Hospicio conserva puntaje y vertical tras D-49
+  {
+    code: "3447-142-LE26",
+    muestra: "2026-09-11",
+    esperado: "entra",
+    vertical: "ATTENDANCE",
+    puntajeEsperado: 17,
+    name: "Adquisición de Sistema de Control de Asistencia",
+    description:
+      "La Municipalidad de Alto Hospicio llama a licitación pública para el arriendo de una solución integral de gestión y control de asistencia para la Red de Atención Primaria de Salud, que incluya implementación, configuración, migración de datos, soporte, mantención y capacitación, garantizando su continuidad operacional durante toda la vigencia contractual.",
+    processType: "LE",
+    amount: null,
+    months: null,
+    durationValue: 24,
+    durationUnit: "meses",
+    item: "Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión",
+    items: ["Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión","Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de gestión"],
+  },
+  // Control: el SLEP arrienda un sistema de reloj control y software de asistencia; la exclusion de relojes no lo toca (D-49)
+  {
+    code: "1305527-3-LP26",
+    muestra: "2026-09-11",
+    esperado: "entra",
+    vertical: "ATTENDANCE",
+    puntajeEsperado: 9,
+    name: "CONTRAT. ARRIENDO DEL SIST. DE CONTROL DE ASIS",
+    description:
+      "La presente licitación tiene por objeto la contratación de un sistema de reloj control y software de gestión de asistencia destinado al registro, control y administración de la jornada laboral de los funcionarios de los Programas 01 y 02 del Servicio Local de Educación Pública Del Pino, permitiendo el registro centralizado, seguro y trazable de la asistencia, horarios de ingreso y salida, cumplimiento de jornada y demás marcaciones asociadas, de conformidad con la normativa vigente, asegurando la continuidad operativa del Servicio, la disponibilidad de la información y condiciones adecuadas de seguridad, integridad y confiabilidad de los datos registrados.",
+    processType: "LP",
+    amount: null,
+    months: null,
+    durationValue: 36,
+    durationUnit: "meses",
+    item: "Equipos, accesorios y suministros de oficina / Maquinarias, suministros y accesorios de oficina / Máquinas y accesorios para registro de hora y asistencia en la oficina",
+    items: ["Equipos, accesorios y suministros de oficina / Maquinarias, suministros y accesorios de oficina / Máquinas y accesorios para registro de hora y asistencia en la oficina"],
+  },
+  // Control: Ancud conserva puntaje y vertical tras D-48
+  {
+    code: "2048-57-LP26",
+    muestra: "2026-09-11",
+    esperado: "entra",
+    vertical: "MAINTENANCE",
+    puntajeEsperado: 12,
+    name: "Convenio de Software de Gestión de Mantenimiento",
+    description:
+      "El Hospital de Ancud ha confeccionado las siguientes Bases Administrativas, las que establecen las disposiciones administrativas que regirán la Licitación Pública a través del portal www.mercadopublico.cl y posterior contrato que celebre el Hospital de Ancud para el “SOFTWARE DE GESTION DE MANTENIMIENTO”, ID N° 2048-57-LP26.\r\nLa descripción específica del requerimiento que se licita en este proceso se detalla en las Bases Técnicas y Anexo Técnico N°1, \"ESPECIFICACIONES TÉCNICAS\". Debiendo la oferta ceñirse a las descripciones y especificaciones señaladas.",
+    processType: "LP",
+    amount: null,
+    months: null,
+    durationValue: 60,
+    durationUnit: "meses",
+    item: "Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de administración de redes",
+    items: ["Tecnologías de la información, telecomunicaciones y radiodifusión / Software / Software de administración de redes"],
+  },
+  // Control: Sotero del Rio conserva puntaje y vertical tras D-48
+  {
+    code: "1057501-431-LE26",
+    muestra: "2026-09-11",
+    esperado: "entra",
+    vertical: "MAINTENANCE",
+    puntajeEsperado: 18,
+    name: "SERV. PLAT. INFORMÁTICA DE REG. CONTROL Y SEGUI.",
+    description:
+      "la institución requiere efectuar un llamado público a fin de contratar un servicio especializado para la provisión e implementación de un Sistema de Registro, Control y Seguimiento de Componentes Vinculados a Mantenimiento.\r\n\r\nLa prestación del servicio se ejecutará en estricta conformidad con el marco legal regulatorio vigente, las normas internas, las políticas del establecimiento y lo estipulado en las presentes Bases de Licitación, instrumentos que regularán la responsabilidad, planificación y correcto desarrollo de las actividades.",
+    processType: "LE",
+    amount: null,
+    months: null,
+    durationValue: 24,
+    durationUnit: "meses",
+    item: "Servicios basados en ingeniería, ciencias sociales y tecnología de la información / Servicios informáticos / Ingeniería en computación e informática",
+    items: ["Servicios basados en ingeniería, ciencias sociales y tecnología de la información / Servicios informáticos / Ingeniería en computación e informática"],
   },
 ];
