@@ -34,6 +34,13 @@ export interface FiltrosTablero {
   proceso: string;
   region: string;
   monto: string;
+  /**
+   * Mostrar tambien las de afinidad negativa. Por defecto se ocultan (D-42):
+   * un puntaje bajo cero significa que alguna exclusion peso mas que todas las
+   * palabras juntas, y eso no es del rubro. Se ocultan, no se descartan: el
+   * estado de revision sigue siendo del equipo.
+   */
+  negativas: boolean;
 }
 
 export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTablero {
@@ -45,6 +52,7 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
     proceso: sp.proceso ?? "",
     region: sp.region ?? "",
     monto: sp.monto ?? "",
+    negativas: sp.negativas === "1",
   };
 }
 
@@ -78,5 +86,6 @@ export async function whereTablero(f: FiltrosTablero): Promise<Prisma.TenderWher
     ...(f.proceso ? { processType: f.proceso as ProcessType } : {}),
     ...(f.region ? { region: f.region } : {}),
     ...(monto ?? {}),
+    ...(f.negativas ? {} : { affinityScore: { gte: 0 } }),
   };
 }

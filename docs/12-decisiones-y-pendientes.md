@@ -16,6 +16,13 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-42** **Las de afinidad negativa se ocultan del tablero por defecto.** Decisión del usuario el 11-09-2026, tras
+  ver que recalcular con las señales de la ficha dejó 45 licitaciones bajo el umbral a la vista. Un puntaje bajo cero
+  significa que alguna exclusión pesó más que todas las palabras juntas: no es del rubro, y verla cada día es ruido.
+  Se **ocultan, no se descartan**: el estado de revisión sigue siendo del equipo (D-01, y «recalcular no borra» en
+  `docs/04`). La casilla «Mostrar afinidad negativa» las trae de vuelta; los conteos de estado y la exportación
+  (RF-11) siguen la misma regla, porque los tres leen el mismo filtro (`tablero-filtros.ts`). Las que quedan entre 0
+  y el umbral siguen a la vista: están cerca y merecen una mirada.
 - **D-41** **La ficha puntúa, no solo el texto.** En la muestra de septiembre de 2026 el canon mensual implícito
   (entre $0,8M y $3,5M en 5 de 5 viables y en 1 de 14 trampas), el tipo LR, la «adquisición» sin duración y la
   categoría de los ítems separaron viables de trampas mejor que cualquier palabra. Se calculan con la ficha en

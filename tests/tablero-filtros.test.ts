@@ -27,13 +27,19 @@ describe("parseFiltros", () => {
       proceso: "LE",
       region: "Región del Biobío",
       monto: "10-50",
+      negativas: false,
     });
   });
 
-  it("sin parametros no filtra nada", async () => {
+  it("sin parametros solo oculta las de afinidad negativa (D-42)", async () => {
     const f = parseFiltros({});
     expect(f.estados).toEqual([]);
-    expect(await whereTablero(f)).toEqual({});
+    expect(await whereTablero(f)).toEqual({ affinityScore: { gte: 0 } });
+  });
+
+  it("la casilla de negativas quita esa unica restriccion", async () => {
+    // Se ocultan, no se descartan: con la casilla vuelven todas, con su estado intacto.
+    expect(await whereTablero(parseFiltros({ negativas: "1" }))).toEqual({});
   });
 });
 
@@ -53,11 +59,11 @@ describe("whereTablero", () => {
   });
 
   it("un tramo inventado en la URL no filtra en vez de reventar", async () => {
-    expect(await whereTablero(parseFiltros({ monto: "gigante" }))).toEqual({});
+    expect(await whereTablero(parseFiltros({ monto: "gigante" }))).toEqual({ affinityScore: { gte: 0 } });
   });
 
   it("combina facetas sin pisarse", async () => {
     const w = await whereTablero(parseFiltros({ comprador: "HOSPITAL", proceso: "LE", region: "X" }));
-    expect(w).toEqual({ buyerType: "HOSPITAL", processType: "LE", region: "X" });
+    expect(w).toEqual({ buyerType: "HOSPITAL", processType: "LE", region: "X", affinityScore: { gte: 0 } });
   });
 });

@@ -9,7 +9,7 @@ Son tres y no más (D-27). Histórico, Configuración y Auditoría se descartaro
 
 ## 1. Tablero (`/`) — RF-04
 - **Búsqueda** con foco automático al entrar: texto libre sobre código, nombre, organismo, unidad y descripción; sin distinción de tildes ni mayúsculas; resultados mientras se escribe (300 ms).
-- **Filtros**, todos combinables y reflejados en la URL para compartir enlaces: estado (chips con conteo), vertical, tipo de comprador, tipo de proceso, región y tramo de monto (incluye «sin monto publicado»). Cada desplegable lista solo los valores con filas, con su conteo. «Exportar a Excel» baja lo filtrado (RF-11, D-34).
+- **Filtros**, todos combinables y reflejados en la URL para compartir enlaces: estado (chips con conteo), vertical, tipo de comprador, tipo de proceso, región y tramo de monto (incluye «sin monto publicado»). Cada desplegable lista solo los valores con filas, con su conteo. «Exportar a Excel» baja lo filtrado (RF-11, D-34). Las de **afinidad negativa se ocultan por defecto** (D-42); la casilla «Mostrar afinidad negativa» las trae de vuelta, y los conteos de estado y la exportación siguen la misma regla.
   - Estado de revisión (varios): Nueva, En revisión, Viable, Descartada, Ofertada, Adjudicada, Perdida. Por defecto: Nueva, En revisión, Viable.
   - Vertical (varios). Tipo de comprador (varios). Tipo de proceso (varios). Región (varios).
   - Monto: mínimo y máximo. Cierre: desde y hasta. Afinidad mínima: campo numérico que admite negativos, porque las exclusiones restan (`docs/04`). Por defecto, el umbral vigente.
