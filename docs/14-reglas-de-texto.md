@@ -1,4 +1,4 @@
-# 14 — Reglas de texto (D-35 a D-40)
+# 14 — Reglas de texto (D-35 a D-40, D-43 y D-44)
 
 Todas en el formato de `src/lib/affinity/initial-rules.ts`: sin tildes, una regla por línea, con el
 comentario de justificación que la convención de `docs/04` exige. La semilla (`SEED_AUTHOR`) reemplaza
@@ -177,14 +177,30 @@ OPPORTUNITY_SIGNAL: {
 },
 ```
 
+## D-43 — APPOINTMENTS es tema, no sistema (11-09-2026)
+
+Primer día de barrido con las reglas de septiembre: "GESTION DOCUMENTAL Y DIGITAL MUNICIPALIDAD TILTIL"
+(3666-12-LE26) y "SERVICIOS PROFESIONALES PERSONAL APOYO INFORMATICA" (1057539-138-LP26) quedaron como
+APPOINTMENTS porque `recordatorio|whatsapp|chatbot|inasistencia` pesaban 6, y DOCUMENT_MGMT con 5 perdía el
+empate. Misma lección de D-29 y D-35.
+
+```ts
+["APPOINTMENTS", 6, "agendamiento|confirmacion de (citas|horas)|recordatorio de (citas|horas|atencion)|reserva de horas|contactabilidad"],
+// junto a los otros temas de peso 2:
+["APPOINTMENTS", 2, "recordatorio|whatsapp|chatbot|inasistencia"],
+```
+
+Y DOCUMENT_MGMT sube de 5 a **6** y pasa **delante** de APPOINTMENTS: Tiltil también nombra un módulo de agendamiento,
+así que con 6 y 6 empataban y ganaba la primera. Un gestor documental con agenda es gestor documental.
+
 ## Orden final recomendado de `KEYWORDS`
 
-1. APPOINTMENTS 6
-2. MAINTENANCE 6, ATTENDANCE 6, PHARMA_LOGISTICS 6 (D-37)
-3. FIXED_ASSETS 6 (D-35)
-4. QUALITY_ACCREDITATION 6
-5. DOCUMENT_MGMT 5
-6. Temas con peso 2 (D-29 y D-35)
+1. DOCUMENT_MGMT 6 (D-43: delante de APPOINTMENTS, porque entre pesos iguales gana la primera)
+2. APPOINTMENTS 6
+3. MAINTENANCE 6, ATTENDANCE 6, PHARMA_LOGISTICS 6 (D-37)
+4. FIXED_ASSETS 6 (D-35)
+5. QUALITY_ACCREDITATION 6
+6. Temas con peso 2 (D-29, D-35 y D-43)
 7. WEB_DEVELOPMENT 5 (genérica) y WEB_DEVELOPMENT 5 abreviaturas (D-38)
 8. WEB_DEVELOPMENT 4
 9. OTHER 3 y OTHER 2

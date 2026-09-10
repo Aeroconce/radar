@@ -12,10 +12,31 @@ import type { BuyerType, Vertical } from "@/generated/prisma/enums";
 import { RULE_KINDS, type Rule } from "./rules";
 
 const KEYWORDS: Array<[Vertical, number, string]> = [
+  /*
+   * DOCUMENT_MGMT va primero y pesa 6 desde D-43. Con 5 perdia contra una
+   * palabra suelta de otra vertical, y con 6 pero detras de APPOINTMENTS
+   * seguia perdiendo el empate: la "GESTION DOCUMENTAL Y DIGITAL" de Tiltil
+   * nombra un modulo de agendamiento entre cinco, y entre pesos iguales gana
+   * la primera. Un gestor documental con agenda es gestor documental.
+   */
+  [
+    "DOCUMENT_MGMT",
+    6,
+    "gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental",
+  ],
+  /*
+   * D-43. `recordatorio`, `whatsapp`, `chatbot` e `inasistencia` con peso 6
+   * asignaban APPOINTMENTS a cualquier cosa que los mencionara de paso: la
+   * "GESTION DOCUMENTAL Y DIGITAL" de Tiltil (un modulo de recordatorios entre
+   * cinco) y los "SERVICIOS PROFESIONALES PERSONAL APOYO INFORMATICA" de Puerto
+   * Montt quedaron como citas. Misma leccion que D-29 y D-35: son tema, no
+   * sistema. Con 6 solo lo que nombra el sistema de citas; el resto pesa 2 y
+   * entra acompanado (mas abajo, con los otros temas).
+   */
   [
     "APPOINTMENTS",
     6,
-    "agendamiento|confirmacion de (citas|horas)|recordatorio|whatsapp|chatbot|reserva de horas|contactabilidad|inasistencia",
+    "agendamiento|confirmacion de (citas|horas)|recordatorio de (citas|horas|atencion)|reserva de horas|contactabilidad",
   ],
   /*
    * D-37. Cuatro de las seis licitaciones reales de septiembre de 2026 (Alto
@@ -62,16 +83,12 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
     6,
     "seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad",
   ],
-  [
-    "DOCUMENT_MGMT",
-    5,
-    "gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental",
-  ],
   /*
-   * Temas, no sistemas (D-29 y D-35).
+   * Temas, no sistemas (D-29, D-35 y D-43).
    *
-   * `acreditacion`, `inventario`, `activo fijo`, `expediente` y `oficina de
-   * partes` nombran de que trata algo, no que sea software. Con peso 6 entraban
+   * `acreditacion`, `inventario`, `activo fijo`, `expediente`, `oficina de
+   * partes`, `recordatorio`, `whatsapp`, `chatbot` e `inasistencia` nombran de
+   * que trata algo, no que sea software. Con peso 6 entraban
    * solos y traian al tablero el arriendo de una embarcacion, una acreditacion
    * de saberes linguisticos, la reestructuracion de una oficina y un seguro
    * contra incendio.
@@ -86,6 +103,7 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
    * Van antes de la regla generica de peso 2 a proposito: con el mismo peso
    * gana la primera, y asi la vertical que se asigna es la especifica.
    */
+  ["APPOINTMENTS", 2, "recordatorio|whatsapp|chatbot|inasistencia"],
   ["QUALITY_ACCREDITATION", 2, "acreditacion"],
   ["FIXED_ASSETS", 2, "inventario"],
   ["FIXED_ASSETS", 2, "activos? fijos?|gestion de activos"],

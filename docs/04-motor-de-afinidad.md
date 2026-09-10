@@ -16,13 +16,14 @@ Nombre y descripción (la descripción solo está en la ficha; el primer filtro 
 Palabras clave (peso):
 | Vertical | Peso | Expresión |
 |---|---|---|
-| APPOINTMENTS | 6 | `agendamiento|confirmacion de (citas|horas)|recordatorio|whatsapp|chatbot|reserva de horas|contactabilidad|inasistencia` |
+| DOCUMENT_MGMT | 6 | `gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental` |
+| APPOINTMENTS | 6 | `agendamiento|confirmacion de (citas|horas)|recordatorio de (citas|horas|atencion)|reserva de horas|contactabilidad` |
 | MAINTENANCE | 6 | `gestion de mantenimiento|mantenimiento (preventivo|correctivo)|ordenes? de trabajo|\\bcmms\\b|componentes (de|vinculados a) mantenimiento|plan de mantencion` |
 | ATTENDANCE | 6 | `control de asistencia|asistencia del personal|reloj control|marcaje|marcacion|biometri` |
 | PHARMA_LOGISTICS | 6 | `drogueria|bodega de farmacia|abastecimiento farmaceutico|logistica de medicamentos` |
 | FIXED_ASSETS | 6 | `(software|sistema|plataforma|gestion|control) de activos? fijos?|activos? fijos? (institucional|municipal)|control de inventario|bienes de uso` |
 | QUALITY_ACCREDITATION | 6 | `seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad` |
-| DOCUMENT_MGMT | 5 | `gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental` |
+| APPOINTMENTS | 2 | `recordatorio|whatsapp|chatbot|inasistencia` |
 | QUALITY_ACCREDITATION | 2 | `acreditacion` |
 | FIXED_ASSETS | 2 | `inventario` |
 | FIXED_ASSETS | 2 | `activos? fijos?|gestion de activos` |
@@ -60,7 +61,10 @@ Las verticales describen **de qué trata** el sistema. Cuatro términos nombraba
 el arriendo de una embarcación, una acreditación de saberes lingüísticos, servicios profesionales para una
 autoevaluación y la reestructuración de una oficina.
 
-Desde el 31-08-2026 pesan **2** (D-29). Bajo el umbral por sí mismos, entran solo acompañados de una palabra
+Desde el 31-08-2026 pesan **2** (D-29), y desde el 11-09-2026 también `recordatorio`, `whatsapp`, `chatbot` e
+`inasistencia` (D-43): un gestor documental con un módulo de recordatorios quedaba clasificado como citas, y
+DOCUMENT_MGMT subió a 6 y pasó delante de APPOINTMENTS en la tabla, porque entre pesos iguales gana la primera y Tiltil
+también nombra un módulo de agendamiento. Bajo el umbral por sí mismos, entran solo acompañados de una palabra
 que sí diga sistema: «sistema de acreditación» suma 2 + 2 y pasa; «acreditación de saberes lingüísticos» se
 queda en 2. Es lo que este documento ya decía y el motor no cumplía.
 

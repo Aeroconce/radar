@@ -16,6 +16,14 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-43** **APPOINTMENTS es tema, no sistema** (11-09-2026, primer día de barrido con las reglas de septiembre).
+  «GESTION DOCUMENTAL Y DIGITAL MUNICIPALIDAD TILTIL» (3666-12-LE26) y «SERVICIOS PROFESIONALES PERSONAL APOYO
+  INFORMATICA» (1057539-138-LP26) quedaron clasificadas como citas porque `recordatorio|whatsapp|chatbot|inasistencia`
+  pesaban 6 y DOCUMENT_MGMT, con 5, perdía el empate. Misma lección de D-29 y D-35: la regla se divide, con 6 solo
+  lo que nombra el sistema de citas (`agendamiento`, `confirmacion de citas`, `recordatorio de citas`,
+  `contactabilidad`) y el resto pesa 2 junto a los otros temas; y DOCUMENT_MGMT sube a 6 **y pasa delante de APPOINTMENTS**:
+  Tiltil también nombra un módulo de agendamiento, con 6 y 6 empataban y gana la primera. Un gestor documental con
+  agenda es gestor documental.
 - **D-42** **Las de afinidad negativa se ocultan del tablero por defecto.** Decisión del usuario el 11-09-2026, tras
   ver que recalcular con las señales de la ficha dejó 45 licitaciones bajo el umbral a la vista. Un puntaje bajo cero
   significa que alguna exclusión pesó más que todas las palabras juntas: no es del rubro, y verla cada día es ruido.
