@@ -99,7 +99,7 @@ export function BoardFilters({
   const hayFiltros =
     estadosActivos.length > 0 ||
     texto !== "" ||
-    ["vertical", "comprador", "proceso", "region", "monto", "bajoumbral"].some((c) => activa(c) !== "");
+    ["vertical", "comprador", "proceso", "region", "monto", "bajoumbral", "cerradas"].some((c) => activa(c) !== "");
 
   return (
     <div className="space-y-3">
@@ -193,6 +193,17 @@ export function BoardFilters({
             className="h-3.5 w-3.5 accent-[#1c2f4a]"
           />
           Mostrar bajo el umbral
+        </label>
+        {/* Las cerradas se ocultan por defecto (D-50): el portal ya no las lista como
+            Publicada o su cierre paso. Las que tienen oferta presentada se ven siempre. */}
+        <label className="inline-flex cursor-pointer select-none items-center gap-1.5 rounded-md px-2 py-2 text-xs text-neutral-600 hover:bg-neutral-100">
+          <input
+            type="checkbox"
+            checked={activa("cerradas") === "1"}
+            onChange={(e) => navegar({ cerradas: e.target.checked ? "1" : null })}
+            className="h-3.5 w-3.5 accent-[#1c2f4a]"
+          />
+          Mostrar cerradas
         </label>
       </div>
 

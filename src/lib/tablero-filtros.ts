@@ -10,6 +10,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import type { BuyerType, ProcessType, ReviewStatus } from "@/generated/prisma/enums";
 import { DEFAULT_THRESHOLDS } from "@/lib/affinity/rules";
 import { prisma } from "@/lib/db";
+import { PORTAL_PUBLICADA } from "@/lib/tenders";
 
 /**
  * El filtro de cada tramo. Las etiquetas viven en `tenders.ts`, que el cliente
@@ -42,6 +43,31 @@ export interface FiltrosTablero {
    * revision sigue siendo del equipo.
    */
   bajoUmbral: boolean;
+  /**
+   * Mostrar tambien las cerradas. Por defecto se ocultan (D-50): una licitacion
+   * cuyo portal ya no dice Publicada, o cuyo cierre paso, no admite ofertas
+   * aunque el equipo la tenga en revision. Las ofertadas, adjudicadas y perdidas
+   * se muestran siempre: se siguen porque hay una oferta presentada.
+   */
+  cerradas: boolean;
+}
+
+/** Estados con oferta presentada: se siguen aunque el portal las haya cerrado. */
+export const CON_OFERTA: ReviewStatus[] = ["SUBMITTED", "AWARDED", "LOST"];
+
+/** Viva en el portal (Publicada o sin dato) y sin cierre vencido, o con oferta presentada. */
+export function whereVivas(ahora: Date): Prisma.TenderWhereInput {
+  return {
+    OR: [
+      { reviewStatus: { in: CON_OFERTA } },
+      {
+        AND: [
+          { OR: [{ portalStatus: PORTAL_PUBLICADA }, { portalStatus: null }] },
+          { OR: [{ closesAt: null }, { closesAt: { gte: ahora } }] },
+        ],
+      },
+    ],
+  };
 }
 
 export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTablero {
@@ -54,6 +80,7 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
     region: sp.region ?? "",
     monto: sp.monto ?? "",
     bajoUmbral: sp.bajoumbral === "1",
+    cerradas: sp.cerradas === "1",
   };
 }
 
@@ -64,13 +91,14 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
  * Prisma, asi que el texto se resuelve primero a una lista de ids con una
  * consulta cruda y el resto sigue en Prisma, donde se lee.
  *
- * `umbral` es el de `Setting` (RF-09): lo pasa quien llama, para que este
- * modulo se pueda probar sin base y para que tablero y exportacion usen el
- * mismo numero.
+ * `umbral` es el de `Setting` (RF-09) y `ahora` el reloj: los pasa quien llama,
+ * para que este modulo se pueda probar sin base y para que tablero y
+ * exportacion usen el mismo numero y la misma hora.
  */
 export async function whereTablero(
   f: FiltrosTablero,
   umbral: number = DEFAULT_THRESHOLDS.affinityThreshold,
+  ahora: Date = new Date(),
 ): Promise<Prisma.TenderWhereInput> {
   let idsBusqueda: string[] | null = null;
   if (f.q) {
@@ -95,5 +123,6 @@ export async function whereTablero(
     ...(f.region ? { region: f.region } : {}),
     ...(monto ?? {}),
     ...(f.bajoUmbral ? {} : { affinityScore: { gte: umbral } }),
+    ...(f.cerradas ? {} : whereVivas(ahora)),
   };
 }

@@ -16,6 +16,14 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-50** **Las licitaciones que ya no están activas no se muestran como vivas** (11-09-2026). Negrete Conecta
+  (4488-11-L126) cerró el 25-08-2026 y seguía en el tablero con afinidad 8 y estado «En revisión»: el estado de
+  revisión es manual y el filtro no miraba `portalStatus` ni `closesAt`. El tablero oculta por defecto toda
+  licitación cuyo `portalStatus` no sea Publicada (5) o cuyo `closesAt` ya pasó, salvo que su estado sea ofertada,
+  adjudicada o perdida (se siguen porque hay una oferta presentada). Casilla «Mostrar cerradas» junto a las de D-42 y
+  D-46; en la fila, «<estado> en el portal» o «cerrada el <fecha>». Los conteos y la exportación siguen la misma
+  regla (`whereVivas` en `tablero-filtros.ts`, con el reloj inyectado para poder probarlo). Sobre el tablero del
+  11-09: de 52 visibles quedan 27 vivas.
 - **D-49** **Exclusiones de infraestructura sin preposición, y hardware y licencias que se colaban** (11-09-2026).
   FOSIS «Administracion infraestructura tecnológica» (762-7-LP26) no lo atrapaba D-44 porque el patrón exigía la
   preposición: pasa a `administracion (de |e )?infraestructura`, y ahora queda bajo el umbral por texto solo. El reloj

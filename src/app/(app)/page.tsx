@@ -86,6 +86,7 @@ export default async function Tablero({
         incumbentSignals: true,
         opportunitySignals: true,
         structuralTags: true,
+        portalStatus: true,
       },
     }),
     // Los conteos ignoran el filtro de estado: si no, al marcar "Nuevas" los

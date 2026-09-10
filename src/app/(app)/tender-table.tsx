@@ -11,7 +11,7 @@
 import Link from "next/link";
 import type { ReviewStatus } from "@/generated/prisma/enums";
 import { ESTADOS } from "@/lib/reviews";
-import { colorPlazo, diasPara, nombreVertical, textoPlazo } from "@/lib/tenders";
+import { colorPlazo, diasPara, nombreEstadoPortal, nombreVertical, PORTAL_PUBLICADA, textoPlazo } from "@/lib/tenders";
 import { StarButton } from "./star-button";
 
 export interface FilaLicitacion {
@@ -29,6 +29,7 @@ export interface FilaLicitacion {
   incumbentSignals: string[];
   opportunitySignals: string[];
   structuralTags: string[];
+  portalStatus: number | null;
 }
 
 const monto = new Intl.NumberFormat("es-CL", {
@@ -156,6 +157,12 @@ export function TenderTable({
                       oportunidad · {t.opportunitySignals.join(" · ")}
                     </p>
                   )}
+                  {/* Ya no admite ofertas (D-50): lo dice el portal, o el cierre paso. */}
+                  {t.portalStatus !== null && t.portalStatus !== PORTAL_PUBLICADA ? (
+                    <p className="mt-1 text-[11px] text-neutral-500">{nombreEstadoPortal(t.portalStatus)} en el portal</p>
+                  ) : d !== null && d < 0 && t.closesAt ? (
+                    <p className="mt-1 text-[11px] text-neutral-500">cerrada el {fechaCorta.format(t.closesAt)}</p>
+                  ) : null}
                 </td>
                 <td className="px-3 py-2.5 align-top text-xs text-neutral-600">
                   {nombreVertical(t.vertical)}

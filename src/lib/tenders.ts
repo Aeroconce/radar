@@ -19,6 +19,24 @@ export const VERTICALES: Record<string, string> = {
   OTHER: "Otros",
 };
 
+/**
+ * `CodigoEstado` del portal (docs/03, docs/17). La unica viva es Publicada; el
+ * resto ya no admite ofertas, aunque el equipo la tenga en revision (D-50).
+ */
+export const ESTADOS_PORTAL: Record<number, string> = {
+  5: "Publicada",
+  6: "Cerrada",
+  7: "Desierta",
+  8: "Adjudicada",
+  18: "Revocada",
+  19: "Suspendida",
+};
+
+export const PORTAL_PUBLICADA = 5;
+
+export const nombreEstadoPortal = (s: number | null) =>
+  s === null ? "" : (ESTADOS_PORTAL[s] ?? `estado ${s} del portal`);
+
 /** Tramo en UTM de cada tipo de proceso, para no mostrar la sigla cruda. */
 export const PROCESOS: Record<string, string> = {
   L1: "L1 · menor a 100 UTM",

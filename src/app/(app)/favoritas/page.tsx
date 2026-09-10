@@ -45,6 +45,7 @@ export default async function FavoritasPage() {
               incumbentSignals: true,
               opportunitySignals: true,
               structuralTags: true,
+              portalStatus: true,
             },
           },
         },
