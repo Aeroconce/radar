@@ -20,7 +20,7 @@ abrir el correo, y es lo que decide si se abre. «Cierra en 3 días · Sistema d
 | CLOSING_SOON | 08:00, VIABLE o IN_REVIEW con cierre en ≤ 5 días | `Cierra en <n> días: <nombre>` |
 | QUESTIONS_CLOSING | 08:00, IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h | `Preguntas cierran mañana: <nombre>` |
 | AWARD_PUBLISHED | Al detectar acta de una SUBMITTED | `Acta publicada: <nombre>` |
-| DAILY_DIGEST | 08:00 | `Radar — resumen del <fecha>` |
+| DAILY_DIGEST (los lunes trae además «Casi entran» y «Entraron por poco», las que quedaron a un paso del umbral por los dos lados; D-51, `docs/17`) | 08:00 | `Radar — resumen del <fecha>` |
 
 El resumen diario incluye además **el estado del último barrido** (RN-07). Es el único lugar donde el equipo
 se entera de que el worker falló sin tener que entrar al servidor.

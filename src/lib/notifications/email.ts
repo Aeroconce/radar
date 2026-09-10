@@ -28,6 +28,8 @@
 import { Resend } from "resend";
 import { env, notifyRecipients } from "@/lib/env";
 import type { NotificationType } from "@/generated/prisma/enums";
+import type { LineaDigest } from "@/lib/notifications/digest";
+import { nombreVertical } from "@/lib/tenders";
 
 let client: Resend | null = null;
 
@@ -113,6 +115,7 @@ const FAINT = "#9ca3af";
 const RULE = "#e5e7eb";
 const SOFT = "#f9fafb";
 
+const MONO = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
 const SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
 /**
  * Titular en Helvetica Neue con respaldo a la sans del sistema.
@@ -269,6 +272,9 @@ export interface NoticePayload {
   closingThisWeek?: Array<{ code: string; name: string; closesAt: string | null }>;
   /** Estado del ultimo barrido (RN-07): el resumen es donde el equipo se entera de un fallo. */
   sweep?: { finishedAt: string | null; ok: boolean | null };
+  /** Solo los lunes (D-51): a un paso del umbral, por los dos lados. */
+  casiEntran?: LineaDigest[];
+  entraronPorPoco?: LineaDigest[];
 }
 
 /** Tramo de cada tipo de proceso, para no mostrar la sigla cruda (docs/06). */
@@ -504,6 +510,39 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
         : `<p style="margin:26px 0 0;font-family:${SANS};font-size:14px;color:${MUTED}">Ninguna licitación cierra esta semana.</p>`;
 
       /*
+       * Los lunes (D-51): las que quedaron a un paso del umbral por los dos
+       * lados. Solo cuando el worker las manda; los otros dias no existen las
+       * claves y no se muestra nada. Una seccion vacia el lunes lo dice, para
+       * que no parezca que se olvido.
+       */
+      const seccionLineas = (titulo: string, nota: string, filas: LineaDigest[] | undefined) => {
+        if (filas === undefined) return "";
+        const cuerpo = filas.length
+          ? `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">${filas
+              .map(
+                (l, i) => `<tr>
+                  <td style="padding:8px 12px 8px 0;${i > 0 ? `border-top:1px solid ${RULE};` : ""}font-family:${SANS};font-size:13px;color:${INK}">
+                    <span style="font-family:${MONO};font-size:12px;color:${MUTED}">${escape(l.code)}</span> · ${escape(l.name)}
+                    <div style="font-size:12px;color:${MUTED};margin-top:2px">${escape(nombreVertical(l.vertical))}${l.tags.length ? ` · ${escape(l.tags.join(", "))}` : ""}</div>
+                  </td>
+                  <td align="right" style="padding:8px 0;${i > 0 ? `border-top:1px solid ${RULE};` : ""}font-family:${MONO};font-size:13px;font-weight:600;color:${INK};white-space:nowrap">${l.score}</td>
+                </tr>`,
+              )
+              .join("")}</table>`
+          : `<p style="margin:0;font-family:${SANS};font-size:13px;color:${MUTED}">Esta semana, ninguna a un paso del umbral.</p>`;
+        return `<div style="margin:28px 0 0">${section(titulo)}<p style="margin:0 0 10px;font-family:${SANS};font-size:12px;color:${MUTED}">${escape(nota)}</p>${cuerpo}</div>`;
+      };
+      const lunes =
+        seccionLineas("Casi entran", "Vistas en el último barrido que quedaron a uno o dos puntos del umbral. Si alguna es del rubro, falta una regla.", p.casiEntran) +
+        seccionLineas("Entraron por poco", "Nuevas del tablero justo sobre el umbral. Si alguna no es del rubro, falta una exclusión o una señal.", p.entraronPorPoco);
+      const lineaTexto = (l: LineaDigest) =>
+        `- ${l.code} · ${l.name} (${l.score}, ${nombreVertical(l.vertical)}${l.tags.length ? ` · ${l.tags.join(", ")}` : ""})`;
+      const lunesTexto = [
+        ...(p.casiEntran !== undefined ? ["", "Casi entran (a un paso del umbral, no seleccionadas):", ...(p.casiEntran.length ? p.casiEntran.map(lineaTexto) : ["  ninguna"])] : []),
+        ...(p.entraronPorPoco !== undefined ? ["", "Entraron por poco (nuevas justo sobre el umbral):", ...(p.entraronPorPoco.length ? p.entraronPorPoco.map(lineaTexto) : ["  ninguna"])] : []),
+      ];
+
+      /*
        * Estado del ultimo barrido (RN-07). Es el unico lugar donde el equipo se
        * entera de que el worker fallo sin entrar al servidor, asi que un fallo
        * va en rojo y con verbo, no como una fecha mas.
@@ -528,6 +567,7 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
               { label: "Viables", value: String(c.viables ?? 0) },
             ])}</div>` +
             lista +
+            lunes +
             barrido +
             buttons({ href: BASE, label: "Abrir el tablero" }),
           footer: "Resumen automático de las 08:00. Los avisos por licitación llegan aparte.",
@@ -543,6 +583,7 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             ...(cierres.length
               ? cierres.map((t) => `- ${t.name} (${urgency(daysUntil(t.closesAt)).label})`)
               : ["  ninguno"]),
+            ...lunesTexto,
             "",
             p.sweep
               ? p.sweep.ok === false

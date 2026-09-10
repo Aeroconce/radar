@@ -9,16 +9,21 @@
  * - `QUESTIONS_CLOSING`: el foro de preguntas cierra dentro de 24 horas.
  * - `DAILY_DIGEST`: el estado del tablero, uno por dia (`dedupeKey` por fecha
  *   de Chile). Incluye el estado del ultimo barrido (RN-07): es el unico lugar
- *   donde el equipo se entera de un fallo sin entrar al servidor.
+ *   donde el equipo se entera de un fallo sin entrar al servidor. Los lunes
+ *   trae ademas las que quedaron a un paso del umbral por los dos lados
+ *   (docs/17, D-51): cada falso negativo o positivo real es una regla que falta.
  *
  * La tarea solo **encola** (`PENDING`) y despacha al final, como el barrido: si
  * algo falla a mitad, no queda un correo anunciando lo que no se guardo (D-16).
  */
 import type { Prisma } from "@/generated/prisma/client";
+import { classifyVertical } from "@/lib/affinity/classify";
 import { prisma } from "@/lib/db";
 import { jobLogger } from "@/lib/logger";
+import { casiEntran, entraronPorPoco, esLunes, type LineaDigest } from "@/lib/notifications/digest";
 import { dispatchPending } from "@/lib/notifications/dispatch";
 import { ESTADOS } from "@/lib/reviews";
+import { loadRules, loadSettings } from "@/lib/settings";
 
 const log = jobLogger("alerts");
 
@@ -167,6 +172,43 @@ export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
       }),
     ]);
 
+    // ------------------------------------------ lunes: a un paso del umbral (D-51)
+    let lunes: { casiEntran: LineaDigest[]; entraronPorPoco: LineaDigest[] } | null = null;
+    if (esLunes(now)) {
+      const [settings, rules, ultimoOk] = await Promise.all([
+        loadSettings(),
+        loadRules(),
+        prisma.jobRun.findFirst({
+          where: { type: "SWEEP", ok: true },
+          orderBy: { startedAt: "desc" },
+          select: { startedAt: true },
+        }),
+      ]);
+      const umbral = settings.affinityThreshold;
+      // Solo las vistas en el ultimo barrido: lo de hace semanas ya cerro.
+      const vistas = await prisma.seenTender.findMany({
+        where: {
+          selected: false,
+          lastScore: { gte: umbral - 2, lte: umbral - 1 },
+          ...(ultimoOk ? { lastSeenAt: { gte: ultimoOk.startedAt } } : {}),
+        },
+        select: { code: true, name: true, lastScore: true, selected: true },
+        orderBy: { lastScore: "desc" },
+        take: 60,
+      });
+      const nuevas = await prisma.tender.findMany({
+        where: { reviewStatus: "NEW", affinityScore: { gte: umbral, lte: umbral + 1 } },
+        select: { code: true, name: true, affinityScore: true, vertical: true, structuralTags: true, reviewStatus: true },
+        orderBy: { affinityScore: "desc" },
+        take: 60,
+      });
+      lunes = {
+        // Las vistas no tienen ficha: la vertical se estima con el nombre y las reglas de hoy.
+        casiEntran: casiEntran(vistas, umbral, (name) => classifyVertical(name, rules)),
+        entraronPorPoco: entraronPorPoco(nuevas, umbral),
+      };
+    }
+
     const resumen = await prisma.notification.createMany({
       data: [
         {
@@ -183,7 +225,9 @@ export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
             sweep: ultimoBarrido
               ? { finishedAt: ultimoBarrido.finishedAt?.toISOString() ?? null, ok: ultimoBarrido.ok }
               : undefined,
-          } as Prisma.InputJsonValue,
+            ...(lunes ?? {}),
+            // Las claves opcionales del lunes no encajan en InputJsonValue sin pasar por unknown.
+          } as unknown as Prisma.InputJsonValue,
         },
       ],
       skipDuplicates: true,

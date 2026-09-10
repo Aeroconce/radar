@@ -16,6 +16,13 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-51** **El resumen de los lunes lista lo que quedó a un paso del umbral, por los dos lados** (11-09-2026;
+  lo pendiente de `docs/17`). Dos secciones más en el `DAILY_DIGEST` cuando es lunes en Chile: «Casi entran»
+  (`SeenTender` del último barrido, no seleccionadas, puntaje entre umbral−2 y umbral−1, vertical estimada desde el
+  nombre porque sin ficha no hay más) y «Entraron por poco» (`Tender` nuevas entre umbral y umbral+1, con sus
+  etiquetas estructurales). Máximo 15 por sección, ordenadas por puntaje, cada línea con código, nombre, puntaje,
+  vertical y etiquetas. Lógica pura en `src/lib/notifications/digest.ts` con pruebas sintéticas; una sección vacía
+  el lunes lo dice en vez de desaparecer. Los otros días el resumen no cambia.
 - **D-50** **Las licitaciones que ya no están activas no se muestran como vivas** (11-09-2026). Negrete Conecta
   (4488-11-L126) cerró el 25-08-2026 y seguía en el tablero con afinidad 8 y estado «En revisión»: el estado de
   revisión es manual y el filtro no miraba `portalStatus` ni `closesAt`. El tablero oculta por defecto toda

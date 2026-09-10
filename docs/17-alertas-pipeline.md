@@ -37,6 +37,13 @@ código de estado, que la API sí entrega en la ficha.
 
 Diez minutos de lectura por semana; cada falso negativo real es una regla que falta, con evidencia.
 
+**Implementado el 11-09-2026 (D-51)** como dos secciones del `DAILY_DIGEST` de los lunes (`src/lib/notifications/
+digest.ts`, puro; consultas en `worker/jobs/alerts.ts`): «Casi entran» (vistas del último barrido no seleccionadas
+entre umbral−2 y umbral−1, con la vertical estimada desde el nombre) y «Entraron por poco» (nuevas entre umbral y
+umbral+1, con sus etiquetas estructurales), máximo 15 por sección, ordenadas por puntaje. La segunda lista no
+estaba en el plan original: los falsos positivos también se buscan. La lista de «coinciden con vertical nueva» queda
+pendiente.
+
 ## Vigilancia por organismo
 
 La búsqueda por texto encuentra lo que se llama como uno espera. Lo que se llama distinto se encuentra por
