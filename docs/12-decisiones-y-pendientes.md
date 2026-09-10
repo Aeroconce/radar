@@ -16,6 +16,15 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-48** **Mantenimiento de equipos no es software, y el CMMS conserva su vertical con contexto de sistema**
+  (11-09-2026). «SERVICIO DE MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA EN MARCHA DE LA PLANTA DE TRATAMIENTO DE
+  AGUA» (1350296-81-LP26) seguía visible con 4 tras D-47: mantención de equipos físicos. Exclusión de −6 para
+  «mantenimiento preventivo/correctivo/integral de equipos, ascensores, climatización, calderas, generadores,
+  vehículos, infraestructura, instalaciones, maquinaria o plantas»; admite servicios encadenados entre el adjetivo
+  y el objeto («preventivo correctivo y puesta en marcha de la planta»), porque así venía el caso real y con la
+  regla estricta no lo atrapaba. Y una regla MAINTENANCE de peso 6 con contexto de sistema («sistema de
+  mantenimiento preventivo») delante de la general, para que un CMMS descrito por sus funciones no pierda la
+  vertical tras D-47. Ancud y Sótero del Río conservan puntaje y vertical (`puntajeEsperado` en el fixture).
 - **D-47** **«Mantenimiento preventivo» es tema, no sistema** (11-09-2026). Salió al aplicar D-45: con la resta por
   falta de ítem de software en 6, Arica (1075963-403-L126) seguía en 4 —12 de texto, −6, −2— sobre el umbral y
   clasificada como CMMS. Sus 12 venían de `mantenimiento (preventivo|correctivo)` a peso 6, y cualquier contrato de

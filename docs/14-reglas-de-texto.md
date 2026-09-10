@@ -1,4 +1,4 @@
-# 14 — Reglas de texto (D-35 a D-40, D-43, D-44 y D-47)
+# 14 — Reglas de texto (D-35 a D-40, D-43, D-44 y D-47 a D-49)
 
 Todas en el formato de `src/lib/affinity/initial-rules.ts`: sin tildes, una regla por línea, con el
 comentario de justificación que la convención de `docs/04` exige. La semilla (`SEED_AUTHOR`) reemplaza
@@ -221,6 +221,23 @@ contrato de aparatos incluye "mantenimiento preventivo" de paso. Misma lección 
 
 Los dos CMMS reales de septiembre no se tocan: Ancud entra por "gestion de mantenimiento" y el Sótero del Río por
 "componentes vinculados a mantenimiento". Arica queda en 0 y como WEB_DEVELOPMENT.
+
+## D-48 — Mantenimiento de equipos no es software (11-09-2026)
+
+"SERVICIO DE MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA EN MARCHA DE LA PLANTA DE TRATAMIENTO DE AGUA"
+(1350296-81-LP26) seguía visible con 4 tras D-47: es mantención de equipos físicos, no un sistema.
+
+```ts
+// EXCLUSIONS (-6). Entre el adjetivo y el objeto los compradores encadenan servicios
+// ("preventivo correctivo y puesta en marcha de la planta"), y "planta" no estaba en la lista.
+"mantenimiento (preventivo|correctivo|integral) (correctivo |y correctivo |y preventivo |sanitizacion |y sanitizacion )?(y puesta en marcha |puesta en marcha )?(de |a |del |de la |de las |de los )?(equipos|ascensores|climatizacion|calderas|generadores|vehiculos|infraestructura|instalaciones|maquinaria|plantas?)",
+// KEYWORDS, antes de la regla MAINTENANCE de peso 6: un CMMS descrito por sus
+// funciones no pierde la vertical tras D-47.
+["MAINTENANCE", 6, "(software|sistema|plataforma) (de|para) (el |la )?(gestion del? )?mantenimiento (preventivo|correctivo)"],
+```
+
+Ancud (2048-57-LP26) y Sótero del Río (1057501-431-LE26) siguen en MAINTENANCE con el mismo puntaje: es una prueba
+con `puntajeEsperado` en el fixture.
 
 ## Orden final recomendado de `KEYWORDS`
 

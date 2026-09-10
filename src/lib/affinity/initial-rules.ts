@@ -47,6 +47,13 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
    * Van antes de WEB_DEVELOPMENT: con peso 6 ganan a la generica de 5, y entre
    * pesos iguales gana la primera.
    */
+  /*
+   * D-48. Un CMMS descrito por sus funciones —"sistema de mantenimiento
+   * preventivo y correctivo"— no debe perder la vertical tras D-47: con el
+   * contexto de sistema pegado, sigue pesando 6. Va antes de la regla general
+   * para que, entre pesos iguales, gane esta.
+   */
+  ["MAINTENANCE", 6, "(software|sistema|plataforma) (de|para) (el |la )?(gestion del? )?mantenimiento (preventivo|correctivo)"],
   // `mantenimiento (preventivo|correctivo)` salio de aqui y pesa 2 mas abajo (D-47):
   // cualquier contrato de aparatos incluye "mantenimiento preventivo" de paso, y con
   // 6 los sensores de temperatura de Arica quedaban como CMMS con 12 puntos.
@@ -263,6 +270,16 @@ const EXCLUSIONS: string[] = [
   // APOYO INFORMATICA" de Puerto Montt son seis ingenieros por horas, no un
   // sistema. D-36 solo cubria "turnos profesionales" y "suministro de personal".
   "servicios profesionales (de )?(personal|apoyo)|personal de apoyo|apoyo informatico|horas hombre|\\bhh\\b",
+
+  /*
+   * D-48. Mantenimiento de equipos no es software: el "SERVICIO DE
+   * MANTENIMIENTO PREVENTIVO CORRECTIVO Y PUESTA EN MARCHA DE LA PLANTA DE
+   * TRATAMIENTO DE AGUA" (1350296-81-LP26) seguia en 4 tras D-47. La regla
+   * admite "preventivo correctivo y puesta en marcha de la planta": entre el
+   * adjetivo y el objeto los compradores encadenan servicios, y "planta" no
+   * estaba en la lista original de objetos.
+   */
+  "mantenimiento (preventivo|correctivo|integral) (correctivo |y correctivo |y preventivo |sanitizacion |y sanitizacion )?(y puesta en marcha |puesta en marcha )?(de |a |del |de la |de las |de los )?(equipos|ascensores|climatizacion|calderas|generadores|vehiculos|infraestructura|instalaciones|maquinaria|plantas?)",
 
   // Infraestructura y monitoreo: la familia que D-18 dejo fuera del alcance,
   // igual que la ciberseguridad. Observabilidad multicloud (FONASA), "servicio
