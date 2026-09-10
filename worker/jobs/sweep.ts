@@ -21,7 +21,8 @@ import {
   detectIncumbentSignals,
   detectOpportunitySignals,
 } from "@/lib/affinity/classify";
-import { evaluate, scoreText, worthFetchingDetail } from "@/lib/affinity/rules";
+import { evaluate, scoreText, withStructural, worthFetchingDetail } from "@/lib/affinity/rules";
+import { computeStructural } from "@/lib/affinity/structural";
 import { prisma } from "@/lib/db";
 import { jobLogger } from "@/lib/logger";
 import { MpClient, type ActiveListing } from "@/lib/mp/client";
@@ -225,11 +226,15 @@ async function processListing(
   const detail = await ctx.client.getTender<TenderDetail>(code);
   const fields = parseTenderDetail(detail);
   const text = `${fields.name} ${fields.description}`;
-  const verdict = evaluate(
+  const porTexto = evaluate(
     { text, amount: fields.estimatedAmount, processType: fields.processType },
     ctx.rules,
     ctx.settings,
   );
+  // Con la ficha se suman las senales estructurales y se decide sobre el total (docs/15).
+  const opportunitySignals = detectOpportunitySignals(text, ctx.rules);
+  const estructural = computeStructural({ ...fields, items: fields.items ?? null, opportunitySignals }, ctx.settings);
+  const verdict = withStructural(porTexto, estructural, ctx.settings);
 
   await prisma.seenTender.update({
     where: { code },
@@ -245,8 +250,11 @@ async function processListing(
     vertical: classifyVertical(text, ctx.rules),
     buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, ctx.rules),
     incumbentSignals: detectIncumbentSignals(text, ctx.rules),
-    opportunitySignals: detectOpportunitySignals(text, ctx.rules),
+    opportunitySignals,
     affinityScore: verdict.score,
+    textScore: porTexto.score,
+    structuralScore: estructural.score,
+    structuralTags: estructural.tags,
     matchedTerms: verdict.matchedTerms,
     outOfScale: verdict.outOfScale,
     raw: detail as unknown as Prisma.InputJsonValue,
@@ -282,6 +290,7 @@ async function processListing(
       matchedTerms: verdict.matchedTerms,
       incumbentSignals: data.incumbentSignals,
       opportunitySignals: data.opportunitySignals,
+      structuralTags: estructural.tags,
       outOfScale: verdict.outOfScale,
     });
   }

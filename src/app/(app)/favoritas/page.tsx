@@ -44,6 +44,7 @@ export default async function FavoritasPage() {
               outOfScale: true,
               incumbentSignals: true,
               opportunitySignals: true,
+              structuralTags: true,
             },
           },
         },

@@ -129,6 +129,11 @@ export interface ParametrosEditables {
   highAffinityThreshold: number;
   maxAmount: number;
   processTypes: string[];
+  /** Senales de la ficha (docs/15). */
+  canonMin: number;
+  canonMax: number;
+  lrPenalty: number;
+  noSoftwareItemPenalty: number;
 }
 
 export function validarParametros(p: ParametrosEditables): Problema[] {
@@ -160,6 +165,24 @@ export function validarParametros(p: ParametrosEditables): Problema[] {
   }
   if (p.processTypes.some((t) => !TIPOS_PROCESO_VALIDOS.includes(t))) {
     problemas.push({ campo: "general", mensaje: "Hay un tipo de proceso que no existe." });
+  }
+
+  if (!Number.isInteger(p.canonMin) || p.canonMin < 0) {
+    problemas.push({ campo: "general", mensaje: "El canon mínimo tiene que ser cero o más." });
+  }
+  if (!Number.isInteger(p.canonMax) || p.canonMax <= 0) {
+    problemas.push({ campo: "general", mensaje: "El canon máximo tiene que ser mayor que cero." });
+  }
+  // Una banda vacia marcaria todo canon como fuera de rango: restaria 2 a cualquier
+  // licitacion con monto y duracion, incluidas las viables.
+  if (Number.isInteger(p.canonMin) && Number.isInteger(p.canonMax) && p.canonMax <= p.canonMin) {
+    problemas.push({ campo: "general", mensaje: "El canon máximo tiene que ser mayor que el mínimo." });
+  }
+  if (!Number.isInteger(p.lrPenalty) || p.lrPenalty < 0) {
+    problemas.push({ campo: "general", mensaje: "La resta por LR tiene que ser cero o más." });
+  }
+  if (!Number.isInteger(p.noSoftwareItemPenalty) || p.noSoftwareItemPenalty < 0) {
+    problemas.push({ campo: "general", mensaje: "La resta por falta de ítem de software tiene que ser cero o más." });
   }
 
   return problemas;

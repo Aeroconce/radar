@@ -390,6 +390,10 @@ export async function guardarParametros(
     highAffinityThreshold: Number(formData.get("highAffinityThreshold") ?? Number.NaN),
     maxAmount: Number(formData.get("maxAmount") ?? Number.NaN),
     processTypes: formData.getAll("processTypes").map(String),
+    canonMin: Number(formData.get("canonMin") ?? Number.NaN),
+    canonMax: Number(formData.get("canonMax") ?? Number.NaN),
+    lrPenalty: Number(formData.get("lrPenalty") ?? Number.NaN),
+    noSoftwareItemPenalty: Number(formData.get("noSoftwareItemPenalty") ?? Number.NaN),
   };
 
   const problemas = validarParametros(parametros);
@@ -404,6 +408,10 @@ export async function guardarParametros(
         [SETTING_KEYS.highAffinityThreshold, parametros.highAffinityThreshold],
         [SETTING_KEYS.maxAmount, parametros.maxAmount],
         [SETTING_KEYS.processTypes, parametros.processTypes],
+        [SETTING_KEYS.canonMin, parametros.canonMin],
+        [SETTING_KEYS.canonMax, parametros.canonMax],
+        [SETTING_KEYS.lrPenalty, parametros.lrPenalty],
+        [SETTING_KEYS.noSoftwareItemPenalty, parametros.noSoftwareItemPenalty],
       ] as Array<[string, Prisma.InputJsonValue]>
     ).map(([key, value]) =>
       prisma.setting.upsert({ where: { key }, update: { value }, create: { key, value } }),
@@ -420,7 +428,9 @@ export async function guardarParametros(
         `umbral ${previos.affinityThreshold}→${parametros.affinityThreshold} · ` +
         `aviso ${previos.highAffinityThreshold}→${parametros.highAffinityThreshold} · ` +
         `monto ${previos.maxAmount}→${parametros.maxAmount} · ` +
-        `procesos ${previos.processTypes.join("/")}→${parametros.processTypes.join("/")}`,
+        `procesos ${previos.processTypes.join("/")}→${parametros.processTypes.join("/")} · ` +
+        `canon ${previos.canonMin}-${previos.canonMax}→${parametros.canonMin}-${parametros.canonMax} · ` +
+        `LR -${previos.lrPenalty}→-${parametros.lrPenalty} · sin software -${previos.noSoftwareItemPenalty}→-${parametros.noSoftwareItemPenalty}`,
     },
   });
 
@@ -446,10 +456,8 @@ export async function recalcularGuardadas(): Promise<ResultadoRecalculo> {
   if (esResultado(quien)) return quien;
 
   const guardado = await leerGuardado();
-  const { revisadas, cambiadas, bajoUmbral } = await recalcularTablero(
-    guardado.reglas,
-    aThresholds(guardado.settings),
-  );
+  // Umbrales y parametros de la ficha juntos: recalcular tambien rehace las senales estructurales.
+  const { revisadas, cambiadas, bajoUmbral } = await recalcularTablero(guardado.reglas, guardado.settings);
 
   await prisma.auditLog.create({
     data: {

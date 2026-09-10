@@ -19,7 +19,8 @@ import {
   detectOpportunitySignals,
 } from "@/lib/affinity/classify";
 import { INITIAL_RULES, SEED_AUTHOR } from "@/lib/affinity/initial-rules";
-import { evaluate, scoreText, worthFetchingDetail } from "@/lib/affinity/rules";
+import { evaluate, scoreText, withStructural, worthFetchingDetail } from "@/lib/affinity/rules";
+import { computeStructural } from "@/lib/affinity/structural";
 import { MpClient } from "@/lib/mp/client";
 import { env } from "@/lib/env";
 import { auth } from "@/lib/auth";
@@ -232,10 +233,13 @@ async function seedTenders(): Promise<{ seen: number; selected: number }> {
       ? fields.name + " " + fields.description
       : fields.name;
 
-    const verdict = evaluate(
+    const porTexto = evaluate(
       { text, amount: fields.estimatedAmount, processType: fields.processType },
       INITIAL_RULES,
     );
+    const opportunitySignals = detectOpportunitySignals(text, INITIAL_RULES);
+    const estructural = computeStructural({ ...fields, items: fields.items ?? null, opportunitySignals });
+    const verdict = withStructural(porTexto, estructural);
 
     await prisma.seenTender.upsert({
       where: { code: fields.code },
@@ -264,8 +268,11 @@ async function seedTenders(): Promise<{ seen: number; selected: number }> {
       vertical: classifyVertical(text, INITIAL_RULES),
       buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, INITIAL_RULES),
       incumbentSignals: detectIncumbentSignals(text, INITIAL_RULES),
-      opportunitySignals: detectOpportunitySignals(text, INITIAL_RULES),
+      opportunitySignals,
       affinityScore: verdict.score,
+      textScore: porTexto.score,
+      structuralScore: estructural.score,
+      structuralTags: estructural.tags,
       matchedTerms: verdict.matchedTerms,
       outOfScale: verdict.outOfScale,
       raw: asJson(detail),

@@ -16,6 +16,15 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-41** **La ficha puntúa, no solo el texto.** En la muestra de septiembre de 2026 el canon mensual implícito
+  (entre $0,8M y $3,5M en 5 de 5 viables y en 1 de 14 trampas), el tipo LR, la «adquisición» sin duración y la
+  categoría de los ítems separaron viables de trampas mejor que cualquier palabra. Se calculan con la ficha en
+  `src/lib/affinity/structural.ts` y se guardan aparte (`textScore`, `structuralScore`, `structuralTags`);
+  `affinityScore` es la suma. La banda y las restas viven en `Setting` y se editan en la pantalla de reglas. La
+  vista previa de reglas sigue mostrando solo texto a propósito. Con esto UFRO y Bulnes bajan a 9, doce trampas
+  quedan bajo el umbral y las viables suben a 14–18 (`docs/13`, `docs/15`). Migración
+  `20260911000000_senales_estructurales`. `semanas` se agregó a la conversión a meses porque la API la devuelve
+  (código 3) y docs/15 no la contemplaba.
 - **D-40** **Señales de oportunidad, espejo de las de incumbente.** Un relanzamiento (el primer llamado quedó
   desierto: Alto Hospicio y Coyhaique en septiembre de 2026) y la reserva para empresas de menor tamaño (art. 182 del
   reglamento) cambian la competencia. Tipo de regla `OPPORTUNITY_SIGNAL`, etiqueta positiva sin peso, guardada en

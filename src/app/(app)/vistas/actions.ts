@@ -21,7 +21,8 @@ import {
   detectIncumbentSignals,
   detectOpportunitySignals,
 } from "@/lib/affinity/classify";
-import { evaluate } from "@/lib/affinity/rules";
+import { evaluate, withStructural } from "@/lib/affinity/rules";
+import { computeStructural } from "@/lib/affinity/structural";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 import { MpClient, NotFound } from "@/lib/mp/client";
@@ -67,11 +68,14 @@ export async function traerAlTablero(code: string): Promise<ResultadoTraer> {
   const [rules, settings] = await Promise.all([loadRules(), loadSettings()]);
   const fields = parseTenderDetail(detail);
   const texto = `${fields.name} ${fields.description}`;
-  const veredicto = evaluate(
+  const porTexto = evaluate(
     { text: texto, amount: fields.estimatedAmount, processType: fields.processType },
     rules,
     settings,
   );
+  const opportunitySignals = detectOpportunitySignals(texto, rules);
+  const estructural = computeStructural({ ...fields, items: fields.items ?? null, opportunitySignals }, settings);
+  const veredicto = withStructural(porTexto, estructural, settings);
 
   await prisma.$transaction([
     prisma.tender.create({
@@ -80,8 +84,11 @@ export async function traerAlTablero(code: string): Promise<ResultadoTraer> {
         vertical: classifyVertical(texto, rules),
         buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, rules),
         incumbentSignals: detectIncumbentSignals(texto, rules),
-        opportunitySignals: detectOpportunitySignals(texto, rules),
+        opportunitySignals,
         affinityScore: veredicto.score,
+        textScore: porTexto.score,
+        structuralScore: estructural.score,
+        structuralTags: estructural.tags,
         matchedTerms: veredicto.matchedTerms,
         outOfScale: veredicto.outOfScale,
         raw: detail as unknown as Prisma.InputJsonValue,

@@ -263,6 +263,12 @@ export default async function FichaPage({
                 {tender.affinityScore}
               </span>
               <span className="text-sm text-neutral-500">de afinidad</span>
+              {(tender.structuralScore !== 0 || tender.structuralTags.length > 0) && (
+                <span className="text-xs text-neutral-500">
+                  texto {tender.textScore} {tender.structuralScore < 0 ? "−" : "+"} ficha {Math.abs(tender.structuralScore)}
+                  {tender.structuralTags.length > 0 && ` · ${tender.structuralTags.join(" · ")}`}
+                </span>
+              )}
               {tender.matchedTerms.length > 0 && (
                 <span className="flex flex-wrap gap-1.5">
                   {tender.matchedTerms.map((t) => (

@@ -114,6 +114,8 @@ export const OUT_OF_SCALE_PENALTY = 2;
 export interface Evaluation extends Score {
   /** Supera el monto maximo: se lista igual, con etiqueta y menos afinidad. */
   outOfScale: boolean;
+  /** El tipo de proceso esta en la lista. Sin esto nada entra, sea cual sea el puntaje. */
+  typeAllowed: boolean;
   /** Entra al tablero. */
   selected: boolean;
 }
@@ -142,8 +144,26 @@ export function evaluate(
     score,
     matchedTerms,
     outOfScale,
+    typeAllowed,
     selected: typeAllowed && score >= thresholds.affinityThreshold,
   };
+}
+
+/**
+ * Puntaje completo, con la ficha (docs/15, D-41).
+ *
+ * El texto decide en la primera etapa del barrido, cuando solo hay nombre. Con
+ * la ficha se suman las senales estructurales —canon, tipo de proceso, items—
+ * y se vuelve a decidir sobre el total. `score` pasa a ser el total; el puntaje
+ * de texto se conserva aparte en `Tender.textScore`.
+ */
+export function withStructural(
+  text: Evaluation,
+  structural: { score: number },
+  thresholds: Thresholds = DEFAULT_THRESHOLDS,
+): Evaluation {
+  const score = text.score + structural.score;
+  return { ...text, score, selected: text.typeAllowed && score >= thresholds.affinityThreshold };
 }
 
 /**

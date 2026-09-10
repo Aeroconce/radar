@@ -124,6 +124,38 @@ a propósito. Un hospital dependiente de un municipio sigue siendo un hospital, 
 ## Orden de las reglas
 El orden es parte de la regla, no del montón de Postgres: `AffinityRule.position` lo fija (D-28) y todas las lecturas ordenan por él. La semilla lo numera con el orden de este documento, y la pantalla lo cambia con flechas donde importa —palabras clave y patrones de comprador—, no donde da lo mismo.
 
+## Señales estructurales de la ficha (D-41)
+
+El texto puntúa palabras, pero la ficha trae cuatro datos que en la muestra de septiembre de 2026 (`docs/13`)
+separaron viables de trampas con más precisión que cualquier palabra: **monto, duración, tipo de proceso e
+ítems**. Desde el 11-09-2026 se convierten en un puntaje entero y una lista de etiquetas
+(`Tender.structuralScore`, `Tender.structuralTags`) que se suman al de texto:
+`affinityScore = textScore + structuralScore`. Se calculan **solo con la ficha** —el listado de activas no
+trae monto ni ítems—, así que la primera etapa del barrido sigue decidiendo por texto y la segunda decide
+sobre el total. El cálculo está en `src/lib/affinity/structural.ts`; el detalle y la evidencia, en `docs/15`.
+
+| Señal | Efecto | Etiqueta |
+|---|---|---|
+| Canon mensual implícito (monto ÷ meses) entre `canonMin` y `canonMax` | +2 | `canon ok` |
+| Canon fuera de la banda | −2 | `canon 7.6M` |
+| Tipo de proceso LR | −`lrPenalty` (2) | `LR` |
+| «Adquisición» en el nombre **y** sin duración | −2 | `compra unica` |
+| Ningún ítem de software ni servicios informáticos | −`noSoftwareItemPenalty` (4) | `sin item de software` |
+| Algún ítem de equipos, seguros, publicidad, deportes… | −2 | `item de bienes` |
+| Descripción que remite al adjunto | 0 | `sin descripcion util` |
+| Señal de oportunidad: reserva EMT / relanzamiento (D-40) | +2 / +1 | `reservada EMT` / `relanzamiento` |
+
+Sin monto no hay canon: la señal se omite, no penaliza (la API deja el monto vacío a veces). `outOfScale`
+(sobre `maxAmount`, −2) se mantiene y la banda de canon lo complementa: un contrato de $400M a 60 meses no
+está fuera de escala por monto total pero sí por canon. La banda y las dos restas viven en `Setting`
+(`canonMin`, `canonMax`, `lrPenalty`, `noSoftwareItemPenalty`) y se editan en la pantalla de reglas.
+
+**La vista previa de reglas no las incluye a propósito**: muestra lo que hacen las palabras, sin mezclar.
+«Recalcular el tablero» sí las recalcula, desde lo guardado y sin llamar a la API. Sobre los 20 casos de
+septiembre el resultado es el de la tabla «después» de `docs/13`: las viables entre 14 y 18, doce trampas bajo
+el umbral, UFRO y Bulnes en el tablero pero debajo de toda viable, cada una con la etiqueta que explica por qué
+(`tests/structural.test.ts`).
+
 ## Vista previa (RF-09)
 Al editar reglas, un botón "Probar" recalcula sobre `SeenTender` (la última lista de activas guardada, sin llamar a la API) y muestra cuántas se seleccionan hoy, cuántas con el cambio, y las listas de las que entrarían y dejarían de entrar. Guardar exige confirmar.
 

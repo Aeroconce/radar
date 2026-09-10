@@ -23,7 +23,8 @@ import {
   detectIncumbentSignals,
   detectOpportunitySignals,
 } from "@/lib/affinity/classify";
-import { evaluate, type Rule, type Thresholds } from "@/lib/affinity/rules";
+import { evaluate, withStructural, type Rule, type Thresholds } from "@/lib/affinity/rules";
+import { computeStructural, type StructuralParams } from "@/lib/affinity/structural";
 import { prisma } from "@/lib/db";
 
 export interface Recalculo {
@@ -37,7 +38,10 @@ export interface Recalculo {
 
 const mismaLista = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
 
-export async function recalcularTablero(reglas: Rule[], thresholds: Thresholds): Promise<Recalculo> {
+export async function recalcularTablero(
+  reglas: Rule[],
+  params: Thresholds & StructuralParams,
+): Promise<Recalculo> {
   const fichas = await prisma.tender.findMany({
     select: {
       id: true,
@@ -47,8 +51,14 @@ export async function recalcularTablero(reglas: Rule[], thresholds: Thresholds):
       buyerUnit: true,
       buyerType: true,
       estimatedAmount: true,
+      durationValue: true,
+      durationUnit: true,
       processType: true,
+      items: true,
       affinityScore: true,
+      textScore: true,
+      structuralScore: true,
+      structuralTags: true,
       vertical: true,
       incumbentSignals: true,
       opportunitySignals: true,
@@ -60,19 +70,28 @@ export async function recalcularTablero(reglas: Rule[], thresholds: Thresholds):
 
   for (const t of fichas) {
     const texto = `${t.name} ${t.description}`;
-    const veredicto = evaluate(
-      {
-        text: texto,
-        amount: t.estimatedAmount != null ? Number(t.estimatedAmount) : null,
-        processType: t.processType,
-      },
-      reglas,
-      thresholds,
-    );
+    const monto = t.estimatedAmount != null ? Number(t.estimatedAmount) : null;
+    const porTexto = evaluate({ text: texto, amount: monto, processType: t.processType }, reglas, params);
     const vertical = classifyVertical(texto, reglas);
     const buyerType = classifyBuyer(t.buyerOrganism, t.buyerUnit, reglas);
     const incumbentSignals = detectIncumbentSignals(texto, reglas);
     const opportunitySignals = detectOpportunitySignals(texto, reglas);
+    // Las senales de la ficha se recalculan desde lo guardado: monto, duracion,
+    // tipo e items ya vinieron con la ficha, no hace falta pedirla de nuevo.
+    const estructural = computeStructural(
+      {
+        name: t.name,
+        description: t.description,
+        estimatedAmount: monto,
+        durationValue: t.durationValue,
+        durationUnit: t.durationUnit,
+        processType: t.processType,
+        items: t.items,
+        opportunitySignals,
+      },
+      params,
+    );
+    const veredicto = withStructural(porTexto, estructural, params);
 
     if (!veredicto.selected) bajoUmbral++;
 
@@ -80,6 +99,9 @@ export async function recalcularTablero(reglas: Rule[], thresholds: Thresholds):
     // notarse en el tablero aunque el puntaje no se mueva.
     const igual =
       veredicto.score === t.affinityScore &&
+      porTexto.score === t.textScore &&
+      estructural.score === t.structuralScore &&
+      mismaLista(estructural.tags, t.structuralTags) &&
       vertical === t.vertical &&
       buyerType === t.buyerType &&
       mismaLista(incumbentSignals, t.incumbentSignals) &&
@@ -91,6 +113,9 @@ export async function recalcularTablero(reglas: Rule[], thresholds: Thresholds):
       where: { id: t.id },
       data: {
         affinityScore: veredicto.score,
+        textScore: porTexto.score,
+        structuralScore: estructural.score,
+        structuralTags: estructural.tags,
         matchedTerms: veredicto.matchedTerms,
         outOfScale: veredicto.outOfScale,
         vertical,

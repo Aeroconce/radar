@@ -18,7 +18,9 @@
  * nuevo ya no pasa el umbral en el proximo barrido.
  */
 import "dotenv/config";
-import { evaluate } from "@/lib/affinity/rules";
+import { detectOpportunitySignals } from "@/lib/affinity/classify";
+import { evaluate, withStructural } from "@/lib/affinity/rules";
+import { computeStructural } from "@/lib/affinity/structural";
 import { prisma } from "@/lib/db";
 import { loadRules, loadSettings } from "@/lib/settings";
 
@@ -33,7 +35,10 @@ async function main(): Promise<void> {
       name: true,
       description: true,
       estimatedAmount: true,
+      durationValue: true,
+      durationUnit: true,
       processType: true,
+      items: true,
       affinityScore: true,
       reviewStatus: true,
       _count: { select: { reviews: true, attachments: true, favorites: true } },
@@ -45,15 +50,23 @@ async function main(): Promise<void> {
   const protegidas: Array<{ code: string; name: string; ahora: number; motivo: string }> = [];
 
   for (const t of fichas) {
-    const veredicto = evaluate(
+    const texto = `${t.name} ${t.description}`;
+    const monto = t.estimatedAmount != null ? Number(t.estimatedAmount) : null;
+    const porTexto = evaluate({ text: texto, amount: monto, processType: t.processType }, rules, settings);
+    const estructural = computeStructural(
       {
-        text: `${t.name} ${t.description}`,
-        amount: t.estimatedAmount != null ? Number(t.estimatedAmount) : null,
+        name: t.name,
+        description: t.description,
+        estimatedAmount: monto,
+        durationValue: t.durationValue,
+        durationUnit: t.durationUnit,
         processType: t.processType,
+        items: t.items,
+        opportunitySignals: detectOpportunitySignals(texto, rules),
       },
-      rules,
       settings,
     );
+    const veredicto = withStructural(porTexto, estructural, settings);
     if (veredicto.selected) continue;
 
     const motivo =

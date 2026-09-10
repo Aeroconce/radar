@@ -28,6 +28,7 @@ export interface FilaLicitacion {
   outOfScale: boolean;
   incumbentSignals: string[];
   opportunitySignals: string[];
+  structuralTags: string[];
 }
 
 const monto = new Intl.NumberFormat("es-CL", {
@@ -176,6 +177,11 @@ export function TenderTable({
                 </td>
                 <td className="px-3 py-2.5 text-right align-top font-mono text-xs tabular-nums text-neutral-700">
                   {t.affinityScore}
+                  {t.structuralTags.length > 0 && (
+                    <span className="mt-0.5 block font-sans text-[10px] font-normal leading-tight text-neutral-400">
+                      {t.structuralTags.join(" · ")}
+                    </span>
+                  )}
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-right align-top">
                   <span className={`block font-mono text-xs font-semibold tabular-nums ${colorPlazo(d)}`}>

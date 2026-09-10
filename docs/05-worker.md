@@ -46,3 +46,11 @@ Reglas:
 - Registro con pino en JSON; sin el ticket en los logs (`redact` en `src/lib/logger.ts`).
 - Los cron llevan `timezone: 'America/Santiago'` explicito. Sin eso `node-cron` corre en UTC y el resumen
   de las 08:00 se correria una hora medio ano, porque Chile cambia de huso.
+
+## Señales de la ficha (D-41)
+
+Cuando el barrido pide la ficha, además de recalcular el texto con la descripción calcula las señales
+estructurales —canon mensual, tipo de proceso, compra única, categoría de los ítems, descripción vacía,
+señales de oportunidad— y decide sobre el **total** (`docs/04`, `docs/15`). Lo mismo hacen el refresco
+manual (`pnpm worker:refrescar`), «traer al tablero» desde las vistas y la semilla. «Recalcular el tablero»
+las recalcula desde lo guardado (monto, duración, tipo e ítems ya vinieron con la ficha), sin llamar a la API.

@@ -183,6 +183,9 @@ model Tender {
   portalStatus     Int? // CodigoEstado de la API
   vertical         Vertical     @default(OTHER)
   affinityScore    Int          @default(0)
+  textScore        Int          @default(0) // solo texto: lo que muestran las reglas y su vista previa (docs/15)
+  structuralScore  Int          @default(0) // senales de la ficha (D-41); affinityScore = textScore + structuralScore
+  structuralTags   String[]     @default([]) // "canon ok", "LR", "compra unica", "sin item de software"...
   outOfScale       Boolean      @default(false) // sobre el monto maximo: se lista igual, con etiqueta y -2 de afinidad (docs/04)
   matchedTerms     String[] // coincidencias que la seleccionaron
   incumbentSignals String[] // frases detectadas

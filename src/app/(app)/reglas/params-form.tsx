@@ -1,7 +1,7 @@
 /**
  * Parametros del motor (RF-09, docs/04).
  *
- * Son cuatro numeros que cambian cuantas licitaciones ve el equipo cada dia, asi
+ * Son ocho numeros que cambian cuantas licitaciones ve el equipo cada dia, asi
  * que cada uno lleva escrito al lado que hace. Un campo llamado "umbral" sin mas
  * es una perilla a ciegas.
  *
@@ -60,12 +60,20 @@ export function ParamsForm({
     highAffinityThreshold: number;
     maxAmount: number;
     processTypes: string[];
+    canonMin: number;
+    canonMax: number;
+    lrPenalty: number;
+    noSoftwareItemPenalty: number;
   };
 }) {
   const [umbral, setUmbral] = useState(String(inicial.affinityThreshold));
   const [aviso, setAviso] = useState(String(inicial.highAffinityThreshold));
   const [maximo, setMaximo] = useState(String(inicial.maxAmount));
   const [procesos, setProcesos] = useState<string[]>(inicial.processTypes);
+  const [canonMin, setCanonMin] = useState(String(inicial.canonMin));
+  const [canonMax, setCanonMax] = useState(String(inicial.canonMax));
+  const [restaLr, setRestaLr] = useState(String(inicial.lrPenalty));
+  const [restaSinSoftware, setRestaSinSoftware] = useState(String(inicial.noSoftwareItemPenalty));
 
   const [state, formAction, guardando] = useActionState(guardarParametros, INICIAL);
   const [previa, setPrevia] = useState<Comparacion | null>(null);
@@ -112,6 +120,10 @@ export function ParamsForm({
           highAffinityThreshold: Number(aviso),
           maxAmount: Number(maximo),
           processTypes: procesos,
+          canonMin: Number(canonMin),
+          canonMax: Number(canonMax),
+          lrPenalty: Number(restaLr),
+          noSoftwareItemPenalty: Number(restaSinSoftware),
         },
       });
       if (r.ok && r.comparacion) setPrevia(r.comparacion);
@@ -203,6 +215,67 @@ export function ParamsForm({
               </label>
             );
           })}
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-5">
+        <legend className="text-xs font-medium text-neutral-700">Señales de la ficha</legend>
+        <p className="mt-0.5 text-[11px] text-neutral-500">
+          Se suman al puntaje de texto cuando llega la ficha. La vista previa de reglas no las incluye: muestra
+          solo lo que hacen las palabras.
+        </p>
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row">
+          <Campo
+            etiqueta="Canon mensual mínimo"
+            ayuda={`Monto dividido en los meses del contrato. Entre ${monto.format(Number(canonMin) || 0)} y el máximo suma 2; fuera resta 2.`}
+          >
+            <input
+              type="number"
+              name="canonMin"
+              value={canonMin}
+              onChange={(e) => setCanonMin(e.target.value)}
+              min={0}
+              step={100000}
+              className={claseNumero}
+            />
+          </Campo>
+          <Campo
+            etiqueta="Canon mensual máximo"
+            ayuda={`Sobre ${monto.format(Number(canonMax) || 0)} al mes suele ser un ERP de incumbente o un sistema crítico.`}
+          >
+            <input
+              type="number"
+              name="canonMax"
+              value={canonMax}
+              onChange={(e) => setCanonMax(e.target.value)}
+              min={1}
+              step={100000}
+              className={claseNumero}
+            />
+          </Campo>
+          <Campo etiqueta="Resta por LR" ayuda="Sobre 5.000 UTM. Se resta y se etiqueta; no se descarta.">
+            <input
+              type="number"
+              name="lrPenalty"
+              value={restaLr}
+              onChange={(e) => setRestaLr(e.target.value)}
+              min={0}
+              className={claseNumero}
+            />
+          </Campo>
+          <Campo
+            etiqueta="Resta sin ítem de software"
+            ayuda="Cuando ningún ítem de la ficha es de software ni servicios informáticos."
+          >
+            <input
+              type="number"
+              name="noSoftwareItemPenalty"
+              value={restaSinSoftware}
+              onChange={(e) => setRestaSinSoftware(e.target.value)}
+              min={0}
+              className={claseNumero}
+            />
+          </Campo>
         </div>
       </fieldset>
 

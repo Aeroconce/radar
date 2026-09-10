@@ -10,12 +10,18 @@
  */
 import { prisma } from "@/lib/db";
 import { DEFAULT_THRESHOLDS, type Rule, type Thresholds } from "@/lib/affinity/rules";
+import { DEFAULT_STRUCTURAL, type StructuralParams } from "@/lib/affinity/structural";
 
 export const SETTING_KEYS = {
   affinityThreshold: "affinityThreshold",
   highAffinityThreshold: "highAffinityThreshold",
   maxAmount: "maxAmount",
   processTypes: "processTypes",
+  /** Senales estructurales de la ficha (docs/15, D-41). */
+  canonMin: "canonMin",
+  canonMax: "canonMax",
+  lrPenalty: "lrPenalty",
+  noSoftwareItemPenalty: "noSoftwareItemPenalty",
   /** El equipo, para elegir perfil al entrar (D-24). */
   teamMembers: "teamMembers",
 } as const;
@@ -28,13 +34,19 @@ function asPositiveInt(value: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? Math.trunc(n) : fallback;
 }
 
+/** Cero es valido: una penalizacion en 0 apaga la senal sin borrar el parametro. */
+function asNonNegativeInt(value: unknown, fallback: number): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.trunc(n) : fallback;
+}
+
 function asStringList(value: unknown, fallback: string[]): string[] {
   if (!Array.isArray(value)) return fallback;
   const list = value.filter((v): v is string => typeof v === "string" && v.length > 0);
   return list.length > 0 ? list : fallback;
 }
 
-export interface RadarSettings extends Thresholds {
+export interface RadarSettings extends Thresholds, StructuralParams {
   highAffinityThreshold: number;
 }
 
@@ -57,6 +69,13 @@ export async function loadSettings(): Promise<RadarSettings> {
     processTypes: asStringList(
       byKey.get(SETTING_KEYS.processTypes),
       DEFAULT_THRESHOLDS.processTypes,
+    ),
+    canonMin: asPositiveInt(byKey.get(SETTING_KEYS.canonMin), DEFAULT_STRUCTURAL.canonMin),
+    canonMax: asPositiveInt(byKey.get(SETTING_KEYS.canonMax), DEFAULT_STRUCTURAL.canonMax),
+    lrPenalty: asNonNegativeInt(byKey.get(SETTING_KEYS.lrPenalty), DEFAULT_STRUCTURAL.lrPenalty),
+    noSoftwareItemPenalty: asNonNegativeInt(
+      byKey.get(SETTING_KEYS.noSoftwareItemPenalty),
+      DEFAULT_STRUCTURAL.noSoftwareItemPenalty,
     ),
   };
 }

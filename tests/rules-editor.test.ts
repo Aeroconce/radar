@@ -80,6 +80,10 @@ describe("validarParametros", () => {
     highAffinityThreshold: 8,
     maxAmount: 200_000_000,
     processTypes: ["L1", "LE"],
+    canonMin: 800_000,
+    canonMax: 3_500_000,
+    lrPenalty: 2,
+    noSoftwareItemPenalty: 4,
   };
 
   it("acepta los valores de docs/04", () => {
@@ -97,6 +101,16 @@ describe("validarParametros", () => {
 
   it("rechaza un tipo de proceso que no existe", () => {
     expect(validarParametros({ ...base, processTypes: ["L1", "XX"] })).not.toEqual([]);
+  });
+
+  it("rechaza una banda de canon vacia (docs/15)", () => {
+    // Con maximo <= minimo todo canon quedaria fuera de rango y restaria 2 a cualquier viable.
+    expect(validarParametros({ ...base, canonMax: 800_000 })).not.toEqual([]);
+  });
+
+  it("las restas de la ficha pueden ser cero, pero no negativas", () => {
+    expect(validarParametros({ ...base, lrPenalty: 0, noSoftwareItemPenalty: 0 })).toEqual([]);
+    expect(validarParametros({ ...base, lrPenalty: -1 })).not.toEqual([]);
   });
 });
 
