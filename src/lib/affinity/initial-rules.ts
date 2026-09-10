@@ -249,6 +249,23 @@ const EXCLUSIONS: string[] = [
   // Producto comercial por categoria: la regla de licencias exigia la palabra
   // "licencias" mas una marca; "software de diseno CAD" pasaba sin ninguna.
   "software de diseno|\\bcad\\b|\\bbim\\b|revision de modelos|\\bitam\\b|\\bsam\\b",
+
+  /*
+   * D-44. Dos naturalezas que a D-36 se le escaparon, vistas el primer dia de
+   * barrido con las reglas de septiembre (11-09-2026).
+   */
+
+  // Suministro de personal con otra redaccion: "SERVICIOS PROFESIONALES PERSONAL
+  // APOYO INFORMATICA" de Puerto Montt son seis ingenieros por horas, no un
+  // sistema. D-36 solo cubria "turnos profesionales" y "suministro de personal".
+  "servicios profesionales (de )?(personal|apoyo)|personal de apoyo|apoyo informatico|horas hombre|\\bhh\\b",
+
+  // Infraestructura y monitoreo: la familia que D-18 dejo fuera del alcance,
+  // igual que la ciberseguridad. Observabilidad multicloud (FONASA), "servicio
+  // tecnologico integral" de una red regional (Subtrans) y la administracion de
+  // infraestructura (FOSIS) se contratan como servicio, pero no son desarrollo
+  // ni arriendo de un sistema nuestro.
+  "observabilidad|multicloud|monitoreo de (infraestructura|red|servidores)|\\bapm\\b|administracion de infraestructura|servicio tecnologico integral",
 ];
 
 /**

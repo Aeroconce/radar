@@ -16,6 +16,12 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-44** **Dos exclusiones por naturaleza que faltaban en D-36** (11-09-2026). Puerto Montt
+  (1057539-138-LP26) es suministro de personal con otra redacción («servicios profesionales personal apoyo
+  informática»: seis ingenieros por horas); FONASA «PLATAFORMA DE OBSERVABILIDAD AVANZADA MULTICLOUD»
+  (591-26-LP26), Subtrans «SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL» (577290-2-LP26) y FOSIS «Administracion
+  infraestructura tecnológica» (762-7-LP26) son infraestructura y monitoreo, la familia que D-18 dejó fuera del
+  alcance igual que la ciberseguridad. Dos líneas nuevas de peso −6.
 - **D-43** **APPOINTMENTS es tema, no sistema** (11-09-2026, primer día de barrido con las reglas de septiembre).
   «GESTION DOCUMENTAL Y DIGITAL MUNICIPALIDAD TILTIL» (3666-12-LE26) y «SERVICIOS PROFESIONALES PERSONAL APOYO
   INFORMATICA» (1057539-138-LP26) quedaron clasificadas como citas porque `recordatorio|whatsapp|chatbot|inasistencia`

@@ -193,6 +193,19 @@ empate. Misma lección de D-29 y D-35.
 Y DOCUMENT_MGMT sube de 5 a **6** y pasa **delante** de APPOINTMENTS: Tiltil también nombra un módulo de agendamiento,
 así que con 6 y 6 empataban y ganaba la primera. Un gestor documental con agenda es gestor documental.
 
+## D-44 — Dos exclusiones por naturaleza que faltaban en D-36 (11-09-2026)
+
+Puerto Montt (1057539-138-LP26, staffing con otra redacción), FONASA "PLATAFORMA DE OBSERVABILIDAD AVANZADA
+MULTICLOUD" (591-26-LP26), Subtrans "SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL" (577290-2-LP26) y FOSIS
+"Administracion infraestructura tecnológica" (762-7-LP26) pasaban el umbral. Se agregan a `EXCLUSIONS` (peso −6):
+
+```ts
+// Suministro de personal con otra redaccion.
+"servicios profesionales (de )?(personal|apoyo)|personal de apoyo|apoyo informatico|horas hombre|\\bhh\\b",
+// Infraestructura y monitoreo: la familia que D-18 dejo fuera del alcance, igual que ciberseguridad.
+"observabilidad|multicloud|monitoreo de (infraestructura|red|servidores)|\\bapm\\b|administracion de infraestructura|servicio tecnologico integral",
+```
+
 ## Orden final recomendado de `KEYWORDS`
 
 1. DOCUMENT_MGMT 6 (D-43: delante de APPOINTMENTS, porque entre pesos iguales gana la primera)
