@@ -99,7 +99,7 @@ export function BoardFilters({
   const hayFiltros =
     estadosActivos.length > 0 ||
     texto !== "" ||
-    ["vertical", "comprador", "proceso", "region", "monto", "negativas"].some((c) => activa(c) !== "");
+    ["vertical", "comprador", "proceso", "region", "monto", "bajoumbral"].some((c) => activa(c) !== "");
 
   return (
     <div className="space-y-3">
@@ -182,17 +182,17 @@ export function BoardFilters({
             ...TRAMOS_MONTO.map((t) => ({ valor: t.clave, etiqueta: t.etiqueta })),
           ]}
         />
-        {/* Las de afinidad negativa se ocultan por defecto (D-42): alguna exclusion
-            peso mas que todas las palabras. La casilla las trae de vuelta sin
-            cambiarles el estado. */}
+        {/* Las que estan bajo el umbral se ocultan por defecto (D-42, D-46):
+            entraron con reglas viejas y con las de hoy no entrarian. La casilla
+            las trae de vuelta sin cambiarles el estado. */}
         <label className="inline-flex cursor-pointer select-none items-center gap-1.5 rounded-md px-2 py-2 text-xs text-neutral-600 hover:bg-neutral-100">
           <input
             type="checkbox"
-            checked={activa("negativas") === "1"}
-            onChange={(e) => navegar({ negativas: e.target.checked ? "1" : null })}
+            checked={activa("bajoumbral") === "1"}
+            onChange={(e) => navegar({ bajoumbral: e.target.checked ? "1" : null })}
             className="h-3.5 w-3.5 accent-[#1c2f4a]"
           />
-          Mostrar afinidad negativa
+          Mostrar bajo el umbral
         </label>
       </div>
 

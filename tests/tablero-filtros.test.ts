@@ -27,19 +27,23 @@ describe("parseFiltros", () => {
       proceso: "LE",
       region: "Región del Biobío",
       monto: "10-50",
-      negativas: false,
+      bajoUmbral: false,
     });
   });
 
-  it("sin parametros solo oculta las de afinidad negativa (D-42)", async () => {
+  it("sin parametros solo oculta las que estan bajo el umbral (D-42, D-46)", async () => {
     const f = parseFiltros({});
     expect(f.estados).toEqual([]);
-    expect(await whereTablero(f)).toEqual({ affinityScore: { gte: 0 } });
+    expect(await whereTablero(f)).toEqual({ affinityScore: { gte: 3 } });
   });
 
-  it("la casilla de negativas quita esa unica restriccion", async () => {
+  it("usa el umbral vigente de Setting, no un numero fijo", async () => {
+    expect(await whereTablero(parseFiltros({}), 5)).toEqual({ affinityScore: { gte: 5 } });
+  });
+
+  it("la casilla quita esa unica restriccion", async () => {
     // Se ocultan, no se descartan: con la casilla vuelven todas, con su estado intacto.
-    expect(await whereTablero(parseFiltros({ negativas: "1" }))).toEqual({});
+    expect(await whereTablero(parseFiltros({ bajoumbral: "1" }))).toEqual({});
   });
 });
 
@@ -59,11 +63,11 @@ describe("whereTablero", () => {
   });
 
   it("un tramo inventado en la URL no filtra en vez de reventar", async () => {
-    expect(await whereTablero(parseFiltros({ monto: "gigante" }))).toEqual({ affinityScore: { gte: 0 } });
+    expect(await whereTablero(parseFiltros({ monto: "gigante" }))).toEqual({ affinityScore: { gte: 3 } });
   });
 
   it("combina facetas sin pisarse", async () => {
     const w = await whereTablero(parseFiltros({ comprador: "HOSPITAL", proceso: "LE", region: "X" }));
-    expect(w).toEqual({ buyerType: "HOSPITAL", processType: "LE", region: "X", affinityScore: { gte: 0 } });
+    expect(w).toEqual({ buyerType: "HOSPITAL", processType: "LE", region: "X", affinityScore: { gte: 3 } });
   });
 });

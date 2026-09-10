@@ -15,6 +15,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { perfilActivo } from "@/lib/perfil";
 import { requireSession } from "@/lib/session";
+import { loadSettings } from "@/lib/settings";
 import { parseFiltros, whereTablero } from "@/lib/tablero-filtros";
 import { COMPRADORES, PROCESOS, VERTICALES } from "@/lib/tenders";
 import { BoardFilters } from "./board-filters";
@@ -52,7 +53,9 @@ export default async function Tablero({
   const dir: "asc" | "desc" = sp.dir === "desc" ? "desc" : "asc";
   const pagina = Math.max(1, Number(sp.pagina) || 1);
 
-  const where = await whereTablero(filtros);
+  // El umbral vigente decide que se oculta por defecto (D-46).
+  const { affinityThreshold } = await loadSettings();
+  const where = await whereTablero(filtros, affinityThreshold);
 
   const [total, licitaciones, conteosCrudos, verticalesCrudas, compradoresCrudos, procesosCrudos, regionesCrudas] = await Promise.all([
     prisma.tender.count({ where }),
@@ -90,7 +93,7 @@ export default async function Tablero({
     prisma.tender.groupBy({
       by: ["reviewStatus"],
       _count: true,
-      where: await whereTablero({ ...filtros, estados: [] }),
+      where: await whereTablero({ ...filtros, estados: [] }, affinityThreshold),
     }),
     prisma.tender.groupBy({ by: ["vertical"], _count: true }),
     prisma.tender.groupBy({ by: ["buyerType"], _count: true }),

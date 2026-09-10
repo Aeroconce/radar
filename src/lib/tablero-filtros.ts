@@ -8,6 +8,7 @@
  */
 import type { Prisma } from "@/generated/prisma/client";
 import type { BuyerType, ProcessType, ReviewStatus } from "@/generated/prisma/enums";
+import { DEFAULT_THRESHOLDS } from "@/lib/affinity/rules";
 import { prisma } from "@/lib/db";
 
 /**
@@ -35,12 +36,12 @@ export interface FiltrosTablero {
   region: string;
   monto: string;
   /**
-   * Mostrar tambien las de afinidad negativa. Por defecto se ocultan (D-42):
-   * un puntaje bajo cero significa que alguna exclusion peso mas que todas las
-   * palabras juntas, y eso no es del rubro. Se ocultan, no se descartan: el
-   * estado de revision sigue siendo del equipo.
+   * Mostrar tambien las que estan bajo el umbral. Por defecto se ocultan (D-42
+   * y D-46): entraron con reglas viejas y "recalcular no borra", pero con las
+   * reglas de hoy no entrarian. Se ocultan, no se descartan: el estado de
+   * revision sigue siendo del equipo.
    */
-  negativas: boolean;
+  bajoUmbral: boolean;
 }
 
 export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTablero {
@@ -52,7 +53,7 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
     proceso: sp.proceso ?? "",
     region: sp.region ?? "",
     monto: sp.monto ?? "",
-    negativas: sp.negativas === "1",
+    bajoUmbral: sp.bajoumbral === "1",
   };
 }
 
@@ -62,8 +63,15 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
  * Es asincrono por la busqueda: `unaccent` no existe en el API de filtros de
  * Prisma, asi que el texto se resuelve primero a una lista de ids con una
  * consulta cruda y el resto sigue en Prisma, donde se lee.
+ *
+ * `umbral` es el de `Setting` (RF-09): lo pasa quien llama, para que este
+ * modulo se pueda probar sin base y para que tablero y exportacion usen el
+ * mismo numero.
  */
-export async function whereTablero(f: FiltrosTablero): Promise<Prisma.TenderWhereInput> {
+export async function whereTablero(
+  f: FiltrosTablero,
+  umbral: number = DEFAULT_THRESHOLDS.affinityThreshold,
+): Promise<Prisma.TenderWhereInput> {
   let idsBusqueda: string[] | null = null;
   if (f.q) {
     const filas = await prisma.$queryRaw<Array<{ id: string }>>`
@@ -86,6 +94,6 @@ export async function whereTablero(f: FiltrosTablero): Promise<Prisma.TenderWher
     ...(f.proceso ? { processType: f.proceso as ProcessType } : {}),
     ...(f.region ? { region: f.region } : {}),
     ...(monto ?? {}),
-    ...(f.negativas ? {} : { affinityScore: { gte: 0 } }),
+    ...(f.bajoUmbral ? {} : { affinityScore: { gte: umbral } }),
   };
 }

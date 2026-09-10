@@ -16,6 +16,12 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-46** **El tablero oculta por defecto también lo que quedó bajo el umbral tras recalcular** (11-09-2026,
+  extiende D-42). Carabineros (3970-8-LE26, afinidad 2), FOSIS (762-7-LP26, 1) y Hospital del Salvador (1) seguían
+  a la vista porque entraron con reglas viejas y «recalcular no borra»; D-42 solo ocultaba las negativas. El filtro
+  pasa de `afinidad < 0` a `afinidad < umbral vigente` (`Setting.affinityThreshold`, que ahora reciben el tablero,
+  los conteos y la exportación), con la misma casilla para verlas («Mostrar bajo el umbral»). Sigue sin tocar el
+  estado ni el umbral: la precisión se gana con exclusiones y señales, no cerrando la puerta.
 - **D-45** **Sin ítem de software vale una exclusión, e «integral» en el nombre resta** (11-09-2026). «ARRIENDO
   SISTEMA MONITOREO EN LINEA PARA REFRIGERADORES DE FARMACOS ONCOLOGICOS» (1075963-403-L126) sumó 12 por texto y
   quedó en 6 pese a «sin item de software» (−4) e «item de bienes» (−2): sensores de temperatura pasaron el umbral.

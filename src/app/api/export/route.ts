@@ -12,6 +12,7 @@
  */
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { loadSettings } from "@/lib/settings";
 import { parseFiltros, whereTablero } from "@/lib/tablero-filtros";
 import { nombreComprador, nombreProceso, nombreVertical } from "@/lib/tenders";
 import { ESTADOS } from "@/lib/reviews";
@@ -47,7 +48,7 @@ export async function GET(req: Request): Promise<Response> {
   const filtros = parseFiltros(sp);
 
   const filas = await prisma.tender.findMany({
-    where: await whereTablero(filtros),
+    where: await whereTablero(filtros, (await loadSettings()).affinityThreshold),
     orderBy: [{ closesAt: { sort: "asc", nulls: "last" } }, { affinityScore: "desc" }],
     select: {
       code: true,
