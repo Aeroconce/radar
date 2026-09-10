@@ -33,6 +33,7 @@ Next.js 16.3.3 (App Router, Route Handlers, Server Actions) · React 19 · TypeS
 7. `docs/06-interfaz.md` — pantallas, filtros, búsqueda.
 8. `docs/07-revisiones.md` — estados, motivos, notas, adjuntos.
 9. `docs/08-notificaciones.md`, `docs/09-seguridad.md`, `docs/10-despliegue.md`, `docs/11-pruebas-y-semilla.md`, `docs/12-decisiones-y-pendientes.md`.
+10. `docs/13` a `docs/19` — plan de precisión de septiembre de 2026 (D-35 a D-41): diagnóstico, reglas de texto, señales estructurales, revisión estructurada, alertas, plan de implementación y los 20 casos de prueba.
 
 ## Comandos
 
@@ -49,6 +50,7 @@ pnpm worker:barrido              # ejecuta un barrido ahora y termina
 pnpm worker:refrescar            # vuelve a pedir todas las fichas guardadas
 pnpm worker:avisos               # encola y envia los avisos de las 08:00 ahora
 pnpm reglas:sincronizar          # deja en la base las reglas de docs/04
+pnpm tablero:recalcular          # vuelve a puntuar el tablero con las reglas de ahora
 pnpm tablero:limpiar             # muestra que sacaria del tablero (--aplicar lo saca)
 pnpm test
 pnpm build && pnpm start

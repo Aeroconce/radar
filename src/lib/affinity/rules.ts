@@ -25,6 +25,8 @@ export const RULE_KINDS = {
   EXCLUSION: "EXCLUSION",
   BUYER_PATTERN: "BUYER_PATTERN",
   INCUMBENT_SIGNAL: "INCUMBENT_SIGNAL",
+  /** Espejo de INCUMBENT_SIGNAL: etiqueta positiva, sin peso (D-40). */
+  OPPORTUNITY_SIGNAL: "OPPORTUNITY_SIGNAL",
 } as const;
 
 /**

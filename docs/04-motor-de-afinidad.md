@@ -17,22 +17,31 @@ Palabras clave (peso):
 | Vertical | Peso | Expresión |
 |---|---|---|
 | APPOINTMENTS | 6 | `agendamiento|confirmacion de (citas|horas)|recordatorio|whatsapp|chatbot|reserva de horas|contactabilidad|inasistencia` |
-| FIXED_ASSETS | 6 | `activos? fijos?|gestion de activos|control de inventario|bienes de uso` |
+| MAINTENANCE | 6 | `gestion de mantenimiento|mantenimiento (preventivo|correctivo)|ordenes? de trabajo|\\bcmms\\b|componentes (de|vinculados a) mantenimiento|plan de mantencion` |
+| ATTENDANCE | 6 | `control de asistencia|asistencia del personal|reloj control|marcaje|marcacion|biometri` |
+| PHARMA_LOGISTICS | 6 | `drogueria|bodega de farmacia|abastecimiento farmaceutico|logistica de medicamentos` |
+| FIXED_ASSETS | 6 | `(software|sistema|plataforma|gestion|control) de activos? fijos?|activos? fijos? (institucional|municipal)|control de inventario|bienes de uso` |
 | QUALITY_ACCREDITATION | 6 | `seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad` |
 | DOCUMENT_MGMT | 5 | `gestion documental|archivo digital|digitalizacion|documentos electronicos|gestor documental` |
 | QUALITY_ACCREDITATION | 2 | `acreditacion` |
 | FIXED_ASSETS | 2 | `inventario` |
+| FIXED_ASSETS | 2 | `activos? fijos?|gestion de activos` |
 | DOCUMENT_MGMT | 2 | `expediente|oficina de partes` |
 | WEB_DEVELOPMENT | 5 | `desarrollo (de )?(la |el |un |una )?(sistema|software|plataforma|aplicaci|sitio|portal|web)|sistema informatico|plataforma (web|digital|informatica|tecnol)|aplicacion (web|movil)|app movil|sitio web|pagina web|portal web|sistema de gestion|sistemas? de informacion|sistema de (registro|control|seguimiento)|plataforma para|solucion informatica` |
+| WEB_DEVELOPMENT | 5 | `plat\\.? ?(inform|tecnol|web|digital)|sist\\.? ?(de )?(reg|control|seg|gest)|serv\\.? ?(de )?(software|plat\\b|sist\\b)|\\bsw\\b (de|para)` (abreviaturas, D-38) |
 | WEB_DEVELOPMENT | 4 | `saas|arriendo (de )?software|arriendo (de )?(un |una |el |la )?(sistema|plataforma)|suscripcion (anual )?(de |a )?(un |una |la )?(sistema|plataforma)|contratacion (de )?software|licenciamiento de sistema|software (de|para|cloud|en)|implementacion (de )?software|servicio de software|mejora evolutiva|mantenimiento evolutivo|soporte evolutivo|migracion de (base de )?datos|solucion tecnol` |
 | OTHER | 3 | `mesa de ayuda|help ?desk|tickets|intranet|extranet|dashboard|reporteria|interoperab|integracion (de |con )?(sistema|plataforma|dato|api|servicio)|tramite digital|e-?learning` |
 | OTHER | 2 | `informatic[oa]|digital|tecnologic|software|web|aplicacion|sistema|plataforma` |
 
 Exclusiones (peso −6): hardware y equipos (`impresor|computador|notebook|equipamiento computacional|equipos? tecnologic|equipos? medic|switch|\\bups\\b|hardware|camara|cctv|telefonia|internet|enlace|fibra`), licencias comerciales (`licencias? .*(microsoft|office|adobe|windows|antivirus|autocad|autodesk|archicad|arcgis|matlab|sap|oracle|vmware|fortinet|veeam)|renovacion .*licencias|suscripcion .*(software|licencias)`), insumos, laboratorio y prestaciones a terceros (`toner|insumos|reactivos|equipos de laboratorio|banco de sangre|examenes de laboratorio|extrasistema|prestaciones medicas`), servicios no informáticos (`\\bcurso|capacitacion en|diplomado|taller|asesoria|consultoria|levantamiento|inventario (fisico|de bienes)|regularizacion del activo|actualizacion activo fijo|monitoreo ambiental|digitalizacion masiva|servicio de digitalizacion|impresion|imprenta|senaletica|diseno grafico`), sistemas que no son software (`sistema de (riego|alarma|climatizaci|aire|iluminaci|extinci|calefacci|audio|sonido|bombeo|seguridad electr|control de acceso|deteccion|vigilancia)|sistema electrico|sistema fotovoltaico`), fuera de perfil (`remuneraciones|gdp|forense|erp municipal|software integral .*municipal`), ciberseguridad (`ciberseguridad|ethical hacking|hacking etico|pentest|\bwaf\b|\bsiem\b|firewall|antimalware`) concesiones (`\bconcesion`) y compra de licencias (`licencias? de software|adquisicion de licencias?|provision de licencias?|compra de licencias?|venta de licencias?|suministro de licencias?|compra de uso de`). La compra de licencias es reventa, no desarrollo ni arriendo (D-30); a propósito **no** se excluye `licencia` sola ni `licenciamiento`: la palabra aparece en sistemas legítimos, como la toma de horas de licencias de conducir o un SaaS «con licenciamiento ilimitado».
 
+Desde el 10-09-2026 se excluye también por **naturaleza del contrato** (D-36), una línea por cada una: sistemas clínicos (`registro clinico|ficha clinica|\\brce\\b|\\blis\\b|\\bpacs\\b|\\bhis\\b|laboratorio clinico|anatomia patologica`), suministro de personal (`turnos profesionales|suministro de personal|provision de profesionales|servicio de turnos (de|para)`), agencias de medios (`difusion (en medios|de la campana|publicitaria)|(planificacion|produccion|implementacion) en medios|campana (publicitaria|comunicacional|de difusion)|publicidad|avisaje|medios de comunicacion`), seguros (`seguros? (contra|de|anual|general)|poliza de seguro|siniestr|compania de seguros`), plataforma integral (`plataforma integral|sistema integral de gestion|\\berp\\b`) y producto comercial por categoría (`software de diseno|\\bcad\\b|\\bbim\\b|revision de modelos|\\bitam\\b|\\bsam\\b`). Las tres primeras exigen contexto a propósito: «sistema de turnos» sigue entrando (es control de asistencia), y un módulo de difusión dentro de un sistema no se bota.
+
 Reglas de comprador (`BUYER_PATTERN`, para `BuyerType`): `hospital|instituto nacional|clinica` → HOSPITAL; `servicio de salud|s\.s\.|red asistencial|crs |cesfam` → HEALTH_SERVICE; `direccion de salud|departamento de salud|das |corporacion municipal` → MUNICIPAL_HEALTH; `municipalidad|i\. municipalidad|ilustre` → MUNICIPALITY; `universidad|centro de formacion tecnica|cft|instituto profesional` → HIGHER_EDUCATION; resto público → PUBLIC_SERVICE. Se aplica sobre `NombreOrganismo` y `NombreUnidad`.
 
-Señales de incumbente (`INCUMBENT_SIGNAL`, no restan puntaje; se muestran como etiqueta): `continuar|continuidad|actualmente (en uso|utilizado)|sistema actual|migracion|renovacion|renovar|proveedor actual`.
+Señales de incumbente (`INCUMBENT_SIGNAL`, no restan puntaje; se muestran como etiqueta): `continuar|continuidad|actualmente (en uso|utilizado)|sistema actual|migracion|renovacion|renovar|proveedor actual`, más los nombres propios de proveedores instalados que aparecieron en septiembre de 2026 (`cas chile|rayen|geovictoria|zecovery|ceropapel|e-?delphyn|softland|smc|sistemas modulares`) y las frases de bases escritas alrededor de un sistema en producción (`en caso de (seguir|cambiar) (con el |de )?(mismo |actual )?proveedor|sistemas? (actualmente )?en (uso|produccion)|no podra disminuir las capacidades`) (D-39).
+
+Señales de oportunidad (`OPPORTUNITY_SIGNAL`, espejo de las anteriores: etiqueta positiva, sin peso por regla; D-40): `segundo llamado|2do llamado|tercer llamado|deja sin efecto.*(decreto|resolucion)|declarada desierta|empresas? de menor tamano|\\bemt\\b|articulo 182`. Un relanzamiento tras un llamado desierto y la reserva para empresas de menor tamaño (art. 182 del reglamento) cambian la competencia, y quien revise debe verlo. Se guardan en `Tender.opportunitySignals`.
 
 Rango de montos por defecto: sin mínimo; máximo 200.000.000. Las que lo superan **no se descartan**: se marcan `Tender.outOfScale`, se muestran con etiqueta "fuera de escala" y restan 2 de afinidad.
 
@@ -81,6 +90,22 @@ el patrón de desarrollo no admitía artículos («desarrollo de **la** platafor
 plataforma de compras de ChileCompra), `arriendo de sistema` no existía aunque el alcance se llama así,
 `suscripcion de sistema` tampoco, y `plataforma` faltaba en la regla genérica. Los seis quedaron como casos
 obligatorios de selección.
+
+### Muestra de septiembre de 2026 (D-35 a D-40)
+
+Veinte licitaciones revisadas a mano entre el 3 y el 10 de septiembre (5 viables, 14 descartes, 1 ofertada) mostraron
+que el recall era bueno y la precisión no: **13 de las 14 trampas entraban al tablero**, y dos rankeaban sobre cuatro
+viables. El diagnóstico completo está en `docs/13`; las reglas que salieron de ahí, en `docs/14`; los 20 casos son
+el fixture `tests/fixtures/casos-septiembre-2026.ts` y se prueban en `tests/affinity.test.ts`. En resumen: «activo
+fijo» pasó a ser tema y no sistema (D-35, como D-29); se excluye por naturaleza del contrato (D-36); existen las
+verticales MAINTENANCE, ATTENDANCE y PHARMA_LOGISTICS (D-37); las abreviaturas del listado puntúan (D-38); las
+señales de incumbente conocen nombres propios (D-39); y hay señales de oportunidad (D-40). Lo que el texto no puede
+resolver —UFRO y Bulnes siguen con 11 puntos porque su vocabulario es de software— lo tratan las señales
+estructurales (`docs/15`) y la revisión estructurada (`docs/16`).
+
+La regla de abreviaturas se acotó al aplicarla: `plat` y `sist` tras `serv` llevan límite de palabra, porque sin él
+«SERV DE PLATAFORMA SIEM» sumaba 5 y volvía a entrar pese a la exclusión de ciberseguridad; lo detectó
+`tests/baseline.test.ts`, que es exactamente para lo que existe.
 
 ## Casos de prueba obligatorios (`tests/affinity.test.ts`)
 Deben seleccionarse: "SS. Contactabilidad de pacientes vía WhatsApp"; "ADQUISICION SERVICIO DE SISTEMA INFORMATIVO DE GESTION DOCUMENTAL"; "SOLUCIÓN INFORMÁTICA INSTITUCIONAL PARA EL CFT"; "SISTEMA INFORMATICO WEB PARA CENTROS DE SALUD"; "ARRIENDO SOFTWARE FARMACIA Y OPTICA MUNICIPAL" (sin "de"; se escapó en agosto de 2026); "Sistema de gestión de Libro de Obras Digital"; "Servicio de Metodología de Contactabilidad".

@@ -43,6 +43,7 @@ export default async function FavoritasPage() {
               vertical: true,
               outOfScale: true,
               incumbentSignals: true,
+              opportunitySignals: true,
             },
           },
         },

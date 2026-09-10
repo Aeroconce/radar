@@ -27,6 +27,7 @@ export interface FilaLicitacion {
   vertical: string;
   outOfScale: boolean;
   incumbentSignals: string[];
+  opportunitySignals: string[];
 }
 
 const monto = new Intl.NumberFormat("es-CL", {
@@ -148,6 +149,11 @@ export function TenderTable({
                   </p>
                   {t.incumbentSignals.length > 0 && (
                     <p className="mt-1 text-[11px] text-amber-700">posible proveedor instalado</p>
+                  )}
+                  {t.opportunitySignals.length > 0 && (
+                    <p className="mt-1 text-[11px] text-emerald-700">
+                      oportunidad · {t.opportunitySignals.join(" · ")}
+                    </p>
                   )}
                 </td>
                 <td className="px-3 py-2.5 align-top text-xs text-neutral-600">

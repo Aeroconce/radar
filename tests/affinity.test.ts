@@ -7,7 +7,13 @@
  */
 import { describe, expect, it } from "vitest";
 import { INITIAL_RULES } from "@/lib/affinity/initial-rules";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
+import { CASOS, type Caso } from "./fixtures/casos-septiembre-2026";
+import {
+  classifyBuyer,
+  classifyVertical,
+  detectIncumbentSignals,
+  detectOpportunitySignals,
+} from "@/lib/affinity/classify";
 import {
   DEFAULT_THRESHOLDS,
   evaluate,
@@ -260,5 +266,71 @@ describe("senales de incumbente", () => {
 
   it("un texto sin senales devuelve lista vacia", () => {
     expect(detectIncumbentSignals("Desarrollo de un sistema nuevo", INITIAL_RULES)).toEqual([]);
+  });
+});
+
+// ------------------------------------------------ muestra de septiembre de 2026
+
+/**
+ * Los 20 casos revisados a mano entre el 3 y el 10 de septiembre (docs/19).
+ * Con el motor anterior entraban 13 de las 14 trampas y dos rankeaban sobre
+ * cuatro viables. Estas pruebas son el contrato de D-35 a D-40: solo texto y
+ * ficha, sin las senales estructurales de docs/15, que se prueban aparte.
+ */
+describe("muestra de septiembre de 2026 (docs/19)", () => {
+  const texto = (c: Caso) => `${c.name} ${c.description}`;
+  const puntuar = (c: Caso) =>
+    evaluate({ text: texto(c), amount: c.amount, processType: c.processType }, INITIAL_RULES);
+
+  const viables = CASOS.filter((c) => c.esperado === "entra");
+  const trampas = CASOS.filter((c) => c.esperado === "no entra");
+  const bajas = CASOS.filter((c) => c.esperado === "entra bajo");
+
+  it.each(viables.map((c) => [c.code, c] as const))("entra: %s", (_, c) => {
+    expect(puntuar(c).selected).toBe(true);
+  });
+
+  it.each(viables.map((c) => [c.code, c.vertical, c] as const))("%s queda en %s", (_, vertical, c) => {
+    expect(classifyVertical(texto(c), INITIAL_RULES)).toBe(vertical);
+  });
+
+  it.each(trampas.map((c) => [c.code, c] as const))("no entra: %s", (_, c) => {
+    expect(puntuar(c).selected).toBe(false);
+  });
+
+  it.each(bajas.map((c) => [c.code, c] as const))("entra, pero bajo: %s", (_, c) => {
+    // Su texto es legitimamente de software; lo que las descarta esta en las
+    // bases y lo captura la revision (docs/16). Deben entrar.
+    expect(puntuar(c).selected).toBe(true);
+  });
+
+  it("toda viable rankea sobre toda la que entra bajo", () => {
+    const peorViable = Math.min(...viables.map((c) => puntuar(c).score));
+    const mejorBaja = Math.max(...bajas.map((c) => puntuar(c).score));
+    expect(peorViable).toBeGreaterThan(mejorBaja);
+  });
+});
+
+describe("senales de oportunidad (D-40)", () => {
+  it("detecta relanzamientos y reserva EMT, con su forma original", () => {
+    const s = detectOpportunitySignals(
+      "Segundo llamado, reservada a Empresas de Menor Tamaño según el artículo 182",
+      INITIAL_RULES,
+    );
+    expect(s).toContain("Segundo llamado");
+    expect(s).toContain("Empresas de Menor Tamaño");
+    expect(s).toContain("artículo 182");
+  });
+
+  it("no suma puntaje: es etiqueta, no regla de peso", () => {
+    const sin = scoreText("Arriendo de sistema de gestion", INITIAL_RULES).score;
+    const con = scoreText("Arriendo de sistema de gestion, segundo llamado", INITIAL_RULES).score;
+    expect(con).toBe(sin);
+  });
+
+  it("no confunde una senal de oportunidad con una de incumbente", () => {
+    const texto = "Segundo llamado para continuidad del sistema actual";
+    expect(detectOpportunitySignals(texto, INITIAL_RULES)).toEqual(["Segundo llamado"]);
+    expect(detectIncumbentSignals(texto, INITIAL_RULES)).not.toContain("Segundo llamado");
   });
 });

@@ -12,7 +12,12 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Prisma } from "@/generated/prisma/client";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
+import {
+  classifyBuyer,
+  classifyVertical,
+  detectIncumbentSignals,
+  detectOpportunitySignals,
+} from "@/lib/affinity/classify";
 import { INITIAL_RULES, SEED_AUTHOR } from "@/lib/affinity/initial-rules";
 import { evaluate, scoreText, worthFetchingDetail } from "@/lib/affinity/rules";
 import { MpClient } from "@/lib/mp/client";
@@ -259,6 +264,7 @@ async function seedTenders(): Promise<{ seen: number; selected: number }> {
       vertical: classifyVertical(text, INITIAL_RULES),
       buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, INITIAL_RULES),
       incumbentSignals: detectIncumbentSignals(text, INITIAL_RULES),
+      opportunitySignals: detectOpportunitySignals(text, INITIAL_RULES),
       affinityScore: verdict.score,
       matchedTerms: verdict.matchedTerms,
       outOfScale: verdict.outOfScale,

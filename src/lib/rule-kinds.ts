@@ -1,5 +1,5 @@
 /**
- * Como se presentan los cuatro tipos de regla (RF-09, docs/04).
+ * Como se presentan los cinco tipos de regla (RF-09, docs/04).
  *
  * Cada uno hace algo distinto y se equivoca distinto, asi que la pantalla los
  * separa en vez de mostrar una tabla de veinte filas con una columna "tipo".
@@ -60,10 +60,25 @@ export const TIPOS_REGLA: Record<string, TipoRegla> = {
     orden: false,
     agregar: "Agregar señal",
   },
+  OPPORTUNITY_SIGNAL: {
+    titulo: "Señales de oportunidad",
+    descripcion:
+      "No suman puntaje. Marcan relanzamientos y procesos reservados a empresas de menor tamaño, donde la competencia es distinta.",
+    peso: false,
+    destino: null,
+    orden: false,
+    agregar: "Agregar señal de oportunidad",
+  },
 };
 
 /** De lo que mas decide a lo que solo informa. */
-export const ORDEN_TIPOS = ["KEYWORD", "EXCLUSION", "BUYER_PATTERN", "INCUMBENT_SIGNAL"];
+export const ORDEN_TIPOS = [
+  "KEYWORD",
+  "EXCLUSION",
+  "BUYER_PATTERN",
+  "INCUMBENT_SIGNAL",
+  "OPPORTUNITY_SIGNAL",
+];
 
 /**
  * Corta un patron en los terminos que busca.

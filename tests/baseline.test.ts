@@ -64,6 +64,9 @@ const EXCLUDED = {
 
   /** D-29: una concesion es operar un negocio, no entregar software. */
   "4237-12-LR26": "concesion de estacionamientos, entraba por sistema de control",
+
+  /** D-36: un sistema clinico (RCE, LIS, HIS) nunca es del rubro. */
+  "2200-23-LR26": "registro clinico electronico: sistema clinico, excluido por D-36",
 } as const;
 
 const EXPECTED_SELECTED = candidates.length - Object.keys(EXCLUDED).length;

@@ -16,6 +16,39 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-40** **Señales de oportunidad, espejo de las de incumbente.** Un relanzamiento (el primer llamado quedó
+  desierto: Alto Hospicio y Coyhaique en septiembre de 2026) y la reserva para empresas de menor tamaño (art. 182 del
+  reglamento) cambian la competencia. Tipo de regla `OPPORTUNITY_SIGNAL`, etiqueta positiva sin peso, guardada en
+  `Tender.opportunitySignals` y mostrada junto a la de proveedor instalado. Las señales estructurales (`docs/15`) sí
+  la consideran al puntuar.
+- **D-39** **Las señales de incumbente conocen nombres propios.** CAS Chile, Rayen, GeoVictoria, Zecovery, Ceropapel,
+  E-Delphyn, Softland, SMC y las frases de bases escritas alrededor de un sistema en producción («en caso de seguir con
+  el mismo proveedor», «no podrá disminuir las capacidades»). Ver el nombre del competidor en la ficha vale más que
+  una señal genérica.
+- **D-38** **Las abreviaturas del listado puntúan.** El listado corta el nombre a 50 caracteres y los compradores
+  abrevian: «SERV. PLAT. INFORMÁTICA DE REG. CONTROL Y SEGUI.» —la ofertada del Sótero del Río— puntuaba 2 y entraba
+  solo por la puerta de ficha en umbral−1. Regla WEB_DEVELOPMENT de peso 5 para `plat.`, `sist.`, `serv.` y `sw`.
+  Al aplicarla se acotó con límite de palabra tras `serv` (`plat\\b|sist\\b`): sin él, «SERV DE PLATAFORMA SIEM»
+  volvía a entrar pese a la exclusión de ciberseguridad, y lo detectó `tests/baseline.test.ts`.
+- **D-37** **Tres verticales nuevas: MAINTENANCE, ATTENDANCE y PHARMA_LOGISTICS.** Cuatro de las seis licitaciones
+  reales de septiembre (Alto Hospicio, San Bernardo, Ancud y la ofertada del Sótero del Río) caían en
+  WEB_DEVELOPMENT porque su vertical no existía. La vertical es el eje del tablero: sin estas no se puede filtrar
+  «mantenimiento» y ver los dos CMMS. Van antes de WEB_DEVELOPMENT con peso 6. Migración
+  `20260910230000_verticales_y_senales_de_oportunidad`.
+- **D-36** **Se excluye por naturaleza del contrato, no solo por objeto físico.** Nueve de los catorce descartes de
+  septiembre eran de cinco naturalezas sin ninguna exclusión: sistemas clínicos (RCE, LIS, HIS), suministro de
+  personal, publicidad, seguros y plataforma integral; y «software de diseño CAD» pasaba porque la regla de licencias
+  exigía la palabra «licencias» más una marca. Seis líneas nuevas de peso −6, cada una acotada con contexto para no
+  botar un módulo de difusión dentro de un sistema ni un «sistema de turnos» de control de asistencia. Efecto sobre la
+  base del 27-08-2026: sale el RCE de Aconcagua (2200-23-LR26), declarado en `tests/baseline.test.ts`.
+- **D-35** **«Activo fijo» es tema, no sistema, como «inventario» (D-29).** `activos? fijos?` con peso 6 traía solo
+  al tablero un seguro contra incendio «para bienes de uso de activo fijo», una implementación deportiva «y activos
+  fijos no financieros» y el ITAM de JUNAEB por «gestión de activos TI». Con 6 solo pegado a una palabra de sistema
+  (`software de activos fijos`, `activo fijo institucional`); solo, pesa 2 y entra acompañado.
+- **Numeración de los documentos de septiembre.** Los documentos de trabajo del plan de precisión llegaron numerados
+  D-32 a D-38 y como `10-` a `16-`, continuando una numeración que ya estaba ocupada (D-32 a D-34 y `docs/10` a
+  `docs/12` existían). Se incorporaron como `docs/13` a `docs/19` y sus decisiones como **D-35 a D-41**; toda
+  referencia en código, pruebas y documentación usa la numeración nueva.
 - **D-34** **La exportación es un CSV que Excel abre bien, no un `.xlsx`.** BOM UTF-8 para que las tildes
   no lleguen rotas, punto y coma como separador (el Excel en español usa la coma para los decimales), CRLF, y
   las celdas que empiezan con `=`, `+`, `-` o `@` se anteponen con comilla: Excel las ejecutaría como fórmula

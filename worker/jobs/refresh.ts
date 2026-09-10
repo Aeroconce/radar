@@ -17,7 +17,12 @@
  * no lo cambia una llamada a la API.
  */
 import type { Prisma } from "@/generated/prisma/client";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
+import {
+  classifyBuyer,
+  classifyVertical,
+  detectIncumbentSignals,
+  detectOpportunitySignals,
+} from "@/lib/affinity/classify";
 import { evaluate } from "@/lib/affinity/rules";
 import { prisma } from "@/lib/db";
 import { jobLogger } from "@/lib/logger";
@@ -102,6 +107,7 @@ export async function refreshAll(deps: RefreshDeps): Promise<RefreshCounters> {
             vertical: classifyVertical(texto, rules),
             buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, rules),
             incumbentSignals: detectIncumbentSignals(texto, rules),
+            opportunitySignals: detectOpportunitySignals(texto, rules),
             affinityScore: veredicto.score,
             matchedTerms: veredicto.matchedTerms,
             outOfScale: veredicto.outOfScale,

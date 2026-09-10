@@ -30,6 +30,10 @@ enum Vertical {
   FIXED_ASSETS
   DOCUMENT_MGMT
   QUALITY_ACCREDITATION
+  // D-37: las verticales del negocio real, que caian en WEB_DEVELOPMENT.
+  ATTENDANCE // control de asistencia
+  MAINTENANCE // gestion de mantenimiento (CMMS)
+  PHARMA_LOGISTICS // drogueria y bodega farmaceutica, no clinico
   WEB_DEVELOPMENT
   OTHER
 }
@@ -182,6 +186,7 @@ model Tender {
   outOfScale       Boolean      @default(false) // sobre el monto maximo: se lista igual, con etiqueta y -2 de afinidad (docs/04)
   matchedTerms     String[] // coincidencias que la seleccionaron
   incumbentSignals String[] // frases detectadas
+  opportunitySignals String[] @default([]) // relanzamientos y reserva EMT, sin peso (D-40)
   items            Json? // Items.Listado
   raw              Json // respuesta íntegra de la API
   firstSeenAt      DateTime     @default(now())

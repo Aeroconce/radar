@@ -98,6 +98,13 @@ describe("contenido de los avisos", () => {
     expect(c?.html).toContain("…");
   });
 
+  it("destaca las senales de oportunidad (D-40)", () => {
+    const c = renderNotice("NEW_HIGH_AFFINITY", { ...payload, opportunitySignals: ["segundo llamado"] });
+    expect(c?.html).toContain("oportunidad");
+    expect(c?.html).toContain("segundo llamado");
+    expect(c?.text).toContain("segundo llamado");
+  });
+
   it("advierte cuando hay senales de proveedor instalado", () => {
     const c = renderNotice("NEW_HIGH_AFFINITY", { ...payload, incumbentSignals: ["continuidad"] });
     expect(c?.html).toContain("proveedor instalado");

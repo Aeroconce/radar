@@ -15,7 +15,12 @@
  *    perder el barrido entero no.
  */
 import type { Prisma } from "@/generated/prisma/client";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
+import {
+  classifyBuyer,
+  classifyVertical,
+  detectIncumbentSignals,
+  detectOpportunitySignals,
+} from "@/lib/affinity/classify";
 import { evaluate, scoreText, worthFetchingDetail } from "@/lib/affinity/rules";
 import { prisma } from "@/lib/db";
 import { jobLogger } from "@/lib/logger";
@@ -240,6 +245,7 @@ async function processListing(
     vertical: classifyVertical(text, ctx.rules),
     buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, ctx.rules),
     incumbentSignals: detectIncumbentSignals(text, ctx.rules),
+    opportunitySignals: detectOpportunitySignals(text, ctx.rules),
     affinityScore: verdict.score,
     matchedTerms: verdict.matchedTerms,
     outOfScale: verdict.outOfScale,
@@ -275,6 +281,7 @@ async function processListing(
       threshold: ctx.settings.highAffinityThreshold,
       matchedTerms: verdict.matchedTerms,
       incumbentSignals: data.incumbentSignals,
+      opportunitySignals: data.opportunitySignals,
       outOfScale: verdict.outOfScale,
     });
   }

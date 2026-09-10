@@ -259,6 +259,7 @@ export interface NoticePayload {
   threshold?: number;
   matchedTerms?: string[];
   incumbentSignals?: string[];
+  opportunitySignals?: string[];
   outOfScale?: boolean;
   status?: string;
   days?: number;
@@ -340,6 +341,13 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
           </div>`
         : "";
 
+      const oportunidad = (p.opportunitySignals ?? []).length
+        ? `<div style="margin:20px 0 0;padding:13px 16px;background:#ecfdf5;border-left:3px solid #059669;border-radius:0 4px 4px 0">
+            <div style="font-family:${SANS};font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#065f46;font-weight:700;margin:0 0 4px">Señal de oportunidad</div>
+            <div style="font-family:${SANS};font-size:13px;color:#064e3b;line-height:1.55">Las bases mencionan ${escape((p.opportunitySignals ?? []).join(", "))}. Un relanzamiento o una reserva para empresas de menor tamaño cambian la competencia.</div>
+          </div>`
+        : "";
+
       const escala = p.outOfScale
         ? `<p style="margin:14px 0 0;font-family:${SANS};font-size:13px;color:${MUTED}">Supera el monto máximo configurado: se lista igual, con menos afinidad.</p>`
         : "";
@@ -357,6 +365,7 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             descripcion +
             porque +
             senales +
+            oportunidad +
             escala +
             buttons({ href: link, label: "Ver ficha" }, portal ? { href: portal, label: "Mercado Público" } : undefined),
           footer:
@@ -381,6 +390,9 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             (p.matchedTerms ?? []).length ? `Coincidencias: ${(p.matchedTerms ?? []).join(", ")}` : "",
             (p.incumbentSignals ?? []).length
               ? `Posible proveedor instalado: ${(p.incumbentSignals ?? []).join(", ")}`
+              : "",
+            (p.opportunitySignals ?? []).length
+              ? `Señal de oportunidad: ${(p.opportunitySignals ?? []).join(", ")}`
               : "",
           ],
           [`Ver ficha: ${link}`, ...(portal ? [`Mercado Público: ${portal}`] : [])],

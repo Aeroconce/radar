@@ -16,7 +16,8 @@
     "bitacora:limpiar": "tsx scripts/limpiar-bitacora.ts",
     "worker:barrido": "tsx worker/run.ts sweep",
     "seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "tablero:recalcular": "tsx scripts/recalcular-tablero.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

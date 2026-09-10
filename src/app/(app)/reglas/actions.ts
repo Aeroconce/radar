@@ -15,9 +15,8 @@
 import { revalidatePath } from "next/cache";
 import type { Prisma } from "@/generated/prisma/client";
 import type { BuyerType, Vertical } from "@/generated/prisma/enums";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
 import { comparar, type Candidata, type Comparacion } from "@/lib/affinity/preview";
-import { evaluate, RULE_KINDS, type Rule, type Thresholds } from "@/lib/affinity/rules";
+import { RULE_KINDS, type Rule, type Thresholds } from "@/lib/affinity/rules";
 import {
   validarParametros,
   validarRegla,
@@ -27,6 +26,7 @@ import {
 } from "@/lib/affinity/validate";
 import { prisma } from "@/lib/db";
 import { perfilParaEscribir } from "@/lib/perfil";
+import { recalcularTablero } from "@/lib/recalculo";
 import { getSession } from "@/lib/session";
 import { loadSettings, SETTING_KEYS, type RadarSettings } from "@/lib/settings";
 
@@ -437,70 +437,19 @@ export interface ResultadoRecalculo extends Resultado {
 /**
  * Volver a puntuar las licitaciones que ya estan en el tablero.
  *
- * Hace falta porque el barrido no las vuelve a mirar: una vez que una licitacion
- * existe en `Tender`, solo se refresca si cambio su fecha de cierre (docs/05).
- * Sin esto, editar una regla no se nota en el tablero hasta que aparezca una
- * licitacion nueva, y quien la edito no tiene como saber si sirvio.
- *
- * No borra nada. Una que baja del umbral **se queda**, con su puntaje nuevo:
- * alguien pudo haberla revisado, y las decisiones del equipo no las deshace un
- * cambio de regla. Se informa cuantas quedaron asi.
- *
- * Es local: usa el nombre y la descripcion ya guardados, sin llamar a la API.
+ * El calculo vive en `@/lib/recalculo` para que la consola pueda hacer lo
+ * mismo sin sesion (`pnpm tablero:recalcular`). Aqui se le pone autor y
+ * bitacora, que es lo que la pantalla agrega.
  */
 export async function recalcularGuardadas(): Promise<ResultadoRecalculo> {
   const quien = await autor();
   if (esResultado(quien)) return quien;
 
   const guardado = await leerGuardado();
-  const thresholds = aThresholds(guardado.settings);
-
-  const fichas = await prisma.tender.findMany({
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      buyerOrganism: true,
-      buyerUnit: true,
-      estimatedAmount: true,
-      processType: true,
-      affinityScore: true,
-      vertical: true,
-    },
-  });
-
-  let cambiadas = 0;
-  let bajoUmbral = 0;
-
-  for (const t of fichas) {
-    const texto = `${t.name} ${t.description}`;
-    const veredicto = evaluate(
-      {
-        text: texto,
-        amount: t.estimatedAmount != null ? Number(t.estimatedAmount) : null,
-        processType: t.processType,
-      },
-      guardado.reglas,
-      thresholds,
-    );
-    const vertical = classifyVertical(texto, guardado.reglas);
-
-    if (!veredicto.selected) bajoUmbral++;
-    if (veredicto.score === t.affinityScore && vertical === t.vertical) continue;
-
-    cambiadas++;
-    await prisma.tender.update({
-      where: { id: t.id },
-      data: {
-        affinityScore: veredicto.score,
-        matchedTerms: veredicto.matchedTerms,
-        outOfScale: veredicto.outOfScale,
-        vertical,
-        buyerType: classifyBuyer(t.buyerOrganism, t.buyerUnit, guardado.reglas),
-        incumbentSignals: detectIncumbentSignals(texto, guardado.reglas),
-      },
-    });
-  }
+  const { revisadas, cambiadas, bajoUmbral } = await recalcularTablero(
+    guardado.reglas,
+    aThresholds(guardado.settings),
+  );
 
   await prisma.auditLog.create({
     data: {
@@ -508,19 +457,19 @@ export async function recalcularGuardadas(): Promise<ResultadoRecalculo> {
       action: "rules.recalculate",
       entity: "Tender",
       entityId: null,
-      detail: `${fichas.length} revisadas · ${cambiadas} cambiadas · ${bajoUmbral} bajo el umbral`,
+      detail: `${revisadas} revisadas · ${cambiadas} cambiadas · ${bajoUmbral} bajo el umbral`,
     },
   });
 
   refrescar();
   return {
     ok: true,
-    revisadas: fichas.length,
+    revisadas,
     cambiadas,
     bajoUmbral,
     mensaje:
       cambiadas === 0
         ? "Ninguna cambió de puntaje."
-        : `${cambiadas} de ${fichas.length} cambiaron de puntaje o vertical.`,
+        : `${cambiadas} de ${revisadas} cambiaron de puntaje, vertical o etiquetas.`,
   };
 }

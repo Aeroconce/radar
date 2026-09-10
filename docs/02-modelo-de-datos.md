@@ -67,6 +67,10 @@ Es lo que alimenta el estado del barrido que se informa en el resumen diario y e
   Nunca `Float`: los montos de licitación no toleran error de redondeo.
 - **`ProcessType` incluye `LS`** porque la API puede devolverlo y el modelo debe poder representarlo,
   pero el motor no lo selecciona por defecto (`docs/04`). Representar ≠ seleccionar.
+- **`Tender.opportunitySignals`** guarda las frases de relanzamiento o reserva EMT detectadas (D-40), espejo de
+  `incumbentSignals`: etiqueta, no puntaje. Nace vacío en las filas anteriores a la migración.
+- **`Vertical`** tiene desde el 10-09-2026 `ATTENDANCE`, `MAINTENANCE` y `PHARMA_LOGISTICS` (D-37): las verticales del
+  negocio real que antes caían en `WEB_DEVELOPMENT`.
 - **`Tender.outOfScale`** marca las que superan el monto máximo: se listan igual, con etiqueta y −2 de
   afinidad, en vez de descartarse (`docs/04`).
 - **`Attachment.checksum`** es el sha256 del contenido: detecta que el mismo archivo se subió dos veces

@@ -286,6 +286,17 @@ export default async function FichaPage({
                 </p>
               </div>
             )}
+            {tender.opportunitySignals.length > 0 && (
+              <div className="mt-3 rounded-r border-l-[3px] border-emerald-600 bg-emerald-50 px-3.5 py-2.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-800">
+                  Señal de oportunidad
+                </p>
+                <p className="mt-0.5 text-sm leading-relaxed text-emerald-900">
+                  Las bases mencionan {tender.opportunitySignals.join(", ")}. Un relanzamiento o una reserva para
+                  empresas de menor tamaño cambian la competencia.
+                </p>
+              </div>
+            )}
           </section>
 
           {tender.description && (

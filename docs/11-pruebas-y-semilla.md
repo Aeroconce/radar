@@ -31,6 +31,9 @@ y no un acumulado.
 - `affinity.test.ts`: los 13 casos obligatorios de `docs/04`, normalización de tildes, conservación de
   posiciones al recortar coincidencias, peso una vez por regla, exclusiones, monto fuera de escala,
   exclusión de `LS`, vertical, tipo de comprador y señales de incumbente.
+- `affinity.test.ts` incluye además la **muestra de septiembre de 2026**: los 20 casos de `docs/19` viven en
+  `tests/fixtures/casos-septiembre-2026.ts` con su resultado esperado (entra / no entra / entra bajo / al borde) y
+  su vertical. Cada licitación revisada a mano que sorprenda al radar se agrega ahí **antes** de tocar una regla.
 - `baseline.test.ts`: comparación contra `seed/candidatas_2026-08-27.json`. Las diferencias conocidas están
   declaradas con su razón; si aparece una nueva, o si una declarada deja de serlo, la prueba falla.
 

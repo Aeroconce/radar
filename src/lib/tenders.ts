@@ -12,6 +12,9 @@ export const VERTICALES: Record<string, string> = {
   FIXED_ASSETS: "Activos fijos",
   DOCUMENT_MGMT: "Gestión documental",
   QUALITY_ACCREDITATION: "Calidad y acreditación",
+  ATTENDANCE: "Control de asistencia",
+  MAINTENANCE: "Gestión de mantenimiento",
+  PHARMA_LOGISTICS: "Droguería y bodega farmacéutica",
   WEB_DEVELOPMENT: "Desarrollo web y plataformas",
   OTHER: "Otros",
 };

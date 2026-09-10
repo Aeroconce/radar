@@ -48,7 +48,7 @@ enlaza aquí desde «¿No está lo que buscas?», arrastrando la búsqueda escri
 De lo que más decide a lo que solo informa:
 
 1. **Parámetros**: umbral de selección, umbral de aviso, monto máximo y tipos de proceso. Cada campo lleva escrito al lado qué hace; un campo llamado «umbral» sin más es una perilla a ciegas.
-2. **Palabras clave**, **Exclusiones**, **Tipo de comprador** y **Señales de proveedor instalado**, cada tipo con su explicación. Cada regla se edita en su lugar, se activa o desactiva sin borrarla, y se elimina con confirmación en la misma fila.
+2. **Palabras clave**, **Exclusiones**, **Tipo de comprador**, **Señales de proveedor instalado** y **Señales de oportunidad**, cada tipo con su explicación. Cada regla se edita en su lugar, se activa o desactiva sin borrarla, y se elimina con confirmación en la misma fila.
 3. **Aplicar al tablero**: vuelve a puntuar las licitaciones ya guardadas con las reglas de ahora, sin llamar a la API. Hace falta porque el barrido no las vuelve a mirar (`docs/05`): sin esto, editar una regla no se nota hasta que aparezca una licitación nueva. No borra ninguna; una que baja del umbral se queda con su puntaje nuevo.
 
 Las flechas de orden solo aparecen donde la posición cambia el resultado: en las palabras clave desempata los pesos iguales y en los patrones de comprador gana el primero que coincide (`docs/04`).

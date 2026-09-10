@@ -15,7 +15,12 @@
 
 import { revalidatePath } from "next/cache";
 import type { Prisma } from "@/generated/prisma/client";
-import { classifyBuyer, classifyVertical, detectIncumbentSignals } from "@/lib/affinity/classify";
+import {
+  classifyBuyer,
+  classifyVertical,
+  detectIncumbentSignals,
+  detectOpportunitySignals,
+} from "@/lib/affinity/classify";
 import { evaluate } from "@/lib/affinity/rules";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -75,6 +80,7 @@ export async function traerAlTablero(code: string): Promise<ResultadoTraer> {
         vertical: classifyVertical(texto, rules),
         buyerType: classifyBuyer(fields.buyerOrganism, fields.buyerUnit, rules),
         incumbentSignals: detectIncumbentSignals(texto, rules),
+        opportunitySignals: detectOpportunitySignals(texto, rules),
         affinityScore: veredicto.score,
         matchedTerms: veredicto.matchedTerms,
         outOfScale: veredicto.outOfScale,

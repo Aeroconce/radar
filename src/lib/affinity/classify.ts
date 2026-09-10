@@ -1,8 +1,9 @@
 /**
  * Clasificacion de licitaciones (docs/04, RF-03).
  *
- * Tres decisiones independientes del puntaje: a que vertical pertenece, que tipo
- * de comprador la publica, y si el texto delata a un proveedor instalado.
+ * Cuatro decisiones independientes del puntaje: a que vertical pertenece, que
+ * tipo de comprador la publica, si el texto delata a un proveedor instalado y si
+ * anuncia una oportunidad (relanzamiento o reserva EMT).
  *
  * Como en `rules.ts`, las reglas se leen de `AffinityRule` y este modulo solo las aplica.
  */
@@ -69,24 +70,22 @@ export function classifyBuyer(organism: string, unit: string, rules: Rule[]): Bu
 }
 
 /**
- * Frases que sugieren un proveedor instalado (docs/04).
+ * Frases de un tipo de senal, tal como aparecen en el texto original.
  *
- * No restan puntaje: se muestran como etiqueta para que quien revise sepa que
- * puede estar leyendo unas bases escritas alrededor de otro proveedor. La decision
- * es de la persona, no del sistema.
+ * Una senal puede aparecer varias veces con palabras distintas: interesan
+ * todas, sin repetir la misma frase.
  */
-export function detectIncumbentSignals(text: string, rules: Rule[]): string[] {
+function detectSignals(text: string, rules: Rule[], kind: string): string[] {
   const normalized = normalize(text);
   const found: string[] = [];
 
   for (const rule of rules) {
     if (!isActive(rule)) continue;
-    if (rule.kind !== RULE_KINDS.INCUMBENT_SIGNAL) continue;
+    if (rule.kind !== kind) continue;
 
     const re = compile(rule.pattern);
     if (!re) continue;
 
-    // Una senal puede aparecer varias veces con palabras distintas: interesan todas.
     for (const m of normalized.matchAll(new RegExp(rule.pattern, "gi"))) {
       const term = text.slice(m.index, m.index + m[0].length);
       if (!found.includes(term)) found.push(term);
@@ -94,4 +93,26 @@ export function detectIncumbentSignals(text: string, rules: Rule[]): string[] {
   }
 
   return found;
+}
+
+/**
+ * Frases que sugieren un proveedor instalado (docs/04).
+ *
+ * No restan puntaje: se muestran como etiqueta para que quien revise sepa que
+ * puede estar leyendo unas bases escritas alrededor de otro proveedor. La decision
+ * es de la persona, no del sistema.
+ */
+export function detectIncumbentSignals(text: string, rules: Rule[]): string[] {
+  return detectSignals(text, rules, RULE_KINDS.INCUMBENT_SIGNAL);
+}
+
+/**
+ * Frases que cambian la cancha a favor (D-40): un relanzamiento tras un
+ * llamado desierto, o la reserva para empresas de menor tamano.
+ *
+ * Espejo de las de incumbente: etiqueta positiva, sin peso por regla. Las
+ * senales estructurales (docs/15) si las consideran al puntuar.
+ */
+export function detectOpportunitySignals(text: string, rules: Rule[]): string[] {
+  return detectSignals(text, rules, RULE_KINDS.OPPORTUNITY_SIGNAL);
 }
