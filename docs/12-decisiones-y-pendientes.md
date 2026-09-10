@@ -16,6 +16,13 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-47** **«Mantenimiento preventivo» es tema, no sistema** (11-09-2026). Salió al aplicar D-45: con la resta por
+  falta de ítem de software en 6, Arica (1075963-403-L126) seguía en 4 —12 de texto, −6, −2— sobre el umbral y
+  clasificada como CMMS. Sus 12 venían de `mantenimiento (preventivo|correctivo)` a peso 6, y cualquier contrato de
+  aparatos lo incluye de paso. Misma lección de D-29, D-35 y D-43: pasa a 2 junto a los otros temas. Los dos CMMS
+  reales de septiembre no se tocan (Ancud entra por «gestión de mantenimiento», el Sótero del Río por «componentes
+  vinculados a mantenimiento»); Arica queda en 0. Es la única decisión de hoy que no venía en la lista: sin ella,
+  la expectativa «Arica no entra» era inalcanzable con el umbral en 3.
 - **D-46** **El tablero oculta por defecto también lo que quedó bajo el umbral tras recalcular** (11-09-2026,
   extiende D-42). Carabineros (3970-8-LE26, afinidad 2), FOSIS (762-7-LP26, 1) y Hospital del Salvador (1) seguían
   a la vista porque entraron con reglas viejas y «recalcular no borra»; D-42 solo ocultaba las negativas. El filtro

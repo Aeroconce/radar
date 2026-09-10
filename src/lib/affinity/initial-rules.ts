@@ -47,10 +47,13 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
    * Van antes de WEB_DEVELOPMENT: con peso 6 ganan a la generica de 5, y entre
    * pesos iguales gana la primera.
    */
+  // `mantenimiento (preventivo|correctivo)` salio de aqui y pesa 2 mas abajo (D-47):
+  // cualquier contrato de aparatos incluye "mantenimiento preventivo" de paso, y con
+  // 6 los sensores de temperatura de Arica quedaban como CMMS con 12 puntos.
   [
     "MAINTENANCE",
     6,
-    "gestion de mantenimiento|mantenimiento (preventivo|correctivo)|ordenes? de trabajo|\\bcmms\\b|componentes (de|vinculados a) mantenimiento|plan de mantencion",
+    "gestion de mantenimiento|ordenes? de trabajo|\\bcmms\\b|componentes (de|vinculados a) mantenimiento|plan de mantencion",
   ],
   // `biometri` puede coincidir con la compra de relojes biometricos (hardware).
   // La exclusion de hardware ya resta 6 por `equipos? tecnologic`, y las senales
@@ -84,11 +87,11 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
     "seguridad del paciente|eventos adversos|autorizacion sanitaria|gestion de calidad",
   ],
   /*
-   * Temas, no sistemas (D-29, D-35 y D-43).
+   * Temas, no sistemas (D-29, D-35, D-43 y D-47).
    *
    * `acreditacion`, `inventario`, `activo fijo`, `expediente`, `oficina de
-   * partes`, `recordatorio`, `whatsapp`, `chatbot` e `inasistencia` nombran de
-   * que trata algo, no que sea software. Con peso 6 entraban
+   * partes`, `recordatorio`, `whatsapp`, `chatbot`, `inasistencia` y
+   * `mantenimiento preventivo` nombran de que trata algo, no que sea software. Con peso 6 entraban
    * solos y traian al tablero el arriendo de una embarcacion, una acreditacion
    * de saberes linguisticos, la reestructuracion de una oficina y un seguro
    * contra incendio.
@@ -104,6 +107,7 @@ const KEYWORDS: Array<[Vertical, number, string]> = [
    * gana la primera, y asi la vertical que se asigna es la especifica.
    */
   ["APPOINTMENTS", 2, "recordatorio|whatsapp|chatbot|inasistencia"],
+  ["MAINTENANCE", 2, "mantenimiento (preventivo|correctivo)"],
   ["QUALITY_ACCREDITATION", 2, "acreditacion"],
   ["FIXED_ASSETS", 2, "inventario"],
   ["FIXED_ASSETS", 2, "activos? fijos?|gestion de activos"],

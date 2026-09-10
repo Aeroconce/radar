@@ -1,4 +1,4 @@
-# 14 — Reglas de texto (D-35 a D-40, D-43 y D-44)
+# 14 — Reglas de texto (D-35 a D-40, D-43, D-44 y D-47)
 
 Todas en el formato de `src/lib/affinity/initial-rules.ts`: sin tildes, una regla por línea, con el
 comentario de justificación que la convención de `docs/04` exige. La semilla (`SEED_AUTHOR`) reemplaza
@@ -206,6 +206,22 @@ MULTICLOUD" (591-26-LP26), Subtrans "SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL
 "observabilidad|multicloud|monitoreo de (infraestructura|red|servidores)|\\bapm\\b|administracion de infraestructura|servicio tecnologico integral",
 ```
 
+## D-47 — "Mantenimiento preventivo" es tema, no sistema (11-09-2026)
+
+Salió al aplicar D-45: con `noSoftwareItemPenalty` en 6, el "ARRIENDO SISTEMA MONITOREO EN LINEA PARA
+REFRIGERADORES DE FARMACOS ONCOLOGICOS" (1075963-403-L126) seguía en 4 (12 de texto − 6 − 2), sobre el umbral, y
+clasificado como MAINTENANCE. Sus 12 puntos venían de `mantenimiento (preventivo|correctivo)` a peso 6: cualquier
+contrato de aparatos incluye "mantenimiento preventivo" de paso. Misma lección de D-29, D-35 y D-43.
+
+```ts
+["MAINTENANCE", 6, "gestion de mantenimiento|ordenes? de trabajo|\\bcmms\\b|componentes (de|vinculados a) mantenimiento|plan de mantencion"],
+// junto a los otros temas de peso 2:
+["MAINTENANCE", 2, "mantenimiento (preventivo|correctivo)"],
+```
+
+Los dos CMMS reales de septiembre no se tocan: Ancud entra por "gestion de mantenimiento" y el Sótero del Río por
+"componentes vinculados a mantenimiento". Arica queda en 0 y como WEB_DEVELOPMENT.
+
 ## Orden final recomendado de `KEYWORDS`
 
 1. DOCUMENT_MGMT 6 (D-43: delante de APPOINTMENTS, porque entre pesos iguales gana la primera)
@@ -213,7 +229,7 @@ MULTICLOUD" (591-26-LP26), Subtrans "SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL
 3. MAINTENANCE 6, ATTENDANCE 6, PHARMA_LOGISTICS 6 (D-37)
 4. FIXED_ASSETS 6 (D-35)
 5. QUALITY_ACCREDITATION 6
-6. Temas con peso 2 (D-29, D-35 y D-43)
+6. Temas con peso 2 (D-29, D-35, D-43 y D-47)
 7. WEB_DEVELOPMENT 5 (genérica) y WEB_DEVELOPMENT 5 abreviaturas (D-38)
 8. WEB_DEVELOPMENT 4
 9. OTHER 3 y OTHER 2
