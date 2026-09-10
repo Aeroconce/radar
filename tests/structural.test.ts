@@ -115,7 +115,7 @@ describe("categoria de los items", () => {
     expect(categoriasDe({})).toEqual([]);
   });
 
-  it("sin ningun item de software resta 4", () => {
+  it("sin ningun item de software resta lo mismo que una exclusion (D-45)", () => {
     const r = computeStructural({ ...base, items: { Listado: [{ Categoria: "Publicidad / Publicidad en radio" }] } });
     expect(r.tags).toContain("sin item de software");
     expect(r.tags).toContain("item de bienes");
@@ -138,6 +138,29 @@ describe("categoria de los items", () => {
 
   it("una ficha sin items no dice nada", () => {
     expect(computeStructural({ ...base, items: { Listado: [] } }).tags).toEqual([]);
+  });
+});
+
+describe("integral en el nombre (D-45)", () => {
+  it("resta 2 y etiqueta", () => {
+    const r = computeStructural({ ...base, name: "SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL" });
+    expect(r.score).toBe(-2);
+    expect(r.tags).toEqual(["integral"]);
+  });
+
+  it("solo sobre el nombre: Alto Hospicio dice solucion integral en la descripcion y es viable", () => {
+    const r = computeStructural({
+      ...base,
+      name: "Adquisición de Sistema de Control de Asistencia",
+      description: "arriendo de una solución integral de gestión y control de asistencia",
+      durationValue: 24,
+      durationUnit: "meses",
+    });
+    expect(r.tags).not.toContain("integral");
+  });
+
+  it("no dispara dentro de otra palabra", () => {
+    expect(computeStructural({ ...base, name: "Integralidad del sistema" }).tags).not.toContain("integral");
   });
 });
 

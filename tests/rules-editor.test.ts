@@ -83,7 +83,7 @@ describe("validarParametros", () => {
     canonMin: 800_000,
     canonMax: 3_500_000,
     lrPenalty: 2,
-    noSoftwareItemPenalty: 4,
+    noSoftwareItemPenalty: 6,
   };
 
   it("acepta los valores de docs/04", () => {

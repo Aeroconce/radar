@@ -79,14 +79,26 @@ const HARDWARE_CATS = [
 ];
 const cats = (t.items ?? []).map((i) => normalize(i.Categoria ?? ""));
 if (cats.length && !cats.some((c) => SOFTWARE_CATS.some((r) => r.test(c)))) {
-  score -= 4; tags.push("sin item de software");
+  score -= 6; tags.push("sin item de software"); // 6 desde D-45; era 4
 }
 if (cats.some((c) => HARDWARE_CATS.some((r) => r.test(c)))) {
   score -= 2; tags.push("item de bienes");
 }
 ```
 
-Es la señal más barata y más fuerte: el comprador clasifica lo que compra, y casi nunca se equivoca.
+Es la señal más barata y más fuerte: el comprador clasifica lo que compra, y casi nunca se equivoca. Desde el
+11-09-2026 vale lo mismo que una exclusión de texto, −6 (D-45): con −4, los sensores de temperatura de Arica
+(1075963-403-L126) sumaban 12 por texto y se quedaban en 6 pese a «sin item de software» e «item de bienes».
+
+### «Integral» en el nombre (D-45)
+
+```ts
+if (/\bintegral\b/.test(normalize(t.name))) { score -= 2; tags.push("integral"); }
+```
+
+Es la firma de la plataforma de incumbente o del servicio que lo abarca todo: el «SERVICIO TECNOLÓGICO INTEGRAL
+RED REGIONAL» de Subtrans pasaba con 7. **Solo sobre el nombre**, nunca sobre la descripción: Alto Hospicio
+(3447-142-LE26) dice «solución integral» en la descripción y es viable.
 
 ### Descripción no informativa
 
@@ -113,7 +125,7 @@ if (t.opportunitySignals.some((s) => /llamado|desierta|sin efecto/.test(normaliz
 - `worker/`: después del `upsert` de la ficha, `computeStructural(tender)` y guardar `structuralScore`,
   `structuralTags`, `textScore`, `affinityScore`.
 - «Recalcular el tablero»: recalcula texto **y** estructural desde `raw`, sin llamar a la API.
-- `Setting`: `canonMin`, `canonMax`, `lrPenalty` (2), `noSoftwareItemPenalty` (4).
+- `Setting`: `canonMin`, `canonMax`, `lrPenalty` (2), `noSoftwareItemPenalty` (6 desde D-45; era 4).
 - Tablero: las `structuralTags` se muestran junto a las de incumbente y oportunidad, con el mismo estilo.
 
 ## Interacción con `outOfScale`

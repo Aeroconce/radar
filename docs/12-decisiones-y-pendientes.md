@@ -16,6 +16,13 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-45** **Sin ítem de software vale una exclusión, e «integral» en el nombre resta** (11-09-2026). «ARRIENDO
+  SISTEMA MONITOREO EN LINEA PARA REFRIGERADORES DE FARMACOS ONCOLOGICOS» (1075963-403-L126) sumó 12 por texto y
+  quedó en 6 pese a «sin item de software» (−4) e «item de bienes» (−2): sensores de temperatura pasaron el umbral.
+  `noSoftwareItemPenalty` pasa de 4 a 6, el peso de una exclusión: si el comprador no clasificó ningún ítem como
+  software, no lo es. Y una señal nueva: `integral` en el **nombre** resta 2 y etiqueta —Subtrans pasó con 7 con
+  «SERVICIO TECNOLÓGICO INTEGRAL» en el nombre—; solo sobre el nombre, porque Alto Hospicio dice «solución integral»
+  en la descripción y es viable.
 - **D-44** **Dos exclusiones por naturaleza que faltaban en D-36** (11-09-2026). Puerto Montt
   (1057539-138-LP26) es suministro de personal con otra redacción («servicios profesionales personal apoyo
   informática»: seis ingenieros por horas); FONASA «PLATAFORMA DE OBSERVABILIDAD AVANZADA MULTICLOUD»

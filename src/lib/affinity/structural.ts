@@ -20,7 +20,11 @@ export interface StructuralParams {
   canonMax: number;
   /** Cuanto resta un proceso LR (sobre 5.000 UTM). */
   lrPenalty: number;
-  /** Cuanto resta una ficha sin ningun item de software ni servicios informaticos. */
+  /**
+   * Cuanto resta una ficha sin ningun item de software ni servicios informaticos.
+   * Vale lo mismo que una exclusion de texto (D-45): si el comprador no clasifico
+   * nada como software, no lo es.
+   */
   noSoftwareItemPenalty: number;
 }
 
@@ -34,7 +38,9 @@ export const DEFAULT_STRUCTURAL: StructuralParams = {
   canonMin: 800_000,
   canonMax: 3_500_000,
   lrPenalty: 2,
-  noSoftwareItemPenalty: 4,
+  // 6 desde D-45: con 4, los sensores de temperatura de Arica (1075963-403-L126)
+  // sumaban 12 por texto y se quedaban en 6 pese a no tener ningun item de software.
+  noSoftwareItemPenalty: 6,
 };
 
 export interface StructuralInput {
@@ -164,6 +170,16 @@ export function computeStructural(t: StructuralInput, p: StructuralParams = DEFA
   if (cats.some((c) => HARDWARE_CATS.some((r) => r.test(c)))) {
     score -= 2;
     tags.push("item de bienes");
+  }
+
+  // "Integral" en el NOMBRE es la firma de la plataforma de incumbente o del
+  // servicio que lo abarca todo (D-45): el "SERVICIO TECNOLOGICO INTEGRAL RED
+  // REGIONAL" de Subtrans pasaba con 7. Solo sobre el nombre, nunca sobre la
+  // descripcion: Alto Hospicio (3447-142-LE26) dice "solucion integral" en la
+  // descripcion y es viable.
+  if (/\bintegral\b/.test(normalize(t.name))) {
+    score -= 2;
+    tags.push("integral");
   }
 
   // No resta: etiqueta. UFRO decia "DE ACUERDO A REQUERIMIENTO ADJUNTO" y

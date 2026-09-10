@@ -144,7 +144,8 @@ sobre el total. El cálculo está en `src/lib/affinity/structural.ts`; el detall
 | Canon fuera de la banda | −2 | `canon 7.6M` |
 | Tipo de proceso LR | −`lrPenalty` (2) | `LR` |
 | «Adquisición» en el nombre **y** sin duración | −2 | `compra unica` |
-| Ningún ítem de software ni servicios informáticos | −`noSoftwareItemPenalty` (4) | `sin item de software` |
+| Ningún ítem de software ni servicios informáticos | −`noSoftwareItemPenalty` (6 desde D-45) | `sin item de software` |
+| «Integral» en el nombre (no en la descripción) | −2 | `integral` |
 | Algún ítem de equipos, seguros, publicidad, deportes… | −2 | `item de bienes` |
 | Descripción que remite al adjunto | 0 | `sin descripcion util` |
 | Señal de oportunidad: reserva EMT / relanzamiento (D-40) | +2 / +1 | `reservada EMT` / `relanzamiento` |
