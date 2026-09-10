@@ -94,6 +94,26 @@ export const CASOS = [
 ];
 ```
 
+## Primer día de barrido con las reglas de septiembre (11-09-2026)
+
+Ocho casos más, construidos desde `Tender` con los campos de la ficha (nombre, descripción, tipo, monto, duración e
+ítems tal como los devolvió la API), marcados con `muestra: "2026-09-11"` en el fixture. Caen **solo con la ficha**,
+no con el texto: por eso se prueban en `tests/structural.test.ts` con el puntaje completo, y no en el bloque de
+texto de `affinity.test.ts`. Son la evidencia de D-43 a D-47.
+
+| Código | Nombre | Esperado |
+|---|---|---|
+| 3666-12-LE26 | GESTION DOCUMENTAL Y DIGITAL MUNICIPALIDAD TILTIL | entra · vertical DOCUMENT_MGMT |
+| 3019-20-LE26 | SOFTWARE CARRERA FUNCIONARIA APS LOTA | entra |
+| 4099-25-LE26 | Servicio de Arriendo de Gestor Documental | entra · vertical DOCUMENT_MGMT |
+| 188-83-LP26 | Plataforma de Control de Proyectos COMUDEF | entra |
+| 577290-2-LP26 | SERVICIO TECNOLÓGICO INTEGRAL RED REGIONAL | no entra |
+| 1075963-403-L126 | ARRIENDO SISTEMA MONITOREO EN LINEA PARA REFRIGERADORES D… | no entra · etiqueta «sin item de software» |
+| 591-26-LP26 | PLATAFORMA DE OBSERVABILIDAD AVANZADA MULTICLOUD PARA FON… | no entra |
+| 1057539-138-LP26 | SERVICIOS PROFESIONALES PERSONAL APOYO INFORMATICA | no entra · vertical ≠ APPOINTMENTS |
+
+Además, toda licitación con esperado «entra» debe rankear sobre toda «no entra», en las dos muestras juntas.
+
 ## Cómo usarlo
 
 ```ts

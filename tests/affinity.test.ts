@@ -276,15 +276,19 @@ describe("senales de incumbente", () => {
  * Con el motor anterior entraban 13 de las 14 trampas y dos rankeaban sobre
  * cuatro viables. Estas pruebas son el contrato de D-35 a D-40: solo texto y
  * ficha, sin las senales estructurales de docs/15, que se prueban aparte.
+ *
+ * Solo la muestra del 3 al 10: los casos del 11 caen con la ficha, no con el
+ * texto, y viven en `structural.test.ts` con el puntaje completo.
  */
 describe("muestra de septiembre de 2026 (docs/19)", () => {
   const texto = (c: Caso) => `${c.name} ${c.description}`;
   const puntuar = (c: Caso) =>
     evaluate({ text: texto(c), amount: c.amount, processType: c.processType }, INITIAL_RULES);
 
-  const viables = CASOS.filter((c) => c.esperado === "entra");
-  const trampas = CASOS.filter((c) => c.esperado === "no entra");
-  const bajas = CASOS.filter((c) => c.esperado === "entra bajo");
+  const DEL_3 = CASOS.filter((c) => c.muestra === "2026-09-03");
+  const viables = DEL_3.filter((c) => c.esperado === "entra");
+  const trampas = DEL_3.filter((c) => c.esperado === "no entra");
+  const bajas = DEL_3.filter((c) => c.esperado === "entra bajo");
 
   it.each(viables.map((c) => [c.code, c] as const))("entra: %s", (_, c) => {
     expect(puntuar(c).selected).toBe(true);

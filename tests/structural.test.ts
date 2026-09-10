@@ -8,7 +8,7 @@
  * (UFRO, Bulnes) en el tablero pero debajo de toda viable.
  */
 import { describe, expect, it } from "vitest";
-import { detectOpportunitySignals } from "@/lib/affinity/classify";
+import { classifyVertical, detectOpportunitySignals } from "@/lib/affinity/classify";
 import { INITIAL_RULES } from "@/lib/affinity/initial-rules";
 import { DEFAULT_THRESHOLDS, evaluate, withStructural } from "@/lib/affinity/rules";
 import {
@@ -190,19 +190,20 @@ describe("puntaje completo sobre la muestra de septiembre (docs/13, tabla despue
       name: c.name,
       description: c.description,
       estimatedAmount: c.amount,
-      durationValue: c.months,
-      durationUnit: c.months === null ? null : "meses",
+      durationValue: c.durationValue ?? c.months,
+      durationUnit: c.durationUnit ?? (c.months === null ? null : "meses"),
       processType: c.processType,
-      items: { Listado: [{ Categoria: c.item }] },
+      items: { Listado: (c.items ?? [c.item]).map((Categoria) => ({ Categoria })) },
       opportunitySignals: detectOpportunitySignals(texto(c), INITIAL_RULES),
     });
     return { ...withStructural(porTexto, estructural), tags: estructural.tags, texto: porTexto.score };
   }
 
-  const viables = CASOS.filter((c) => c.esperado === "entra");
-  const trampas = CASOS.filter((c) => c.esperado === "no entra");
-  const bajas = CASOS.filter((c) => c.esperado === "entra bajo");
-  const alBorde = CASOS.filter((c) => c.esperado === "al borde");
+  const DEL_3 = CASOS.filter((c) => c.muestra === "2026-09-03");
+  const viables = DEL_3.filter((c) => c.esperado === "entra");
+  const trampas = DEL_3.filter((c) => c.esperado === "no entra");
+  const bajas = DEL_3.filter((c) => c.esperado === "entra bajo");
+  const alBorde = DEL_3.filter((c) => c.esperado === "al borde");
 
   it.each(viables.map((c) => [c.code, c] as const))("viable, entre 14 y 18: %s", (_, c) => {
     const r = total(c);
@@ -239,5 +240,73 @@ describe("puntaje completo sobre la muestra de septiembre (docs/13, tabla despue
     // UFRO: texto de software, descripcion vacia. Bulnes: texto de software, canon de ERP.
     expect(total(bajas[0]).tags).toContain("sin descripcion util");
     expect(total(bajas[1]).tags).toContain("canon 7.6M");
+  });
+});
+
+// --------------------------- primer dia de barrido con las reglas de septiembre
+
+/**
+ * Los 8 casos del 11-09-2026 (docs/19): tres patrones que fallaron el primer dia
+ * con las reglas de septiembre (D-43 a D-47). Caen solo con la ficha: por eso
+ * se prueban aqui con el puntaje completo y no en `affinity.test.ts`.
+ */
+describe("primer dia de barrido con las reglas de septiembre (docs/19, D-43 a D-47)", () => {
+  const texto = (c: Caso) => `${c.name} ${c.description}`;
+
+  function total(c: Caso) {
+    const porTexto = evaluate({ text: texto(c), amount: c.amount, processType: c.processType }, INITIAL_RULES);
+    const estructural = computeStructural({
+      name: c.name,
+      description: c.description,
+      estimatedAmount: c.amount,
+      durationValue: c.durationValue ?? c.months,
+      durationUnit: c.durationUnit ?? (c.months === null ? null : "meses"),
+      processType: c.processType,
+      items: { Listado: (c.items ?? [c.item]).map((Categoria) => ({ Categoria })) },
+      opportunitySignals: detectOpportunitySignals(texto(c), INITIAL_RULES),
+    });
+    return { ...withStructural(porTexto, estructural), tags: estructural.tags };
+  }
+
+  const DEL_11 = CASOS.filter((c) => c.muestra === "2026-09-11");
+  const entran = DEL_11.filter((c) => c.esperado === "entra");
+  const noEntran = DEL_11.filter((c) => c.esperado === "no entra");
+
+  it("son ocho", () => {
+    expect(DEL_11).toHaveLength(8);
+  });
+
+  it.each(entran.map((c) => [c.code, c] as const))("entra: %s", (_, c) => {
+    expect(total(c).selected).toBe(true);
+  });
+
+  it.each(noEntran.map((c) => [c.code, c] as const))("no entra: %s", (_, c) => {
+    expect(total(c).selected).toBe(false);
+  });
+
+  it.each(DEL_11.filter((c) => c.vertical).map((c) => [c.code, c.vertical, c] as const))("%s queda en %s", (_, v, c) => {
+    expect(classifyVertical(texto(c), INITIAL_RULES)).toBe(v);
+  });
+
+  it.each(DEL_11.filter((c) => c.verticalNo).map((c) => [c.code, c.verticalNo, c] as const))(
+    "%s ya no queda en %s",
+    (_, v, c) => {
+      expect(classifyVertical(texto(c), INITIAL_RULES)).not.toBe(v);
+    },
+  );
+
+  it.each(DEL_11.filter((c) => c.tagEsperada).map((c) => [c.code, c.tagEsperada, c] as const))(
+    "%s lleva la etiqueta %s",
+    (_, tag, c) => {
+      expect(total(c).tags).toContain(tag);
+    },
+  );
+
+  it("toda la que entra rankea sobre toda la que no entra, en las dos muestras", () => {
+    const todasEntran = CASOS.filter((c) => c.esperado === "entra");
+    const todasNo = CASOS.filter((c) => c.esperado === "no entra");
+    const peorEntra = Math.min(...todasEntran.map((c) => total(c).score));
+    const mejorNo = Math.max(...todasNo.map((c) => total(c).score));
+    expect(peorEntra).toBeGreaterThan(mejorNo);
   });
 });
