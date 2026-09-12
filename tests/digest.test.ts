@@ -38,6 +38,13 @@ describe("casi entran", () => {
     expect(r[0]).toEqual({ code: "A", name: "Gestor documental", score: 2, vertical: "DOCUMENT_MGMT", tags: [] });
   });
 
+  it("no lista lo que ya tiene ficha, aunque el barrido la haya dejado como no seleccionada", () => {
+    // El barrido reescribe `selected` con el puntaje del nombre solo: una que entro por
+    // su descripcion figura con 2 y no seleccionada, pero ya esta en el tablero.
+    const r = casiEntran(vistas, 3, vertical, MAX_LINEAS, new Set(["A"]));
+    expect(r.map((x) => x.code)).toEqual(["B"]);
+  });
+
   it("respeta el tope", () => {
     const muchas = Array.from({ length: 40 }, (_, i) => ({ code: `X${i}`, name: "n", lastScore: 2, selected: false }));
     expect(casiEntran(muchas, 3, vertical)).toHaveLength(MAX_LINEAS);

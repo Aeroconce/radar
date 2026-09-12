@@ -6,6 +6,10 @@
  *
  * - **Casi entran**: vistas no seleccionadas con puntaje entre umbral−2 y
  *   umbral−1. Un falso negativo real ahi es una regla que falta, con evidencia.
+ *   Lo que ya tiene ficha no cuenta: el barrido reescribe `selected` con el
+ *   puntaje del nombre solo, asi que una que entro por su descripcion (o con
+ *   reglas anteriores) figura como no seleccionada con 2 y ya esta en el
+ *   tablero, o alguien ya la reviso.
  * - **Entraron por poco**: nuevas del tablero con afinidad entre umbral y
  *   umbral+1. Un falso positivo ahi es una exclusion o una senal que falta.
  *
@@ -37,9 +41,10 @@ export function casiEntran(
   umbral: number,
   verticalDe: (name: string) => string,
   max: number = MAX_LINEAS,
+  conFicha: ReadonlySet<string> = new Set(),
 ): LineaDigest[] {
   return vistas
-    .filter((v) => !v.selected && v.lastScore >= umbral - 2 && v.lastScore <= umbral - 1)
+    .filter((v) => !v.selected && !conFicha.has(v.code) && v.lastScore >= umbral - 2 && v.lastScore <= umbral - 1)
     .map((v) => ({ code: v.code, name: v.name, score: v.lastScore, vertical: verticalDe(v.name), tags: [] }))
     .sort(porPuntaje)
     .slice(0, max);

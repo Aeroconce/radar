@@ -43,7 +43,8 @@ entre umbral−2 y umbral−1, con la vertical estimada desde el nombre) y «Ent
 umbral+1, con sus etiquetas estructurales), máximo 15 por sección, ordenadas por puntaje. La segunda lista no
 estaba en el plan original: los falsos positivos también se buscan. La lista de «coinciden con vertical nueva» queda
 pendiente. Desde D-52 (12-09-2026) «Entraron por poco» conserva el filtro de vivas del tablero, como el resto del
-resumen.
+resumen, y «Casi entran» excluye lo que ya tiene ficha: el barrido reescribe `SeenTender.selected` con el puntaje
+del nombre solo, así que una que entró por su descripción figura con 2 y no seleccionada aunque esté en el tablero.
 
 ## Vigilancia por organismo
 

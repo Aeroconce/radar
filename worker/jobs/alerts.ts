@@ -161,6 +161,15 @@ export async function resumenDelDia(now: Date, umbral: number): Promise<ResumenD
     orderBy: { lastScore: "desc" },
     take: 60,
   });
+  // Lo que ya tiene ficha esta en el tablero o ya se reviso: no "casi entra".
+  const conFicha = new Set(
+    (
+      await prisma.tender.findMany({
+        where: { code: { in: vistas.map((v) => v.code) } },
+        select: { code: true },
+      })
+    ).map((t) => t.code),
+  );
   const porPoco = await prisma.tender.findMany({
     where: filtros.entraronPorPoco,
     select: { code: true, name: true, affinityScore: true, vertical: true, structuralTags: true, reviewStatus: true },
@@ -170,7 +179,7 @@ export async function resumenDelDia(now: Date, umbral: number): Promise<ResumenD
   return {
     ...resumen,
     // Las vistas no tienen ficha: la vertical se estima con el nombre y las reglas de hoy.
-    casiEntran: casiEntran(vistas, umbral, (name) => classifyVertical(name, rules)),
+    casiEntran: casiEntran(vistas, umbral, (name) => classifyVertical(name, rules), undefined, conFicha),
     entraronPorPoco: entraronPorPoco(porPoco, umbral),
   };
 }

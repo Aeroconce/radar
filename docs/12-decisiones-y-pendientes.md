@@ -26,7 +26,10 @@
   las cerradas. `NEW_HIGH_AFFINITY` no cambia: nace en el barrido, recién publicada y sobre el umbral alto.
   Consecuencia asumida: una viable o en revisión que baje del umbral por un cambio de reglas deja de aparecer en el
   correo igual que en la pantalla —oculta, no descartada; `pnpm tablero:recalcular` informa cuántas quedaron bajo el
-  umbral y «Mostrar bajo el umbral» las trae de vuelta—.
+  umbral y «Mostrar bajo el umbral» las trae de vuelta—. Al ensayar el resumen del lunes se vio que «Casi entran»
+  (D-51) listaba fichas que ya están en el tablero o descartadas: el barrido reescribe `SeenTender.selected` con el
+  puntaje del nombre solo, y una que entró por su descripción figura con 2 y no seleccionada. Se excluye lo que ya
+  tiene ficha.
 - **D-51** **El resumen de los lunes lista lo que quedó a un paso del umbral, por los dos lados** (11-09-2026;
   lo pendiente de `docs/17`). Dos secciones más en el `DAILY_DIGEST` cuando es lunes en Chile: «Casi entran»
   (`SeenTender` del último barrido, no seleccionadas, puntaje entre umbral−2 y umbral−1, vertical estimada desde el
