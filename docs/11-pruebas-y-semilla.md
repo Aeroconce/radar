@@ -43,6 +43,8 @@ y no un acumulado.
 - `client.test.ts`: ritmo de 3,5 s, espera solo la diferencia, serialización de llamadas concurrentes,
   cuatro reintentos con esperas crecientes ante el código 10500, `Upstream` sin reintento, ticket en la URL.
   Reloj, `sleep` y `fetch` inyectados: sin llamadas reales y sin esperas reales.
+- `alertas.test.ts`: los filtros de la mañana parten del mismo `where` que los chips del tablero (D-52): umbral
+  vigente, vivas en el portal, estados por aviso y ventanas de 5, 1 y 7 días.
 
 **Pendientes**:
 - `classify.test.ts`: vertical para las 356 coincidencias históricas (muestra verificada a mano).

@@ -95,6 +95,16 @@ export function parseFiltros(sp: Record<string, string | undefined>): FiltrosTab
  * para que este modulo se pueda probar sin base y para que tablero y
  * exportacion usen el mismo numero y la misma hora.
  */
+/**
+ * Lo que el tablero muestra sin ninguna casilla marcada: sobre el umbral
+ * vigente (D-46) y vivas en el portal (D-50). Es el punto de partida de
+ * `whereTablero` y lo que miran los avisos de las 08:00 (D-52): si el correo
+ * contara sobre otra cosa, diria "14 nuevas" donde la pantalla muestra 2.
+ */
+export function whereVisibles(umbral: number, ahora: Date): Prisma.TenderWhereInput {
+  return { affinityScore: { gte: umbral }, ...whereVivas(ahora) };
+}
+
 export async function whereTablero(
   f: FiltrosTablero,
   umbral: number = DEFAULT_THRESHOLDS.affinityThreshold,

@@ -13,10 +13,16 @@
  *   trae ademas las que quedaron a un paso del umbral por los dos lados
  *   (docs/17, D-51): cada falso negativo o positivo real es una regla que falta.
  *
+ * Todos miran **lo mismo que muestra el tablero** (D-52): sobre el umbral
+ * vigente y vivas en el portal, el filtro de `whereVisibles`. Antes contaban
+ * sobre toda la tabla: el correo decia "14 nuevas" donde la pantalla mostraba 2
+ * y anunciaba el cierre de licitaciones que una exclusion ya habia sacado.
+ *
  * La tarea solo **encola** (`PENDING`) y despacha al final, como el barrido: si
  * algo falla a mitad, no queda un correo anunciando lo que no se guardo (D-16).
  */
 import type { Prisma } from "@/generated/prisma/client";
+import type { ReviewStatus } from "@/generated/prisma/enums";
 import { classifyVertical } from "@/lib/affinity/classify";
 import { prisma } from "@/lib/db";
 import { jobLogger } from "@/lib/logger";
@@ -24,6 +30,7 @@ import { casiEntran, entraronPorPoco, esLunes, type LineaDigest } from "@/lib/no
 import { dispatchPending } from "@/lib/notifications/dispatch";
 import { ESTADOS } from "@/lib/reviews";
 import { loadRules, loadSettings } from "@/lib/settings";
+import { whereVisibles, whereVivas } from "@/lib/tablero-filtros";
 
 const log = jobLogger("alerts");
 
@@ -51,6 +58,123 @@ export function fechaChile(now: Date): string {
   }).format(now);
 }
 
+/** Con decision humana de por medio: las que reciben recordatorios de plazo. */
+const EN_CARPETA: ReviewStatus[] = ["VIABLE", "IN_REVIEW"];
+
+/** Lo que aun se puede trabajar: entra en los cierres de la semana. */
+const POR_TRABAJAR: ReviewStatus[] = ["NEW", "IN_REVIEW", "VIABLE", "SUBMITTED"];
+
+export interface FiltrosDeLaManana {
+  /** Viables o en revision que cierran en 5 dias o menos. */
+  porCerrar: Prisma.TenderWhereInput;
+  /** Viables o en revision cuyo foro de preguntas cierra dentro de 24 horas. */
+  foroPorCerrar: Prisma.TenderWhereInput;
+  /** Los conteos del resumen: los mismos chips de estado del tablero. */
+  conteo: (estado: ReviewStatus) => Prisma.TenderWhereInput;
+  /** Cierres de la semana: lo del tablero que aun se trabaja y cierra en 7 dias. */
+  semana: Prisma.TenderWhereInput;
+  /** Lunes (D-51): nuevas justo sobre el umbral. */
+  entraronPorPoco: Prisma.TenderWhereInput;
+}
+
+/**
+ * Los filtros de la manana, todos a partir de lo visible en el tablero (D-52).
+ *
+ * Se arman aqui, puros, para poder probar que ninguno se olvide del umbral ni
+ * de las cerradas: el dia que un aviso consulte `Tender` por su cuenta, el
+ * correo y la pantalla vuelven a contar cosas distintas.
+ */
+export function filtrosDeLaManana(now: Date, umbral: number): FiltrosDeLaManana {
+  const visibles = whereVisibles(umbral, now);
+  return {
+    porCerrar: { ...visibles, reviewStatus: { in: EN_CARPETA }, closesAt: { gte: now, lte: ventana(now, 5).hasta } },
+    foroPorCerrar: { ...visibles, reviewStatus: { in: EN_CARPETA }, questionsUntil: { gte: now, lte: ventana(now, 1).hasta } },
+    conteo: (estado) => ({ ...visibles, reviewStatus: estado }),
+    semana: { ...visibles, reviewStatus: { in: POR_TRABAJAR }, closesAt: { gte: now, lte: ventana(now, 7).hasta } },
+    // La banda reemplaza al umbral; las vivas se conservan.
+    entraronPorPoco: { ...whereVivas(now), reviewStatus: "NEW", affinityScore: { gte: umbral, lte: umbral + 1 } },
+  };
+}
+
+/** Lo que va en el cuerpo del `DAILY_DIGEST`. */
+export interface ResumenDelDia {
+  counts: { nuevas: number; enRevision: number; viables: number };
+  closingThisWeek: Array<{ code: string; name: string; closesAt: string | null }>;
+  sweep?: { finishedAt: string | null; ok: boolean | null };
+  casiEntran?: LineaDigest[];
+  entraronPorPoco?: LineaDigest[];
+}
+
+/**
+ * Arma el resumen del dia. Solo lee: no encola ni envia, asi que sirve para
+ * ver desde la consola lo que diria el correo de manana sin mandarlo.
+ */
+export async function resumenDelDia(now: Date, umbral: number): Promise<ResumenDelDia> {
+  const filtros = filtrosDeLaManana(now, umbral);
+  const [nuevas, enRevision, viables, semana, ultimoBarrido] = await Promise.all([
+    prisma.tender.count({ where: filtros.conteo("NEW") }),
+    prisma.tender.count({ where: filtros.conteo("IN_REVIEW") }),
+    prisma.tender.count({ where: filtros.conteo("VIABLE") }),
+    prisma.tender.findMany({
+      where: filtros.semana,
+      orderBy: { closesAt: "asc" },
+      take: 12,
+      select: { code: true, name: true, closesAt: true },
+    }),
+    prisma.jobRun.findFirst({
+      where: { type: "SWEEP", finishedAt: { not: null } },
+      orderBy: { startedAt: "desc" },
+      select: { finishedAt: true, ok: true },
+    }),
+  ]);
+
+  const resumen: ResumenDelDia = {
+    counts: { nuevas, enRevision, viables },
+    closingThisWeek: semana.map((t) => ({
+      code: t.code,
+      name: t.name,
+      closesAt: t.closesAt?.toISOString() ?? null,
+    })),
+    ...(ultimoBarrido
+      ? { sweep: { finishedAt: ultimoBarrido.finishedAt?.toISOString() ?? null, ok: ultimoBarrido.ok } }
+      : {}),
+  };
+  if (!esLunes(now)) return resumen;
+
+  // ------------------------------------------ lunes: a un paso del umbral (D-51)
+  const [rules, ultimoOk] = await Promise.all([
+    loadRules(),
+    prisma.jobRun.findFirst({
+      where: { type: "SWEEP", ok: true },
+      orderBy: { startedAt: "desc" },
+      select: { startedAt: true },
+    }),
+  ]);
+  // Solo las vistas en el ultimo barrido: lo de hace semanas ya cerro.
+  const vistas = await prisma.seenTender.findMany({
+    where: {
+      selected: false,
+      lastScore: { gte: umbral - 2, lte: umbral - 1 },
+      ...(ultimoOk ? { lastSeenAt: { gte: ultimoOk.startedAt } } : {}),
+    },
+    select: { code: true, name: true, lastScore: true, selected: true },
+    orderBy: { lastScore: "desc" },
+    take: 60,
+  });
+  const porPoco = await prisma.tender.findMany({
+    where: filtros.entraronPorPoco,
+    select: { code: true, name: true, affinityScore: true, vertical: true, structuralTags: true, reviewStatus: true },
+    orderBy: { affinityScore: "desc" },
+    take: 60,
+  });
+  return {
+    ...resumen,
+    // Las vistas no tienen ficha: la vertical se estima con el nombre y las reglas de hoy.
+    casiEntran: casiEntran(vistas, umbral, (name) => classifyVertical(name, rules)),
+    entraronPorPoco: entraronPorPoco(porPoco, umbral),
+  };
+}
+
 export interface AlertCounters {
   cierresEncolados: number;
   preguntasEncoladas: number;
@@ -62,6 +186,22 @@ export interface AlertCounters {
 export interface AlertsDeps {
   now?: () => Date;
 }
+
+/** Lo que la plantilla de un aviso por licitacion necesita. */
+const SELECCION_AVISO = {
+  id: true,
+  code: true,
+  name: true,
+  buyerOrganism: true,
+  buyerUnit: true,
+  region: true,
+  processType: true,
+  closesAt: true,
+  questionsUntil: true,
+  estimatedAmount: true,
+  currency: true,
+  reviewStatus: true,
+} satisfies Prisma.TenderSelect;
 
 export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
   const now = (deps.now ?? (() => new Date()))();
@@ -75,28 +215,12 @@ export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
   };
 
   try {
+    // El umbral vigente decide que es "el tablero" (D-46, D-52).
+    const { affinityThreshold: umbral } = await loadSettings();
+    const filtros = filtrosDeLaManana(now, umbral);
+
     // ------------------------------------------------------------ CLOSING_SOON
-    const cierre = ventana(now, 5);
-    const porCerrar = await prisma.tender.findMany({
-      where: {
-        reviewStatus: { in: ["VIABLE", "IN_REVIEW"] },
-        closesAt: { gte: cierre.desde, lte: cierre.hasta },
-      },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        buyerOrganism: true,
-        buyerUnit: true,
-        region: true,
-        processType: true,
-        closesAt: true,
-        questionsUntil: true,
-        estimatedAmount: true,
-        currency: true,
-        reviewStatus: true,
-      },
-    });
+    const porCerrar = await prisma.tender.findMany({ where: filtros.porCerrar, select: SELECCION_AVISO });
 
     for (const t of porCerrar) {
       const creada = await prisma.notification.createMany({
@@ -114,27 +238,7 @@ export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
     }
 
     // -------------------------------------------------------- QUESTIONS_CLOSING
-    const preguntas = ventana(now, 1);
-    const foroPorCerrar = await prisma.tender.findMany({
-      where: {
-        reviewStatus: { in: ["VIABLE", "IN_REVIEW"] },
-        questionsUntil: { gte: preguntas.desde, lte: preguntas.hasta },
-      },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        buyerOrganism: true,
-        buyerUnit: true,
-        region: true,
-        processType: true,
-        closesAt: true,
-        questionsUntil: true,
-        estimatedAmount: true,
-        currency: true,
-        reviewStatus: true,
-      },
-    });
+    const foroPorCerrar = await prisma.tender.findMany({ where: filtros.foroPorCerrar, select: SELECCION_AVISO });
 
     for (const t of foroPorCerrar) {
       const creada = await prisma.notification.createMany({
@@ -152,82 +256,14 @@ export async function alerts(deps: AlertsDeps = {}): Promise<AlertCounters> {
     }
 
     // -------------------------------------------------------------- DAILY_DIGEST
-    const [nuevas, enRevision, viables, semana, ultimoBarrido] = await Promise.all([
-      prisma.tender.count({ where: { reviewStatus: "NEW" } }),
-      prisma.tender.count({ where: { reviewStatus: "IN_REVIEW" } }),
-      prisma.tender.count({ where: { reviewStatus: "VIABLE" } }),
-      prisma.tender.findMany({
-        where: {
-          reviewStatus: { in: ["NEW", "IN_REVIEW", "VIABLE", "SUBMITTED"] },
-          closesAt: { gte: now, lte: ventana(now, 7).hasta },
-        },
-        orderBy: { closesAt: "asc" },
-        take: 12,
-        select: { code: true, name: true, closesAt: true },
-      }),
-      prisma.jobRun.findFirst({
-        where: { type: "SWEEP", finishedAt: { not: null } },
-        orderBy: { startedAt: "desc" },
-        select: { finishedAt: true, ok: true },
-      }),
-    ]);
-
-    // ------------------------------------------ lunes: a un paso del umbral (D-51)
-    let lunes: { casiEntran: LineaDigest[]; entraronPorPoco: LineaDigest[] } | null = null;
-    if (esLunes(now)) {
-      const [settings, rules, ultimoOk] = await Promise.all([
-        loadSettings(),
-        loadRules(),
-        prisma.jobRun.findFirst({
-          where: { type: "SWEEP", ok: true },
-          orderBy: { startedAt: "desc" },
-          select: { startedAt: true },
-        }),
-      ]);
-      const umbral = settings.affinityThreshold;
-      // Solo las vistas en el ultimo barrido: lo de hace semanas ya cerro.
-      const vistas = await prisma.seenTender.findMany({
-        where: {
-          selected: false,
-          lastScore: { gte: umbral - 2, lte: umbral - 1 },
-          ...(ultimoOk ? { lastSeenAt: { gte: ultimoOk.startedAt } } : {}),
-        },
-        select: { code: true, name: true, lastScore: true, selected: true },
-        orderBy: { lastScore: "desc" },
-        take: 60,
-      });
-      const nuevas = await prisma.tender.findMany({
-        where: { reviewStatus: "NEW", affinityScore: { gte: umbral, lte: umbral + 1 } },
-        select: { code: true, name: true, affinityScore: true, vertical: true, structuralTags: true, reviewStatus: true },
-        orderBy: { affinityScore: "desc" },
-        take: 60,
-      });
-      lunes = {
-        // Las vistas no tienen ficha: la vertical se estima con el nombre y las reglas de hoy.
-        casiEntran: casiEntran(vistas, umbral, (name) => classifyVertical(name, rules)),
-        entraronPorPoco: entraronPorPoco(nuevas, umbral),
-      };
-    }
-
     const resumen = await prisma.notification.createMany({
       data: [
         {
           dedupeKey: `DAILY_DIGEST:${fechaChile(now)}`,
           type: "DAILY_DIGEST",
           tenderId: null,
-          payload: {
-            counts: { nuevas, enRevision, viables },
-            closingThisWeek: semana.map((t) => ({
-              code: t.code,
-              name: t.name,
-              closesAt: t.closesAt?.toISOString() ?? null,
-            })),
-            sweep: ultimoBarrido
-              ? { finishedAt: ultimoBarrido.finishedAt?.toISOString() ?? null, ok: ultimoBarrido.ok }
-              : undefined,
-            ...(lunes ?? {}),
-            // Las claves opcionales del lunes no encajan en InputJsonValue sin pasar por unknown.
-          } as unknown as Prisma.InputJsonValue,
+          // Las claves opcionales del lunes no encajan en InputJsonValue sin pasar por unknown.
+          payload: (await resumenDelDia(now, umbral)) as unknown as Prisma.InputJsonValue,
         },
       ],
       skipDuplicates: true,

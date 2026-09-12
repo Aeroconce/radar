@@ -8,7 +8,7 @@ Proceso separado (`pnpm worker`), mismo repositorio, mismo `DATABASE_URL`. Cada 
 | `refresh` | manual | Vuelve a pedir **todas** las fichas guardadas y las deja al día, con el puntaje y la clasificación de las reglas de ahora. No entra al cron: son tantas llamadas como licitaciones en el tablero. No toca `reviewStatus`. `pnpm worker:refrescar`. |
 | `history` (RF-05) | diario 04:00 | `getAwardedOn(ayer)`; para las coincidentes con las reglas (mismo motor, umbral 3): ficha, acta y parseo; crear `HistoricalAward` y `HistoricalBid`. Ejecución manual con rango de fechas: `pnpm worker:historico -- 2026-08-01 2026-08-31`. |
 | `awards` | diario 06:00 | Para `Tender` en SUBMITTED, VIABLE o IN_REVIEW con `awardEstimatedAt` ≤ hoy + 15 días: pedir ficha; si trae `Adjudicacion.UrlActa`, parsear el acta, guardar en el histórico y disparar `AWARD_PUBLISHED`. |
-| `alerts` (RF-10) | diario 08:00 | `CLOSING_SOON`: VIABLE o IN_REVIEW con cierre en ≤ 5 días. `QUESTIONS_CLOSING`: IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h. `DAILY_DIGEST`: resumen con nuevas del día, en revisión, viables y cierres de la semana. |
+| `alerts` (RF-10) | diario 08:00 | `CLOSING_SOON`: VIABLE o IN_REVIEW con cierre en ≤ 5 días. `QUESTIONS_CLOSING`: IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h. `DAILY_DIGEST`: resumen con nuevas del día, en revisión, viables y cierres de la semana. Todos sobre lo que muestra el tablero: umbral vigente y vivas en el portal (D-52). |
 | `cleanup` | semanal, domingo 03:00 | Archivar `JobRun` de más de 90 días; purgar `SeenTender` no vistas en 30 días. |
 
 ## Por qué hace falta refrescar a mano

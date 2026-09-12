@@ -507,7 +507,7 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
               })
               .join("")}
             </table></div>`
-        : `<p style="margin:26px 0 0;font-family:${SANS};font-size:14px;color:${MUTED}">Ninguna licitación cierra esta semana.</p>`;
+        : `<p style="margin:26px 0 0;font-family:${SANS};font-size:14px;color:${MUTED}">Ninguna licitación del tablero cierra esta semana.</p>`;
 
       /*
        * Los lunes (D-51): las que quedaron a un paso del umbral por los dos
@@ -570,7 +570,7 @@ export function renderNotice(type: NotificationType, p: NoticePayload): EmailCon
             lunes +
             barrido +
             buttons({ href: BASE, label: "Abrir el tablero" }),
-          footer: "Resumen automático de las 08:00. Los avisos por licitación llegan aparte.",
+          footer: "Resumen automático de las 08:00 sobre lo que muestra el tablero. Los avisos por licitación llegan aparte.",
         }),
         text: plain(
           `Resumen del ${formatDate(new Date())}`,

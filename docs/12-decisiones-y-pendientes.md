@@ -16,6 +16,17 @@
 - **D-14** **nginx, no Caddy**, para TLS y proxy inverso. No fue una elección: el servidor no tiene Caddy y los ocho sitios existentes corren sobre nginx. La guía decía Caddy por error.
 - **D-15** **`LS` se representa pero no se selecciona.** El enum `ProcessType` lo incluye porque la API puede devolverlo, pero el motor no lo toma por defecto (servicios personales especializados, fuera del perfil). Representar no es seleccionar.
 - **D-16** **Los avisos se registran antes de enviarse.** `Notification` nace `PENDING` y pasa a `SENT` con el `providerId` de Resend o a `FAILED` con el error, para que un fallo quede registrado y sea reintentable, como exige `docs/08`.
+- **D-52** **Los avisos de las 08:00 miran lo mismo que el tablero** (12-09-2026). El resumen de ese día decía «14
+  nuevas · 3 en revisión · 4 viables» y listaba como cierres de la semana el reloj biométrico (1057512-10-LE26) y
+  ServiceTonic (1020-46-LE26), mientras el tablero mostraba 2 nuevas, ninguna en revisión (las tres son cerradas que
+  D-50 oculta) y las dos «cierres» estaban en −2 desde D-49: `worker/jobs/alerts.ts` consultaba `Tender` sin aplicar
+  ni el umbral (D-46) ni las vivas (D-50). Ahora los cuatro avisos —`CLOSING_SOON`, `QUESTIONS_CLOSING`, los conteos
+  y cierres del `DAILY_DIGEST` y «Entraron por poco» de D-51— parten de `whereVisibles` (`src/lib/tablero-filtros.ts`),
+  el mismo punto de partida de `whereTablero`, y `tests/alertas.test.ts` exige que ninguno se olvide del umbral ni de
+  las cerradas. `NEW_HIGH_AFFINITY` no cambia: nace en el barrido, recién publicada y sobre el umbral alto.
+  Consecuencia asumida: una viable o en revisión que baje del umbral por un cambio de reglas deja de aparecer en el
+  correo igual que en la pantalla —oculta, no descartada; `pnpm tablero:recalcular` informa cuántas quedaron bajo el
+  umbral y «Mostrar bajo el umbral» las trae de vuelta—.
 - **D-51** **El resumen de los lunes lista lo que quedó a un paso del umbral, por los dos lados** (11-09-2026;
   lo pendiente de `docs/17`). Dos secciones más en el `DAILY_DIGEST` cuando es lunes en Chile: «Casi entran»
   (`SeenTender` del último barrido, no seleccionadas, puntaje entre umbral−2 y umbral−1, vertical estimada desde el

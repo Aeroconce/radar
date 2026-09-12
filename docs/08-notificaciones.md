@@ -17,13 +17,20 @@ abrir el correo, y es lo que decide si se abre. «Cierra en 3 días · Sistema d
 | Tipo | Cuándo | Asunto |
 |---|---|---|
 | NEW_HIGH_AFFINITY | Al crear una licitación con afinidad ≥ umbral alto | `Nueva licitación afín: <nombre>` |
-| CLOSING_SOON | 08:00, VIABLE o IN_REVIEW con cierre en ≤ 5 días | `Cierra en <n> días: <nombre>` |
-| QUESTIONS_CLOSING | 08:00, IN_REVIEW o VIABLE con fin de preguntas en ≤ 24 h | `Preguntas cierran mañana: <nombre>` |
+| CLOSING_SOON | 08:00, VIABLE o IN_REVIEW del tablero con cierre en ≤ 5 días | `Cierra en <n> días: <nombre>` |
+| QUESTIONS_CLOSING | 08:00, IN_REVIEW o VIABLE del tablero con fin de preguntas en ≤ 24 h | `Preguntas cierran mañana: <nombre>` |
 | AWARD_PUBLISHED | Al detectar acta de una SUBMITTED | `Acta publicada: <nombre>` |
-| DAILY_DIGEST (los lunes trae además «Casi entran» y «Entraron por poco», las que quedaron a un paso del umbral por los dos lados; D-51, `docs/17`) | 08:00 | `Radar — resumen del <fecha>` |
+| DAILY_DIGEST (los lunes trae además «Casi entran» y «Entraron por poco», las que quedaron a un paso del umbral por los dos lados; D-51, `docs/17`) | 08:00, sobre lo que muestra el tablero (D-52) | `Radar — resumen del <fecha>` |
 
 El resumen diario incluye además **el estado del último barrido** (RN-07). Es el único lugar donde el equipo
 se entera de que el worker falló sin tener que entrar al servidor.
+
+Todos los avisos de las 08:00 parten del **mismo filtro que la pantalla** (`whereVisibles` en
+`src/lib/tablero-filtros.ts`: sobre el umbral vigente y vivas en el portal; D-46, D-50, D-52). Lo que el tablero
+oculta, el correo no lo cuenta ni lo anuncia. El 12-09-2026 el resumen decía «14 nuevas» donde el tablero mostraba 2,
+y listaba cierres de licitaciones que una exclusión ya había sacado: el worker consultaba `Tender` por su cuenta.
+`resumenDelDia` en `worker/jobs/alerts.ts` solo lee, así que el correo de mañana se puede ver desde la consola sin
+enviarlo.
 
 ## Qué lleva el cuerpo
 

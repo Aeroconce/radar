@@ -124,7 +124,7 @@ describe("contenido de los avisos", () => {
 
   it("el resumen sin cierres lo dice, en vez de mostrar una tabla vacia", () => {
     const c = renderNotice("DAILY_DIGEST", { ...payload, closingThisWeek: [] });
-    expect(c?.html).toContain("Ninguna licitación cierra esta semana");
+    expect(c?.html).toContain("Ninguna licitación del tablero cierra esta semana");
   });
 
   it("el asunto del resumen trae los numeros, para leerlo sin abrirlo", () => {

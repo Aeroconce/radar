@@ -6,7 +6,7 @@
  * base (la busqueda con unaccent) se prueba a mano.
  */
 import { describe, expect, it } from "vitest";
-import { parseFiltros, whereTablero, whereVivas } from "@/lib/tablero-filtros";
+import { parseFiltros, whereTablero, whereVisibles, whereVivas } from "@/lib/tablero-filtros";
 
 /** Reloj fijo: el filtro de cerradas compara contra la hora que se le pasa. */
 const AHORA = new Date("2026-09-11T15:00:00.000Z");
@@ -40,6 +40,11 @@ describe("parseFiltros", () => {
     const f = parseFiltros({});
     expect(f.estados).toEqual([]);
     expect(await whereTablero(f, 3, AHORA)).toEqual({ affinityScore: { gte: 3 }, ...VIVAS });
+  });
+
+  it("whereVisibles es exactamente el tablero sin casillas, para que los avisos cuenten lo mismo (D-52)", async () => {
+    expect(whereVisibles(3, AHORA)).toEqual(await whereTablero(parseFiltros({}), 3, AHORA));
+    expect(whereVisibles(5, AHORA)).toEqual(await whereTablero(parseFiltros({}), 5, AHORA));
   });
 
   it("usa el umbral vigente de Setting, no un numero fijo", async () => {
